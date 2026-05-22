@@ -1,0 +1,150 @@
+seed_id: seed-brandaid-mvp-v1
+project: brandaid
+created_at: 2026-05-20T00:00:00Z
+last_updated: 2026-05-20T00:00:00Z
+source: gap-fill-interview
+reference_doc: C:/Users/Sajarun Sadia/Downloads/brandaid_complete_knowledge.md
+
+goal:
+  statement: >
+    Build a demo-ready hackathon MVP of BrandAid — an AI-powered marketing
+    campaign simulation platform. A marketer submits a domain URL; the system
+    auto-builds a BusinessProfile via a real crawl; the marketer runs a
+    conversational campaign brief flow for Awareness, Consideration, or
+    Conversion goals; and BrandAid produces pre-launch predictions with
+    reasoning. The headline hero moment: applying 2 AI recommendations visibly
+    jumps the predicted ROAS in a before/after comparison.
+  measurable_outcome: >
+    A judge can complete the full flow end-to-end (URL → profile → brief →
+    simulation → recommendations → rerun → before/after ROAS flip → launch
+    plan) on live demo in under 10 minutes.
+  primary_user: "Mid-market SME marketing manager (Mr. X persona — doc §5)."
+
+constraints:
+  hard:
+    - "Stack TBD: frontend + backend stack decisions deferred until after P3-design. PM artifacts (seed + PRD) MUST remain stack-agnostic on functional content."
+    - "Auth: mock only (single hardcoded demo user). No JWT, no organizations, no multi-tenancy."
+    - "AI provider: OpenAI API only (NOT Claude/Anthropic as doc §18 originally specifies). Suggested models: gpt-4o-mini for vision + extraction; gpt-4o for reasoning narratives."
+    - "Database: PostgreSQL."
+    - "Creative uploads: local filesystem (uploads/), not S3."
+    - "Persistence: multi-campaign per user — BusinessProfile + Campaigns persist across sessions."
+    - "Locale: English-only UI."
+    - "Currency: BDT/USD toggle. Benchmark dataset adjusts per currency."
+    - "Campaign goals in MVP: Awareness + Consideration + Conversion. Retention + Advocacy show 'coming soon' state."
+    - "Journey scope: Stages 0–4 (Knowledge Base → Brief → Simulation → Iteration → Launch Plan). Stage 5 (Post-Launch) OUT of MVP."
+    - "Simulation pipeline reality: Layer 1 (creative vision scoring), Layer 5 (recommendations), and per-flag/per-metric reasoning narratives use REAL OpenAI calls. Layer 3 (persona simulation) is OUT of MVP. Layer 4 (quantitative forecasting) is FULLY DETERMINISTIC — backed by a static benchmark JSON dataset."
+    - "Crawl: real fetch + parse, up to 15 pages, OpenAI-powered extraction. Login-gated pages skipped."
+    - "Creative vision scoring: cached by SHA256 of image bytes so repeated demos are instant."
+  soft:
+    - "Design language: Growth Emerald (doc §2 + §17). Primary #059669. Arial typography. Light theme primary."
+    - "P3 screen target: ~12–16 distinct HTML pages."
+    - "No pre-seeded demo BusinessProfile — judges bring their own URL."
+
+acceptance_criteria:
+  functional:
+    knowledge_base:
+      - "Landing page presents a single URL input — no forms, no wizard (per doc §7)."
+      - "Backend crawls up to 15 pages in priority order (homepage → about → products → pricing → blog → footer → testimonials → FAQ). Login-gated skipped."
+      - "Animated crawl narration shows the 7 progress steps from doc §7 during crawl."
+      - "After crawl, BusinessProfile card displays 5 editable sections: what you sell, who you sell to, your brand, your channels, business basics."
+      - "Every section supports inline edit; user edits flag fields as user_verified=true."
+      - "Confidence score shown transparently with bands: 85–100% rich, 65–84% good, 40–64% thin, <40% very limited."
+      - "Gap enrichment: 5 optional questions (monthly revenue range, past paid marketing experience, biggest current marketing challenge, primary 90-day business goal, anything your website doesn't show). All skippable."
+      - "Profile persists per user; user can revisit and re-edit."
+    campaign_brief:
+      - "Conversational chat-style UI with right-hand side panel that updates in real time as brief fields are filled."
+      - "Goal selection grid presents 5 stage cards; only Awareness / Consideration / Conversion are clickable. Retention + Advocacy show 'coming soon'."
+      - "Sub-goals: 4 for Awareness (New Brand, Repositioning, Product Launch, Market Expansion), 3 for Consideration (Lead Generation, Engagement & Education, Traffic & Intent), 3 for Conversion (Direct Purchase, Sign-up/Trial, Promotional/Flash Sale)."
+      - "Campaign type selection (chips) per goal, filtered to types defined in doc §13."
+      - "Multi-platform calibration: ONE past-performance question covers all selected channels (below / around / above average + optional anchor data point)."
+      - "Landing page scoring active for Consideration: backend fetches destination URL and scores above-fold clarity, CTA presence, form friction, load signal, message match. Score < 6/10 is flagged."
+      - "Creative upload accepts JPG/PNG; stored under uploads/. Real OpenAI gpt-4o-mini vision call scores attention / clarity / emotional resonance / CTA strength. Cached by SHA256."
+      - "Budget slider + campaign timing picker."
+      - "Submit creates a Campaign + initial SimulationRun."
+    simulation_output:
+      - "Dashboard shows 4 headline metric cards with predicted value + confidence interval (low–high range)."
+      - "Per-metric 'why' tooltip with 1–2 sentence reasoning (OpenAI-generated)."
+      - "Top 3 green flags (working) + top 3 red flags (suppressing performance) panels."
+      - "Per-channel breakdown table when ≥2 campaign types selected, with audience de-duplication (0.65–0.85 factor) and synergy multiplier (1.2–1.5) applied per doc §16."
+      - "Overall confidence score visible with band label."
+      - "Ranked recommendation list (3–5 items). Each shows predicted impact delta and reasoning."
+      - "User can select recommendations and click 'Apply & rerun'."
+      - "After rerun, side-by-side before/after view shows old vs new predicted metrics — ROAS visibly jumps (hero moment)."
+    launch_plan:
+      - "After user accepts a simulation, Launch Plan screen generates: setup checklist, creative brief summary, audience targeting summary, tracking setup, optimization calendar (2–4 weeks), risk flags from the simulation."
+      - "Plan is copyable / downloadable."
+    forecasting_engine:
+      - "Layer 4 forecasting is fully deterministic. Given (industry, channel, geo, budget, calibration signal, creative score, business model), returns predicted (reach, impressions, CPM, frequency, recall lift, CTR, CPC, CVR, CPA, ROAS) with confidence intervals."
+      - "Benchmark JSON minimum coverage: 10+ industries, 8+ channels (Meta, Google Search, Google Display, TikTok, LinkedIn, YouTube, Email, WhatsApp, Influencer), 5+ geographies (BD, IN, US, UK, Generic), 4 business models (D2C, SaaS, Services, Local), seasonal indices (Eid, Ramadan, Christmas, Fiscal-year)."
+      - "Persona simulation (Layer 3) is OUT of MVP."
+      - "Recommendation generation (Layer 5) consumes deterministic numeric outputs + green/red flag scoring, asks OpenAI for ranked recommendation list with impact and rationale."
+  non_functional:
+    - "Hero ROAS-flip moment is REPRODUCIBLE: same inputs + same applied recommendations yield same numeric output."
+    - "Crawl + extraction completes within 30s for typical SME site; graceful failure on timeout."
+    - "Creative vision scoring returns within 10s on cache miss, <1s on cache hit."
+    - "Simulation rerun (after applying recs) completes within ~3s."
+    - "Growth Emerald palette honored. WCAG AA contrast on body text."
+
+ontology:
+  - term: BusinessProfile
+    definition: "Persistent business knowledge per user/account, built from domain crawl + gap enrichment. Contains business basics, products/services, audience signals, brand voice, detected channels, confidence score, crawl metadata."
+  - term: Campaign
+    definition: "One marketing campaign instance owned by a BusinessProfile. Contains a CampaignBrief, one or more SimulationRuns, and a LaunchPlan once accepted."
+  - term: CampaignBrief
+    definition: "Structured input to a simulation: goal (Awareness/Consideration/Conversion), sub-goal, selected campaign types, creative asset reference, audience calibration signal, budget, timing window, destination URL (if Consideration)."
+  - term: SimulationRun
+    definition: "One execution of the prediction pipeline against a brief snapshot. Holds predicted metrics with confidence intervals, evaluation scores (10 weighted criteria for the stage), green/red flags, ranked recommendations."
+  - term: Recommendation
+    definition: "Specific actionable change with predicted impact (delta on a key metric) and reasoning text. Applied recs modify brief inputs for the next SimulationRun."
+  - term: LaunchPlan
+    definition: "Post-acceptance deliverable: setup checklist, creative brief, audience targeting summary, tracking setup, optimization calendar, risk flags."
+  - term: CampaignGoal
+    definition: "One of 5 funnel stages: Awareness, Consideration, Conversion, Retention, Advocacy. First three live in MVP."
+  - term: CampaignType
+    definition: "Channel-specific tactic (Social Paid/Organic, Video, Google Search/Display, Influencer, Content/SEO, Email, WhatsApp/SMS, Retargeting). Available types filtered by selected CampaignGoal."
+  - term: CreativeScore
+    definition: "Structured score of an uploaded creative from OpenAI vision. Components: attention, clarity, emotional resonance, CTA strength. Cached by image SHA256."
+  - term: ConfidenceScore
+    definition: "0–100 score on simulation output, derived from BusinessProfile richness + calibration presence + benchmark coverage. Higher = tighter confidence intervals."
+  - term: Benchmark
+    definition: "Static reference value (CPM, CTR, CVR, etc.) keyed on (industry, channel, geography, business model, season) used by the deterministic forecasting layer."
+
+evaluation_principles:
+  - name: hero-moment-fidelity
+    weight: 0.25
+    method: "On a fresh demo with a realistic SME URL, baseline ROAS prediction is produced; applying top 2 recommendations yields a visibly higher ROAS in the before/after view."
+  - name: explainability
+    weight: 0.20
+    method: "Every metric has accompanying reasoning (tooltip + green/red flags). Every recommendation states predicted impact + rationale."
+  - name: stack-rule-compliance
+    weight: 0.15
+    method: "Post-P3 stack choice followed per .claude/rules/stacks/ (architecture, naming, file layout) for the selected stack."
+  - name: design-fidelity
+    weight: 0.15
+    method: "React implementation matches HTML prototypes ≥85% (html-prototype-coverage gate). Growth Emerald palette honored."
+  - name: demo-reliability
+    weight: 0.15
+    method: "Crawl completes/fails gracefully within 30s. Vision scoring ≤10s. Forecasting deterministic — same inputs = same outputs."
+  - name: functional-completeness
+    weight: 0.10
+    method: "All acceptance_criteria.functional pass end-to-end."
+
+exit_conditions:
+  - "Ambiguity score ≤ 0.2 (current: 0.095 — PASS)"
+  - "Seed reviewed + approved by user"
+  - "PIPELINE_STATUS.md initialized with PM-track rows"
+
+ambiguity_assessment:
+  goal_clarity: 0.95
+  constraint_clarity: 0.90
+  success_clarity: 0.85
+  ambiguity_score: 0.095
+  verdict: PASS
+
+deferred_decisions:
+  - decision: "Frontend + backend stack"
+    deferred_until: "After P3-design (HTML approval)"
+    reminder: "PM agent will remind user to choose stack before /fullstack-dev is invoked."
+  - decision: "Exact benchmark JSON numeric values"
+    deferred_until: "D-phase (database / backend implementation)"
+    reminder: "Spec requires the dataset shape + coverage; numbers are dev-time work."

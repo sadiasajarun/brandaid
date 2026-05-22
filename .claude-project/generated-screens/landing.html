@@ -1,0 +1,3304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BrandAid — Predict Every Campaign Before You Launch</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --indigo:         #4338CA;
+      --indigo-dark:    #3730A3;
+      --indigo-bright:  #6366F1;
+      --indigo-light:   #A5B4FC;
+      --indigo-wash:    #EEF2FF;
+      --indigo-mist:    #E0E7FF;
+      --cyan:           #06B6D4;
+      --cyan-bright:    #22D3EE;
+      --cyan-light:     #67E8F9;
+      --cyan-wash:      #ECFEFF;
+      --cyan-dark:      #0891B2;
+      --cyan-deep:      #0E7490;
+      --midnight:       #0F172A;
+      --slate:          #1E293B;
+      --slate-mid:      #334155;
+      --neutral:        #64748B;
+      --light-neutral:  #94A3B8;
+      --border:         #E2E8F0;
+      --white:          #FFFFFF;
+      --page-bg:        #FAFAFE;
+      --success:        #10B981;
+      --success-soft:   #DCFCE7;
+      --success-dark:   #166534;
+      --danger-soft:    #FEE2E2;
+      --danger:         #EF4444;
+      --warning-soft:   #FEF3C7;
+      --warning:        #F59E0B;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 15px;
+      line-height: 1.7;
+      color: var(--midnight);
+      background: var(--white);
+      overflow-x: hidden;
+    }
+    a { color: inherit; text-decoration: none; }
+    button { font-family: inherit; cursor: pointer; }
+    input { font-family: inherit; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+
+    /* ============ Pills ============ */
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 20px;
+      padding: 6px 14px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      line-height: 1;
+    }
+    .pill.indigo    { background: var(--indigo-mist); color: var(--indigo-dark); }
+    .pill.amber     { background: var(--warning-soft); color: #92400E; }
+    .pill.danger    { background: var(--danger-soft); color: #DC2626; }
+    .pill.dark-em   { background: rgba(67,56,202,0.15); color: var(--indigo-bright); }
+    .pill.solid-em  { background: var(--indigo); color: var(--white); }
+    .pill.lightning { background: var(--warning-soft); color: #92400E; }
+    .pill-grad {
+      background: linear-gradient(90deg, var(--indigo-wash) 0%, var(--indigo-mist) 100%);
+      color: var(--indigo-dark);
+      border: 1px solid var(--indigo-light);
+      letter-spacing: 0.05em;
+    }
+    .pill .pulse-dot-mini {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--indigo);
+      animation: pulse-dot 1.6s ease-in-out infinite;
+    }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%      { opacity: 0.5; transform: scale(0.7); }
+    }
+
+    /* ============ Squiggly underline ============ */
+    .squig-wrap { position: relative; display: inline-block; }
+    .squig {
+      position: absolute;
+      bottom: -6px;
+      left: 0;
+      width: 100%;
+      height: 14px;
+      pointer-events: none;
+    }
+
+    /* ============ SECTION 1: Navigation ============ */
+    .nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 64px;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+      z-index: 100;
+      transition: box-shadow 0.3s ease, background 0.3s ease;
+    }
+    .nav.scrolled {
+      background: rgba(255,255,255,1);
+      box-shadow: 0 1px 0 var(--indigo-mist);
+    }
+    .nav-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo { display: inline-flex; align-items: center; gap: 10px; }
+    .logo-icon {
+      width: 30px; height: 30px;
+      background: var(--indigo);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--white);
+      font-size: 20px;
+      font-weight: 700;
+      line-height: 1;
+    }
+    .logo-text {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--midnight);
+      letter-spacing: -0.01em;
+    }
+    .logo-text.white { color: var(--white); }
+    .nav-links { display: flex; gap: 32px; }
+    .nav-links a { font-size: 14px; color: var(--neutral); transition: color 0.2s ease; }
+    .nav-links a:hover { color: var(--indigo); }
+    .nav-right { display: flex; align-items: center; gap: 12px; }
+    .nav-signin {
+      font-size: 14px; color: var(--neutral);
+      background: none; border: none; padding: 8px 4px;
+      transition: color 0.2s ease;
+    }
+    .nav-signin:hover { color: var(--indigo); }
+    .nav-divider { width: 1px; height: 20px; background: var(--border); }
+    .nav-cta {
+      background: linear-gradient(135deg, var(--cyan-bright) 0%, var(--cyan) 100%);
+      color: var(--white);
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      transition: all 0.25s ease;
+      box-shadow: 0 4px 14px -4px rgba(6,182,212,0.45);
+    }
+    .nav-cta:hover {
+      background: linear-gradient(135deg, var(--cyan) 0%, var(--cyan-dark) 100%);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 18px -4px rgba(6,182,212,0.6);
+    }
+    .hamburger {
+      display: none;
+      width: 36px; height: 36px;
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 4px;
+    }
+    .hamburger span {
+      width: 18px; height: 2px;
+      background: var(--midnight);
+      border-radius: 2px;
+    }
+    .mobile-menu {
+      display: none;
+      position: fixed;
+      top: 64px; left: 0; right: 0;
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 24px;
+      z-index: 99;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .mobile-menu.open { display: flex; }
+    .mobile-menu a { font-size: 15px; color: var(--slate); padding: 8px 0; }
+    .mobile-menu .nav-cta { margin-top: 8px; }
+
+    /* ============ Scroll fade-in ============ */
+    .animate-on-scroll {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .animate-on-scroll.in-view {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ============ SECTION 2: Hero — Predict Outcome ============ */
+    .hero {
+      position: relative;
+      min-height: auto;
+      padding: 88px 24px 36px;
+      overflow: hidden;
+      background: linear-gradient(180deg, #FFFFFF 0%, #EEF2FF 60%, #E0E7FF 100%);
+    }
+    .hero-blob-top {
+      position: absolute;
+      top: -200px; right: -200px;
+      width: 700px; height: 700px;
+      background: radial-gradient(circle, rgba(165,180,252,0.4) 0%, transparent 60%);
+      border-radius: 50%;
+      z-index: 0;
+      filter: blur(40px);
+      pointer-events: none;
+    }
+    .hero-blob-bottom {
+      position: absolute;
+      bottom: -200px; left: -150px;
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(34,211,238,0.25) 0%, transparent 65%);
+      border-radius: 50%;
+      z-index: 0;
+      filter: blur(30px);
+      pointer-events: none;
+    }
+    .hero-dot-grid {
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(circle, rgba(67,56,202,0.08) 1px, transparent 1px);
+      background-size: 28px 28px;
+      opacity: 0.6;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* ---- Hero copy block ---- */
+    .hero-copy {
+      position: relative;
+      z-index: 2;
+      max-width: 900px;
+      margin: 0 auto 24px;
+      text-align: center;
+    }
+
+    .ai-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(67,56,202,0.08);
+      border: 1px solid rgba(67,56,202,0.2);
+      padding: 8px 16px;
+      border-radius: 30px;
+      margin-bottom: 18px;
+    }
+    .ai-pill-icon { width: 12px; height: 12px; color: var(--indigo); }
+    .ai-pill-text {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      color: var(--indigo);
+    }
+    .ai-pill-pulse {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--cyan);
+      animation: ai-pulse 2s ease-in-out infinite;
+    }
+    @keyframes ai-pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%      { opacity: 0.4; transform: scale(0.6); }
+    }
+
+    .hero-title {
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 56px;
+      font-weight: 800;
+      color: var(--midnight);
+      line-height: 1.05;
+      letter-spacing: -0.04em;
+    }
+    .hero-title .line { display: block; }
+    .hero-title .highlight {
+      position: relative;
+      color: var(--indigo);
+      display: inline-block;
+    }
+    .underline-svg {
+      position: absolute;
+      bottom: -6px;
+      left: 0;
+      width: 100%;
+      height: 14px;
+      pointer-events: none;
+    }
+
+    .hero-sub {
+      max-width: 640px;
+      margin: 18px auto 0;
+      font-size: 17px;
+      color: #475569;
+      line-height: 1.55;
+      font-weight: 400;
+    }
+
+    .hero-cta-row {
+      margin-top: 22px;
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn-hero-primary {
+      background: linear-gradient(135deg, var(--cyan-bright) 0%, var(--cyan) 50%, var(--cyan-dark) 100%);
+      color: var(--white);
+      padding: 16px 32px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 8px 28px -6px rgba(6,182,212,0.55);
+      transition: all 0.25s ease;
+    }
+    .btn-hero-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 36px -6px rgba(6,182,212,0.7);
+      filter: brightness(1.06);
+    }
+    .btn-hero-secondary {
+      background: var(--white);
+      border: 1.5px solid var(--border);
+      color: var(--midnight);
+      padding: 16px 24px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.25s ease;
+      cursor: pointer;
+    }
+    .btn-hero-secondary:hover {
+      border-color: var(--indigo);
+      color: var(--indigo);
+    }
+    .btn-hero-secondary .play { color: var(--indigo); font-size: 11px; }
+
+    .hero-trust-row {
+      margin-top: 24px;
+      display: flex;
+      gap: 28px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .trust-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--neutral);
+    }
+    .trust-item .check { color: var(--success); font-weight: 700; }
+
+    /* ---- Flow visualization ---- */
+    .flow-viz {
+      position: relative;
+      max-width: 1200px;
+      margin: 0 auto;
+      height: 420px;
+      z-index: 2;
+    }
+
+    .flow-lines {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .col-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      color: var(--neutral);
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+    .col-label.indigo { color: var(--indigo); }
+    .col-label svg { width: 14px; height: 14px; }
+
+    /* Left column (channel inputs) */
+    .flow-left {
+      position: absolute;
+      left: 0; top: 0;
+      height: 420px;
+      width: 280px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 10px;
+      z-index: 2;
+    }
+    .flow-left .channel-card { padding: 10px 14px; }
+
+    .channel-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 4px 16px -4px rgba(67,56,202,0.12);
+      animation: floatCard 4s ease-in-out infinite;
+    }
+    .channel-card .icon-box {
+      width: 40px; height: 40px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .channel-card .icon-box svg { width: 22px; height: 22px; }
+    .card-name { font-size: 13px; font-weight: 700; color: var(--midnight); }
+    .card-sub  { font-size: 11px; color: var(--neutral); margin-top: 2px; }
+
+    .card-google   { animation-delay: 0s;   animation-duration: 4s;   }
+    .card-meta     { animation-delay: 0.5s; animation-duration: 4.5s; }
+    .card-youtube  { animation-delay: 1s;   animation-duration: 3.8s; }
+    .card-tiktok   { animation-delay: 1.5s; animation-duration: 4.2s; }
+    .card-whatsapp { animation-delay: 2s;   animation-duration: 4.6s; }
+    @keyframes floatCard {
+      0%, 100% { transform: translateY(0); }
+      50%      { transform: translateY(-8px); }
+    }
+
+    /* Center engine */
+    .flow-engine {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 240px;
+      height: 240px;
+      z-index: 2;
+    }
+    .pulse-ring {
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 100%; height: 100%;
+      border-radius: 50%;
+      border: 2px solid var(--cyan);
+      transform: translate(-50%, -50%) scale(0.7);
+      opacity: 0;
+      animation: pulseRing 3s ease-out infinite;
+      pointer-events: none;
+    }
+    .ring-1 { animation-delay: 0s; }
+    .ring-2 { animation-delay: 1s; }
+    .ring-3 { animation-delay: 2s; }
+    @keyframes pulseRing {
+      0%   { transform: translate(-50%, -50%) scale(0.7); opacity: 0.8; }
+      100% { transform: translate(-50%, -50%) scale(1.6); opacity: 0; }
+    }
+
+    .engine-body {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 180px;
+      height: 180px;
+      border-radius: 32px;
+      background: linear-gradient(135deg, var(--indigo) 0%, var(--indigo-dark) 100%);
+      box-shadow:
+        0 20px 60px -10px rgba(67,56,202,0.6),
+        0 0 0 8px rgba(67,56,202,0.08),
+        inset 0 1px 0 rgba(255,255,255,0.2);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 22px 16px;
+      z-index: 3;
+    }
+    .engine-logo {
+      width: 44px; height: 44px;
+      background: var(--white);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--indigo);
+      font-size: 26px;
+      font-weight: 800;
+      line-height: 1;
+    }
+    .engine-brand {
+      margin-top: 10px;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--white);
+      letter-spacing: -0.01em;
+    }
+    .engine-status {
+      margin-top: 2px;
+      font-size: 12px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.7);
+      min-height: 18px;
+    }
+    .engine-eq {
+      display: flex;
+      align-items: flex-end;
+      gap: 4px;
+      margin-top: 10px;
+      height: 22px;
+    }
+    .engine-eq .bar {
+      width: 3px;
+      background: var(--cyan);
+      border-radius: 2px;
+      transform-origin: bottom;
+      animation: eqbar 1.2s ease-in-out infinite;
+    }
+    .engine-eq .bar:nth-child(1) { height: 12px; animation-delay: 0s;    }
+    .engine-eq .bar:nth-child(2) { height: 18px; animation-delay: 0.15s; }
+    .engine-eq .bar:nth-child(3) { height: 14px; animation-delay: 0.3s;  }
+    .engine-eq .bar:nth-child(4) { height: 20px; animation-delay: 0.45s; }
+    @keyframes eqbar {
+      0%, 100% { transform: scaleY(0.6); }
+      50%      { transform: scaleY(1); }
+    }
+
+    .orbit-dot {
+      position: absolute;
+      width: 8px; height: 8px;
+      background: var(--cyan);
+      border-radius: 50%;
+      top: 50%; left: 50%;
+      margin: -4px 0 0 -4px;
+      box-shadow: 0 0 12px rgba(6,182,212,0.6);
+    }
+    .orbit-dot:nth-child(4) { animation: orbit1  8s linear infinite; }
+    .orbit-dot:nth-child(5) { animation: orbit2 10s linear infinite; }
+    .orbit-dot:nth-child(6) { animation: orbit3 12s linear infinite reverse; }
+    @keyframes orbit1 {
+      from { transform: rotate(0deg)   translateX(110px) rotate(0deg); }
+      to   { transform: rotate(360deg) translateX(110px) rotate(-360deg); }
+    }
+    @keyframes orbit2 {
+      from { transform: rotate(120deg) translateX(120px) rotate(-120deg); }
+      to   { transform: rotate(480deg) translateX(120px) rotate(-480deg); }
+    }
+    @keyframes orbit3 {
+      from { transform: rotate(240deg) translateX(130px) rotate(-240deg); }
+      to   { transform: rotate(600deg) translateX(130px) rotate(-600deg); }
+    }
+
+    /* Right column (prediction outputs) */
+    .flow-right {
+      position: absolute;
+      right: 0; top: 0;
+      height: 420px;
+      width: 300px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 12px;
+      z-index: 2;
+    }
+    .flow-right .prediction-card { padding: 14px; }
+    .prediction-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: 0 8px 24px -8px rgba(67,56,202,0.2);
+      animation: floatPrediction 5s ease-in-out infinite;
+    }
+    .prediction-card:nth-child(2) { animation-delay: 0.2s; }
+    .prediction-card:nth-child(3) { animation-delay: 1.1s; }
+    .prediction-card:nth-child(4) { animation-delay: 2s; }
+    @keyframes floatPrediction {
+      0%, 100% { transform: translateY(0); }
+      50%      { transform: translateY(-10px); }
+    }
+    .pred-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .pred-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--neutral);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .pred-big {
+      margin-top: 6px;
+      font-size: 32px;
+      font-weight: 800;
+      color: var(--indigo);
+      line-height: 1;
+      letter-spacing: -0.02em;
+    }
+    .pred-big.dark { color: var(--midnight); }
+    .pred-delta {
+      margin-top: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--success);
+    }
+    .pred-sub {
+      font-size: 11px;
+      color: var(--neutral);
+      margin-top: 2px;
+    }
+    .pred-bars {
+      display: flex;
+      align-items: flex-end;
+      gap: 4px;
+      height: 32px;
+      margin-top: 10px;
+    }
+    .pred-bars .b {
+      width: 6px;
+      border-radius: 2px;
+      background: linear-gradient(to top, var(--indigo) 0%, var(--cyan) 100%);
+    }
+    .pred-bars .b:nth-child(1) { height:  8px; }
+    .pred-bars .b:nth-child(2) { height: 12px; }
+    .pred-bars .b:nth-child(3) { height: 16px; }
+    .pred-bars .b:nth-child(4) { height: 22px; }
+    .pred-bars .b:nth-child(5) { height: 26px; }
+    .pred-bars .b:nth-child(6) { height: 32px; }
+    .pred-spark { margin-top: 8px; display: block; }
+    .pred-growth-badge {
+      display: inline-block;
+      margin-top: 8px;
+      background: var(--success-soft);
+      color: var(--success-dark);
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 12px;
+    }
+    .audience-stack { display: flex; margin-top: 8px; }
+    .audience-stack .av {
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      border: 2px solid var(--white);
+      margin-left: -6px;
+    }
+    .audience-stack .av:first-child { margin-left: 0; }
+
+    /* Floating money symbols */
+    .money-float {
+      position: absolute;
+      font-family: Arial, Helvetica, sans-serif;
+      font-weight: 700;
+      color: var(--success);
+      animation: moneyUp 4s ease-out infinite;
+      opacity: 0;
+      z-index: 1;
+      pointer-events: none;
+    }
+    @keyframes moneyUp {
+      0%   { transform: translateY(0)     translateX(0);   opacity: 0; }
+      10%  {                                                opacity: 0.7; }
+      90%  {                                                opacity: 0.3; }
+      100% { transform: translateY(-100px) translateX(8px); opacity: 0; }
+    }
+    .money-1 { left: 60%; top: 70%; font-size: 18px; animation-delay: 0s;    }
+    .money-2 { left: 75%; top: 60%; font-size: 22px; animation-delay: 0.6s;  }
+    .money-3 { left: 85%; top: 80%; font-size: 16px; animation-delay: 1.2s;  }
+    .money-4 { left: 90%; top: 40%; font-size: 20px; animation-delay: 1.8s;  }
+    .money-5 { left: 70%; top: 30%; font-size: 14px; animation-delay: 2.4s;  }
+    .money-6 { left: 80%; top: 50%; font-size: 18px; animation-delay: 3s;    }
+    .money-7 { left: 65%; top: 20%; font-size: 16px; animation-delay: 3.4s;  }
+
+    /* ============ SECTION 3: Problem ============ */
+    .section-problem {
+      background: var(--page-bg);
+      padding: 100px 0;
+      border-top: 1px solid var(--border);
+    }
+    .section-head {
+      text-align: center;
+      max-width: 740px;
+      margin: 0 auto 40px;
+    }
+    .section-head .pill { margin-bottom: 16px; }
+    .section-head h2 {
+      font-size: 40px;
+      font-weight: 800;
+      color: var(--midnight);
+      line-height: 1.2;
+      letter-spacing: -0.03em;
+    }
+    .section-head h2.white { color: var(--white); }
+    .section-head .sub {
+      font-size: 18px;
+      color: #475569;
+      line-height: 1.65;
+      margin-top: 16px;
+    }
+    .section-head .sub.muted-dark { color: var(--light-neutral); }
+    .danger-word { color: #DC2626; }
+
+    .marketer-svg-wrap {
+      max-width: 520px;
+      margin: 40px auto 20px;
+      display: flex;
+      justify-content: center;
+    }
+    .marketer-photo {
+      width: 100%;
+      max-width: 520px;
+      height: auto;
+      border-radius: 20px;
+      box-shadow:
+        0 18px 44px -12px rgba(15,23,42,0.28),
+        0 0 0 1px rgba(15,23,42,0.04);
+      display: block;
+    }
+
+    .question-mark { animation: floatQ 3s ease-in-out infinite; transform-origin: center; transform-box: fill-box; }
+    .q1 { animation-delay: 0s; }
+    .q2 { animation-delay: 0.5s; }
+    .q3 { animation-delay: 1s; }
+    .q4 { animation-delay: 1.5s; }
+    @keyframes floatQ {
+      0%, 100% { transform: translateY(0);   opacity: 1; }
+      50%      { transform: translateY(-8px); opacity: 0.6; }
+    }
+    .falling-money { animation: fallMoney 2.5s ease-in infinite; }
+    .fm2 { animation-delay: 0.8s; }
+    .fm3 { animation-delay: 1.6s; }
+    @keyframes fallMoney {
+      0%   { transform: translateY(0);    opacity: 0.7; }
+      100% { transform: translateY(40px); opacity: 0; }
+    }
+
+    .pain-grid {
+      margin-top: 80px;
+      padding-top: 50px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+      max-width: 1080px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .pain-card {
+      background: linear-gradient(160deg, var(--cyan-bright) 0%, var(--cyan) 55%, var(--cyan-dark) 100%);
+      border: 1px solid rgba(255,255,255,0.22);
+      border-radius: 22px;
+      padding: 70px 26px 28px;
+      position: relative;
+      overflow: visible;
+      box-shadow:
+        0 14px 36px -10px rgba(6,182,212,0.45),
+        inset 0 1px 0 rgba(255,255,255,0.25);
+      transition: transform 0.35s ease, box-shadow 0.35s ease;
+    }
+    .pain-card:nth-child(1) { transform: rotate(-3deg); }
+    .pain-card:nth-child(2) { transform: rotate(1.5deg) translateY(-8px); }
+    .pain-card:nth-child(3) { transform: rotate(-2deg); }
+    .pain-card:hover {
+      transform: rotate(0deg) translateY(-10px);
+      box-shadow:
+        0 24px 54px -14px rgba(6,182,212,0.55),
+        inset 0 1px 0 rgba(255,255,255,0.3);
+    }
+
+    .pain-icon {
+      position: absolute;
+      top: -34px;
+      left: 50%;
+      width: 78px;
+      height: 78px;
+      border-radius: 14px;
+      overflow: hidden;
+      background: var(--white);
+      box-shadow: 0 14px 28px -6px rgba(14,116,144,0.45);
+      border: 3px solid var(--white);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .pain-icon svg {
+      width: 42px;
+      height: 42px;
+      display: block;
+    }
+    .pain-card:nth-child(1) .pain-icon {
+      background: #FEE2E2;
+      transform: translateX(-50%) rotate(-10deg);
+    }
+    .pain-card:nth-child(2) .pain-icon {
+      background: #FEF3C7;
+      transform: translateX(-50%) rotate(6deg);
+    }
+    .pain-card:nth-child(3) .pain-icon {
+      background: var(--indigo-mist);
+      transform: translateX(-50%) rotate(-7deg);
+    }
+
+    .pain-title {
+      font-size: 19px;
+      font-weight: 700;
+      color: var(--white);
+      margin: 0 0 10px;
+      text-align: center;
+      letter-spacing: -0.01em;
+    }
+    .pain-body {
+      font-size: 14px;
+      color: rgba(255,255,255,0.88);
+      line-height: 1.65;
+      text-align: center;
+    }
+
+    /* Small avatar/data row inside each pain card */
+    .pain-meta {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 18px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255,255,255,0.22);
+    }
+    .pain-meta .av-stack { display: flex; }
+    .pain-meta .av {
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      border: 2px solid var(--cyan-dark);
+      margin-left: -6px;
+      background-size: cover;
+    }
+    .pain-meta .av:first-child { margin-left: 0; }
+    .pain-meta .meta-text {
+      font-size: 11px;
+      color: rgba(255,255,255,0.92);
+      font-weight: 600;
+      letter-spacing: 0.01em;
+    }
+
+    /* Pain card 1 rocket */
+    .pain-rocket { animation: rocket-shake 0.5s ease-in-out infinite; transform-origin: center; transform-box: fill-box; }
+    @keyframes rocket-shake {
+      0%, 100% { transform: rotate(-3deg); }
+      50%      { transform: rotate(3deg); }
+    }
+    .rocket-q { animation: floatQ 2.5s ease-in-out infinite; transform-origin: center; transform-box: fill-box; }
+    .rq2 { animation-delay: 0.4s; }
+    .rq3 { animation-delay: 0.9s; }
+
+    /* Pain card 2 fire */
+    .fire-flames { animation: flicker 0.4s ease-in-out infinite; transform-origin: center bottom; transform-box: fill-box; }
+    @keyframes flicker {
+      0%, 100% { transform: scaleY(1)    scaleX(1);    opacity: 1; }
+      50%      { transform: scaleY(1.12) scaleX(0.95); opacity: 0.85; }
+    }
+    .smoke { animation: rise-smoke 2.4s ease-in-out infinite; }
+    .s2 { animation-delay: 0.6s; }
+    .s3 { animation-delay: 1.2s; }
+    @keyframes rise-smoke {
+      0%   { transform: translateY(0);    opacity: 0.5; }
+      100% { transform: translateY(-20px); opacity: 0; }
+    }
+
+    /* Pain card 3 misfit */
+    .misfit { animation: misfit-pulse 1.6s ease-in-out infinite; transform-origin: center; transform-box: fill-box; }
+    .mf2 { animation-delay: 0.5s; }
+    .mf3 { animation-delay: 1s; }
+    @keyframes misfit-pulse {
+      0%, 100% { opacity: 1;   transform: scale(1); }
+      50%      { opacity: 0.5; transform: scale(0.9); }
+    }
+
+    /* ============ SECTION 4: How It Works ============ */
+    .section-how {
+      background: var(--white);
+      padding: 100px 0;
+    }
+    .steps-wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 60px;
+    }
+    .step-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+    }
+    .step-row.reverse {
+      direction: rtl;
+    }
+    .step-row.reverse > * { direction: ltr; }
+
+    .step-viz {
+      background: var(--page-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      height: 320px;
+      position: relative;
+      overflow: hidden;
+    }
+    .step-num {
+      font-size: 48px;
+      font-weight: 800;
+      color: var(--indigo-wash);
+      line-height: 1;
+      -webkit-text-stroke: 1.5px var(--indigo);
+      letter-spacing: -0.04em;
+    }
+    .step-title {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--midnight);
+      letter-spacing: -0.02em;
+      margin-top: 12px;
+    }
+    .step-body {
+      font-size: 16px;
+      color: #475569;
+      line-height: 1.65;
+      max-width: 440px;
+      margin-top: 16px;
+    }
+    .step-pills {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+    .step-pill {
+      background: var(--indigo-wash);
+      color: var(--indigo-dark);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 16px;
+    }
+
+    /* Step 1 — Browser scan */
+    .browser-mock {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      height: 100%;
+      position: relative;
+    }
+    .browser-bar {
+      height: 28px;
+      background: var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 10px;
+      gap: 6px;
+      border-radius: 8px 8px 0 0;
+    }
+    .browser-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .browser-dot.r { background: #EF4444; }
+    .browser-dot.a { background: #F59E0B; }
+    .browser-dot.g { background: #10B981; }
+    .browser-url {
+      width: 220px;
+      height: 20px;
+      background: var(--white);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      margin: 0 auto;
+      font-size: 11px;
+      color: var(--neutral);
+    }
+    .browser-url .lock { color: var(--indigo); font-size: 9px; }
+    .browser-body {
+      height: calc(100% - 28px);
+      padding: 16px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .scan-block-h { width: 100%; height: 30px; background: #F1F5F9; border-radius: 4px; }
+    .scan-block-2col { display: flex; gap: 8px; height: 80px; }
+    .scan-block-2col > .a { width: 60%; background: #F1F5F9; border-radius: 4px; }
+    .scan-block-2col > .b { width: 40%; background: #F1F5F9; border-radius: 4px; }
+    .scan-block-grid { display: flex; gap: 8px; }
+    .scan-block-grid > .sq {
+      width: 40px; height: 40px;
+      background: var(--indigo-wash);
+      border-radius: 4px;
+    }
+
+    .scan-line {
+      position: absolute;
+      left: 0; right: 0;
+      top: 0;
+      height: 3px;
+      background: var(--indigo);
+      box-shadow: 0 -8px 20px -2px var(--indigo-bright);
+      animation: scan-down 2s linear infinite;
+      z-index: 4;
+      pointer-events: none;
+    }
+    @keyframes scan-down {
+      0%   { top: 0%; }
+      100% { top: 100%; }
+    }
+
+    .profile-emerge {
+      position: absolute;
+      right: 16px;
+      top: 40px;
+      width: 180px;
+      background: var(--white);
+      border: 1.5px solid var(--indigo-light);
+      border-radius: 12px;
+      padding: 12px;
+      z-index: 6;
+    }
+    .profile-emerge-head {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--indigo);
+      margin-bottom: 10px;
+    }
+    .profile-emerge-head .e-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--indigo);
+    }
+    .profile-line {
+      font-size: 11px;
+      color: var(--midnight);
+      padding: 4px 0;
+      opacity: 0;
+      transform: translateX(-8px);
+      animation: line-appear 4s ease-in-out infinite;
+    }
+    .profile-line.pl1 { animation-delay: 0s;   }
+    .profile-line.pl2 { animation-delay: 0.3s; }
+    .profile-line.pl3 { animation-delay: 0.6s; }
+    .profile-line.pl4 { animation-delay: 0.9s; }
+    @keyframes line-appear {
+      0%   { opacity: 0; transform: translateX(-8px); }
+      15%  { opacity: 1; transform: translateX(0); }
+      75%  { opacity: 1; transform: translateX(0); }
+      100% { opacity: 0; transform: translateX(0); }
+    }
+    .profile-line .em-ck { color: var(--indigo); margin-right: 4px; font-weight: 700; }
+
+    /* Step 2 — Chat */
+    .chat-mock {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 4px;
+    }
+    .chat-msg {
+      max-width: 80%;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 13px;
+      line-height: 1.4;
+      opacity: 0;
+      animation: chat-in 6s ease-in-out infinite;
+    }
+    .chat-msg.ai {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-top-left-radius: 4px;
+      color: var(--midnight);
+      align-self: flex-start;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .chat-msg.user {
+      background: var(--indigo-mist);
+      color: var(--indigo-dark);
+      border-top-right-radius: 4px;
+      align-self: flex-end;
+      font-weight: 600;
+    }
+    .chat-msg.m1 { animation-delay: 0s;   }
+    .chat-msg.m2 { animation-delay: 1.4s; }
+    .chat-msg.m3 { animation-delay: 3.0s; }
+    @keyframes chat-in {
+      0%   { opacity: 0; transform: translateY(8px); }
+      8%   { opacity: 1; transform: translateY(0); }
+      75%  { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(0); }
+    }
+    .chat-avatar {
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      background: var(--indigo);
+      color: var(--white);
+      font-size: 11px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .chat-options {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 4px;
+      align-self: flex-start;
+    }
+    .chip-option {
+      background: var(--white);
+      border: 1.5px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 16px;
+      font-size: 12px;
+      color: var(--midnight);
+      font-weight: 600;
+    }
+    .chip-option.sel {
+      background: var(--indigo-wash);
+      border-color: var(--indigo);
+      color: var(--indigo-dark);
+    }
+
+    /* Step 3 — Sim result */
+    .sim-mock {
+      height: 100%;
+      padding: 4px;
+    }
+    .sim-mock-top {
+      font-size: 12px;
+      color: var(--neutral);
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+    .sim-metric-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .mini-metric {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px;
+    }
+    .mini-metric-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--light-neutral);
+      font-weight: 700;
+    }
+    .mini-metric-value {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--midnight);
+      margin-top: 2px;
+    }
+    .mini-metric-value.em { color: var(--indigo); font-weight: 800; }
+    .mini-bars {
+      display: flex;
+      align-items: flex-end;
+      gap: 4px;
+      height: 38px;
+      margin-top: 10px;
+    }
+    .mini-bars .mb { flex: 1; background: var(--indigo); border-radius: 2px 2px 0 0; }
+    .mb1 { height: 60%; }
+    .mb2 { height: 75%; }
+    .mb3 { height: 50%; }
+    .mb4 { height: 90%; }
+    .mb5 { height: 85%; }
+    .sim-mock-insights {
+      margin-top: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .sim-mock-insight {
+      font-size: 11px;
+      color: var(--midnight);
+    }
+    .sim-mock-insight.good  { color: var(--indigo-dark); }
+    .sim-mock-insight.warn  { color: #92400E; }
+    .sim-mock-recs {
+      margin-top: 6px;
+      font-size: 11px;
+      color: var(--indigo);
+      font-weight: 600;
+    }
+
+    /* ============ SECTION 5: Features ============ */
+    .section-features {
+      background: var(--page-bg);
+      padding: 100px 0;
+    }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+    .feat-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px 24px;
+      transition: all 0.25s ease;
+    }
+    .feat-card:hover {
+      border-color: var(--indigo);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 30px -10px rgba(67,56,202,0.2);
+    }
+    .feat-illu {
+      height: 80px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .feat-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--midnight);
+      margin-bottom: 8px;
+    }
+    .feat-body {
+      font-size: 14px;
+      color: var(--neutral);
+      line-height: 1.6;
+    }
+
+    /* ============ SECTION 6: Funnel ============ */
+    .section-funnel {
+      background: var(--midnight);
+      padding: 100px 0;
+      position: relative;
+      overflow: hidden;
+    }
+    .funnel-dot-decor {
+      position: absolute;
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--indigo-bright);
+      opacity: 0.15;
+      animation: dot-float 6s ease-in-out infinite;
+    }
+    @keyframes dot-float {
+      0%, 100% { transform: translateY(0); }
+      50%      { transform: translateY(-12px); }
+    }
+
+    .accent-word {
+      color: var(--indigo-bright);
+      position: relative;
+      display: inline-block;
+    }
+
+    .funnel-wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      position: relative;
+      min-height: 380px;
+    }
+    .funnel-svg {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+    .funnel-stages {
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      z-index: 1;
+      gap: 12px;
+      padding-top: 60px;
+    }
+    .stage {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 8px;
+      position: relative;
+    }
+    .stage.featured {
+      box-shadow: 0 0 60px -10px rgba(99,102,241,0.4);
+      border-radius: 20px;
+    }
+    .stage-num {
+      font-size: 14px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.3);
+      letter-spacing: 0.05em;
+    }
+    .stage-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--white);
+      margin-top: 6px;
+    }
+    .stage-sub {
+      font-size: 12px;
+      color: var(--light-neutral);
+      margin-top: 2px;
+    }
+    .stage-chips {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 16px;
+      align-items: center;
+    }
+    .stage-chip {
+      background: rgba(67,56,202,0.15);
+      border: 1px solid rgba(99,102,241,0.4);
+      color: var(--indigo-bright);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 16px;
+      animation: chip-float 4s ease-in-out infinite;
+    }
+    .stage-chips .stage-chip:nth-child(1) { animation-delay: 0s; }
+    .stage-chips .stage-chip:nth-child(2) { animation-delay: 0.6s; }
+    .stage-chips .stage-chip:nth-child(3) { animation-delay: 1.2s; }
+    @keyframes chip-float {
+      0%, 100% { transform: translateY(0); }
+      50%      { transform: translateY(-4px); }
+    }
+
+    .floating-cards {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 2;
+    }
+    .float-card {
+      position: absolute;
+      width: 120px;
+      background: rgba(30,41,59,0.85);
+      border: 1px solid rgba(99,102,241,0.3);
+      border-radius: 8px;
+      padding: 8px 10px;
+      animation: card-bob 5s ease-in-out infinite;
+    }
+    .float-card .fc-title {
+      font-size: 10px;
+      color: var(--white);
+      font-weight: 600;
+      line-height: 1.3;
+    }
+    .float-card .fc-sub {
+      font-size: 9px;
+      color: var(--indigo-bright);
+      margin-top: 2px;
+    }
+    @keyframes card-bob {
+      0%, 100% { transform: translateY(0)   rotate(-2deg); }
+      50%      { transform: translateY(-8px) rotate(2deg); }
+    }
+    .fc1 { top: -10px;  left: 4%;   animation-delay: 0s;   }
+    .fc2 { top: 6px;    right: 8%;  animation-delay: 0.7s; }
+    .fc3 { top: 130px;  left: 3%;   animation-delay: 1.4s; }
+    .fc4 { top: 138px;  right: 4%;  animation-delay: 2.1s; }
+    .fc5 { bottom: -8px; left: 22%; animation-delay: 2.8s; }
+    .fc6 { bottom: -6px; right: 28%; animation-delay: 3.5s; }
+
+    .funnel-stats {
+      margin-top: 60px;
+      display: flex;
+      justify-content: center;
+      gap: 0;
+      flex-wrap: wrap;
+    }
+    .funnel-stat {
+      flex: 0 0 auto;
+      padding: 0 32px;
+      text-align: center;
+      border-right: 1px solid var(--slate-mid);
+    }
+    .funnel-stat:last-child { border-right: none; }
+    .funnel-stat-val {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--white);
+      line-height: 1.2;
+    }
+    .funnel-stat-val.em { color: var(--indigo-bright); }
+    .funnel-stat-label {
+      font-size: 12px;
+      color: var(--light-neutral);
+      margin-top: 4px;
+    }
+
+    .funnel-cta {
+      text-align: center;
+      margin-top: 40px;
+    }
+    .funnel-cta a {
+      color: var(--indigo-bright);
+      font-size: 15px;
+      font-weight: 600;
+      transition: color 0.2s ease;
+    }
+    .funnel-cta a:hover { text-decoration: underline; }
+
+    /* ============ SECTION 7: Live Demo ============ */
+    .section-livedemo {
+      background: var(--white);
+      padding: 100px 0;
+    }
+    .livedemo-panels {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+    .demo-panel {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      position: relative;
+      transition: all 0.25s ease;
+    }
+    .demo-panel:hover {
+      border-color: var(--indigo);
+      transform: translateY(-3px);
+    }
+    .demo-step-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--indigo);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .demo-panel-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--midnight);
+      margin-top: 10px;
+    }
+    .demo-panel-sub {
+      font-size: 13px;
+      color: var(--neutral);
+      margin-top: 4px;
+    }
+    .demo-viz {
+      height: 200px;
+      margin-top: 16px;
+      padding: 12px;
+      background: var(--page-bg);
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      overflow: hidden;
+    }
+    .demo-bottom {
+      font-size: 12px;
+      color: var(--light-neutral);
+      margin-top: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .demo-bottom.ready {
+      color: var(--indigo);
+      font-weight: 700;
+    }
+
+    /* Panel 1 chat fragments */
+    .demo-chat-fragment {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      border-top-left-radius: 4px;
+      padding: 6px 10px;
+      font-size: 11px;
+      color: var(--midnight);
+      align-self: flex-start;
+      max-width: 80%;
+    }
+    .demo-chip-row {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+    .demo-chip {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 3px 8px;
+      font-size: 10px;
+      color: var(--midnight);
+      font-weight: 600;
+    }
+    .demo-chip.sel {
+      background: var(--indigo-wash);
+      border-color: var(--indigo);
+      color: var(--indigo-dark);
+    }
+    .demo-slider-wrap {
+      margin-top: 6px;
+    }
+    .demo-slider-track {
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      position: relative;
+    }
+    .demo-slider-fill {
+      position: absolute;
+      left: 0; top: 0;
+      width: 70%;
+      height: 100%;
+      background: var(--indigo);
+      border-radius: 2px;
+    }
+    .demo-slider-handle {
+      position: absolute;
+      left: 70%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 14px; height: 14px;
+      background: var(--indigo);
+      border: 2px solid var(--white);
+      border-radius: 50%;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+    }
+    .demo-slider-label {
+      margin-top: 6px;
+      font-size: 10px;
+      color: var(--neutral);
+    }
+
+    /* Panel 2 pipeline */
+    .demo-pipeline-step {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      color: var(--midnight);
+    }
+    .demo-pipeline-step .dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 8px;
+      color: var(--white);
+      font-weight: 700;
+    }
+    .demo-pipeline-step .dot.done    { background: var(--indigo); }
+    .demo-pipeline-step .dot.active  { background: var(--indigo); animation: pulse-dot 1.2s ease-in-out infinite; }
+    .demo-pipeline-step .dot.pending { background: var(--border); }
+    .demo-pipeline-step.pending { color: var(--light-neutral); }
+
+    /* Panel 3 predict */
+    .predict-roas {
+      font-size: 36px;
+      font-weight: 800;
+      color: var(--indigo);
+      text-align: center;
+      line-height: 1;
+      letter-spacing: -0.02em;
+    }
+    .predict-roas-label {
+      text-align: center;
+      font-size: 11px;
+      color: var(--neutral);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-top: 4px;
+    }
+    .predict-stats {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 14px;
+      gap: 6px;
+    }
+    .predict-stat {
+      flex: 1;
+      text-align: center;
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px 4px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--midnight);
+    }
+
+    /* ============ SECTION 8: Pricing ============ */
+    .section-pricing {
+      background: var(--page-bg);
+      padding: 100px 0;
+    }
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      max-width: 1020px;
+      margin: 0 auto;
+      align-items: start;
+    }
+    .price-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 36px 32px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    .price-card.featured {
+      border: 2.5px solid var(--indigo);
+      transform: translateY(-8px);
+      box-shadow: 0 20px 50px -15px rgba(67,56,202,0.3);
+    }
+    .featured-badge {
+      position: absolute;
+      top: -16px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, var(--indigo), var(--indigo-dark));
+      color: var(--white);
+      padding: 7px 18px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+    .plan-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--neutral);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .plan-name.em { color: var(--indigo); }
+    .price-row {
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+      margin-top: 14px;
+    }
+    .price-amount {
+      font-size: 40px;
+      font-weight: 800;
+      color: var(--midnight);
+      letter-spacing: -0.02em;
+      line-height: 1;
+    }
+    .price-period {
+      font-size: 16px;
+      color: var(--light-neutral);
+    }
+    .price-sub {
+      font-size: 14px;
+      color: var(--light-neutral);
+      margin-top: 6px;
+    }
+    .price-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 22px 0;
+    }
+    .feature-list {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 28px;
+      flex: 1;
+    }
+    .feature-list li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+      font-size: 14px;
+      color: var(--neutral);
+    }
+    .check-circle {
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      background: var(--indigo-mist);
+      color: var(--indigo);
+      font-size: 11px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .price-cta {
+      width: 100%;
+      padding: 14px 12px;
+      border-radius: 10px;
+      font-size: 15px;
+      text-align: center;
+      transition: all 0.25s ease;
+      border: none;
+      cursor: pointer;
+    }
+    .price-cta.outline {
+      background: transparent;
+      border: 1.5px solid var(--indigo);
+      color: var(--indigo);
+      font-weight: 600;
+    }
+    .price-cta.outline:hover { background: var(--indigo-wash); }
+    .price-cta.solid {
+      background: linear-gradient(135deg, var(--cyan-bright) 0%, var(--cyan) 50%, var(--cyan-dark) 100%);
+      color: var(--white);
+      font-weight: 700;
+      height: 52px;
+      padding: 0 12px;
+      box-shadow: 0 4px 14px -4px rgba(6,182,212,0.45);
+    }
+    .price-cta.solid:hover {
+      filter: brightness(1.06);
+      box-shadow: 0 8px 22px -4px rgba(6,182,212,0.65);
+    }
+
+    /* ============ SECTION 9: Final CTA ============ */
+    .section-final-cta {
+      background: var(--white);
+      padding: 120px 0;
+      position: relative;
+      overflow: hidden;
+      text-align: center;
+    }
+    .cta-blob-1 {
+      position: absolute;
+      top: -100px; left: -100px;
+      width: 400px; height: 400px;
+      border-radius: 50%;
+      background: radial-gradient(circle, var(--indigo-wash) 0%, transparent 70%);
+      opacity: 0.6;
+      z-index: 0;
+      pointer-events: none;
+    }
+    .cta-blob-2 {
+      position: absolute;
+      bottom: -50px; right: -50px;
+      width: 350px; height: 350px;
+      border-radius: 50%;
+      background: radial-gradient(circle, var(--indigo-wash) 0%, transparent 70%);
+      opacity: 0.6;
+      z-index: 0;
+      pointer-events: none;
+    }
+    .cta-particles {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .cta-particles span {
+      position: absolute;
+      color: var(--indigo);
+      opacity: 0.18;
+      font-weight: 700;
+      animation: rise-fade 5s ease-out infinite;
+    }
+    .cta-content {
+      position: relative;
+      z-index: 1;
+      max-width: 720px;
+      margin: 0 auto;
+    }
+    .cta-content h2 {
+      font-size: 48px;
+      font-weight: 800;
+      color: var(--midnight);
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+      margin-top: 24px;
+    }
+    .cta-content .cta-sub {
+      font-size: 18px;
+      color: #475569;
+      line-height: 1.65;
+      margin: 20px auto 36px;
+      max-width: 540px;
+    }
+    .cta-buttons {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .btn-final-primary {
+      background: linear-gradient(135deg, var(--cyan-bright) 0%, var(--cyan) 50%, var(--cyan-dark) 100%);
+      color: var(--white);
+      padding: 18px 36px;
+      border-radius: 12px;
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      border: none;
+      box-shadow: 0 8px 30px -8px rgba(6,182,212,0.55);
+      transition: all 0.25s ease;
+    }
+    .btn-final-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 14px 40px -8px rgba(6,182,212,0.7);
+      filter: brightness(1.06);
+    }
+    .btn-final-secondary {
+      background: var(--white);
+      border: 1.5px solid var(--border);
+      color: var(--midnight);
+      padding: 18px 28px;
+      border-radius: 12px;
+      font-size: 17px;
+      font-weight: 600;
+      transition: all 0.25s ease;
+    }
+    .btn-final-secondary:hover {
+      border-color: var(--indigo);
+      color: var(--indigo);
+    }
+    .cta-trustline {
+      font-size: 13px;
+      color: var(--light-neutral);
+      margin-top: 24px;
+    }
+
+    /* ============ SECTION 10: Footer ============ */
+    .footer {
+      background: var(--midnight);
+      color: var(--white);
+      padding: 60px 0 32px;
+    }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1.6fr 1fr 1fr 1fr;
+      gap: 40px;
+    }
+    .footer-sub {
+      font-size: 14px;
+      color: var(--neutral);
+      line-height: 1.6;
+      max-width: 220px;
+      margin-top: 12px;
+    }
+    .social-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 20px;
+    }
+    .social-btn {
+      width: 32px;
+      height: 32px;
+      border: 1px solid var(--slate-mid);
+      border-radius: 6px;
+      background: transparent;
+      color: var(--white);
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-weight: 600;
+    }
+    .social-btn:hover {
+      border-color: var(--indigo);
+      color: var(--indigo-bright);
+    }
+    .footer-label {
+      font-size: 11px;
+      color: #4B5563;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 16px;
+      font-weight: 600;
+    }
+    .footer-links a {
+      display: block;
+      font-size: 14px;
+      color: var(--light-neutral);
+      margin-bottom: 10px;
+      transition: color 0.2s ease;
+    }
+    .footer-links a:hover { color: var(--indigo); }
+    .footer-divider {
+      height: 1px;
+      background: var(--slate);
+      margin: 40px 0 24px;
+    }
+    .footer-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      color: #4B5563;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    /* ============ Modal ============ */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(15,23,42,0.75);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      position: relative;
+      background: var(--white);
+      border-radius: 20px;
+      padding: 40px;
+      max-width: 440px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal-close {
+      position: absolute;
+      top: 16px; right: 16px;
+      width: 28px; height: 28px;
+      background: none;
+      border: none;
+      font-size: 20px;
+      color: var(--light-neutral);
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+    }
+    .modal-close:hover { background: var(--page-bg); color: var(--midnight); }
+    .modal-heading {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--midnight);
+      margin-top: 16px;
+    }
+    .modal-sub {
+      font-size: 14px;
+      color: var(--neutral);
+      margin-top: 6px;
+      line-height: 1.5;
+    }
+    .modal-form {
+      margin-top: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .modal-form input {
+      height: 44px;
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0 14px;
+      font-size: 14px;
+      color: var(--midnight);
+      transition: border-color 0.2s ease;
+    }
+    .modal-form input::placeholder { color: var(--light-neutral); }
+    .modal-form input:focus { outline: none; border-color: var(--indigo); }
+    .modal-submit {
+      margin-top: 8px;
+      height: 48px;
+      background: var(--indigo);
+      color: var(--white);
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+    .modal-submit:hover { background: var(--indigo-dark); }
+    .modal-signin {
+      font-size: 13px;
+      color: var(--neutral);
+      text-align: center;
+      margin-top: 14px;
+    }
+    .modal-signin a {
+      color: var(--indigo);
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* ============ Responsive ============ */
+    @media (max-width: 1024px) {
+      .hero { min-height: auto; padding: 110px 24px 60px; }
+      .hero-title { font-size: 48px; }
+      /* Flow viz collapses into a single vertical column */
+      .flow-viz { height: auto; padding-top: 20px; }
+      .flow-left, .flow-right {
+        position: static;
+        width: 100%;
+        height: auto;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 12px;
+        margin: 24px 0;
+      }
+      .flow-left .channel-card,
+      .flow-right .prediction-card { flex: 0 0 calc(50% - 8px); max-width: 260px; }
+      .flow-engine { position: static; transform: none; margin: 0 auto; }
+      .flow-lines { display: none; }
+      .col-label { width: 100%; justify-content: center; }
+      .money-float { display: none; }
+      .step-row { grid-template-columns: 1fr; gap: 32px; }
+      .step-row.reverse { direction: ltr; }
+      .step-viz { height: 280px; }
+      .features-grid { grid-template-columns: repeat(2, 1fr); }
+      .funnel-stages { grid-template-columns: repeat(5, 1fr); gap: 4px; }
+      .stage-chip { font-size: 10px; padding: 5px 8px; }
+      .livedemo-panels { grid-template-columns: 1fr; }
+      .pricing-grid { grid-template-columns: 1fr; max-width: 480px; }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+      .pain-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 768px) {
+      .nav-links, .nav-signin, .nav-divider { display: none; }
+      .hamburger { display: inline-flex; }
+      .hero { padding: 100px 16px 50px; }
+      .hero-title { font-size: 36px; }
+      .ai-pill-text { font-size: 10px; }
+      .hero-sub { font-size: 16px; }
+      .flow-viz { display: none; }
+      .section-head h2,
+      .cta-content h2 { font-size: 30px; }
+      .section-problem,
+      .section-how,
+      .section-features,
+      .section-funnel,
+      .section-livedemo,
+      .section-pricing,
+      .section-final-cta { padding: 64px 0; }
+      .features-grid { grid-template-columns: 1fr; }
+      .funnel-stages { grid-template-columns: repeat(2, 1fr); }
+      .funnel-stat { padding: 0 16px; }
+      .funnel-stat-val { font-size: 22px; }
+      .floating-cards { display: none; }
+      .footer-grid { grid-template-columns: 1fr; }
+      .footer-bottom { flex-direction: column; align-items: flex-start; }
+      .layer-fail   { width: 180px; }
+      .layer-engine { width: 260px; }
+      .layer-success { width: 200px; }
+      .hero-viz { height: 460px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ============ SECTION 1: Nav ============ -->
+  <nav class="nav" id="mainNav">
+    <div class="nav-inner">
+      <a href="#top" class="logo">
+        <div class="logo-icon">+</div>
+        <div class="logo-text">BrandAid</div>
+      </a>
+      <div class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#how">How It Works</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#about">About</a>
+      </div>
+      <div class="nav-right">
+        <button class="nav-signin" data-modal-open>Sign in</button>
+        <div class="nav-divider"></div>
+        <button class="nav-cta" data-modal-open>Get Started Free</button>
+        <button class="hamburger" id="hamburger" aria-label="Open menu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </nav>
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="#features">Features</a>
+    <a href="#how">How It Works</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#about">About</a>
+    <button class="nav-cta" data-modal-open>Get Started Free</button>
+  </div>
+
+  <!-- ============ SECTION 2: Hero — Predict Outcome ============ -->
+  <section class="hero" id="top">
+    <div class="hero-blob-top"></div>
+    <div class="hero-blob-bottom"></div>
+    <div class="hero-dot-grid"></div>
+
+    <!-- Centered copy -->
+    <div class="hero-copy">
+      <span class="ai-pill">
+        <svg class="ai-pill-icon" viewBox="0 0 16 16" fill="currentColor">
+          <path d="M8 1 L9.4 6.6 L15 8 L9.4 9.4 L8 15 L6.6 9.4 L1 8 L6.6 6.6 Z"/>
+        </svg>
+        <span class="ai-pill-text">AI-POWERED CAMPAIGN PREDICTION</span>
+        <span class="ai-pill-pulse"></span>
+      </span>
+
+      <h1 class="hero-title">
+        <span class="line">Stop launching</span>
+        <span class="line">
+          campaigns
+          <span class="highlight">
+            blind.
+            <svg class="underline-svg" viewBox="0 0 200 18" preserveAspectRatio="none">
+              <path d="M 4 12 Q 50 4, 100 10 T 196 11"
+                stroke="#06B6D4" stroke-width="6" fill="none"
+                stroke-linecap="round" opacity="0.6"/>
+            </svg>
+          </span>
+        </span>
+      </h1>
+
+      <p class="hero-sub">
+        BrandAid simulates every campaign across every channel — predicts your reach, conversions, and ROAS in minutes. See exactly how to win, before spending a taka.
+      </p>
+
+      <div class="hero-cta-row">
+        <button class="btn-hero-primary" data-modal-open>Start Free Simulation →</button>
+      </div>
+    </div>
+
+    <!-- Flow visualization -->
+    <div class="flow-viz">
+
+      <!-- SVG flow lines + animated dots -->
+      <svg class="flow-lines" viewBox="0 0 1200 480" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="lineGrad1" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%"   stop-color="#A5B4FC" stop-opacity="0.4"/>
+            <stop offset="100%" stop-color="#4338CA" stop-opacity="0.7"/>
+          </linearGradient>
+          <linearGradient id="lineGrad2" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%"   stop-color="#4338CA" stop-opacity="0.7"/>
+            <stop offset="100%" stop-color="#06B6D4" stop-opacity="0.5"/>
+          </linearGradient>
+          <filter id="dotGlow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="2" result="b"/>
+            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+
+        <!-- Input lines (left → center) -->
+        <path id="line-in-1" d="M 280 100 Q 400 100, 480 240"
+          stroke="url(#lineGrad1)" stroke-width="2" stroke-dasharray="4 6" fill="none"/>
+        <path id="line-in-2" d="M 280 170 Q 400 170, 480 240"
+          stroke="url(#lineGrad1)" stroke-width="2" stroke-dasharray="4 6" fill="none"/>
+        <path id="line-in-3" d="M 280 240 L 480 240"
+          stroke="url(#lineGrad1)" stroke-width="2" stroke-dasharray="4 6" fill="none"/>
+        <path id="line-in-4" d="M 280 310 Q 400 310, 480 240"
+          stroke="url(#lineGrad1)" stroke-width="2" stroke-dasharray="4 6" fill="none"/>
+        <path id="line-in-5" d="M 280 380 Q 400 380, 480 240"
+          stroke="url(#lineGrad1)" stroke-width="2" stroke-dasharray="4 6" fill="none"/>
+
+        <!-- Output lines (center → right) -->
+        <path id="line-out-1" d="M 720 240 Q 800 120, 920 100"
+          stroke="url(#lineGrad2)" stroke-width="2" stroke-dasharray="4 6" fill="none"/>
+        <path id="line-out-2" d="M 720 240 L 920 240"
+          stroke="url(#lineGrad2)" stroke-width="2" stroke-dasharray="4 6" fill="none"/>
+        <path id="line-out-3" d="M 720 240 Q 800 360, 920 380"
+          stroke="url(#lineGrad2)" stroke-width="2" stroke-dasharray="4 6" fill="none"/>
+
+        <!-- Traveling dots, one per line, staggered -->
+        <circle r="5" fill="#06B6D4" filter="url(#dotGlow)">
+          <animateMotion dur="2.5s" repeatCount="indefinite" begin="0s">
+            <mpath href="#line-in-1"/>
+          </animateMotion>
+        </circle>
+        <circle r="5" fill="#06B6D4" filter="url(#dotGlow)">
+          <animateMotion dur="2.5s" repeatCount="indefinite" begin="0.4s">
+            <mpath href="#line-in-2"/>
+          </animateMotion>
+        </circle>
+        <circle r="5" fill="#06B6D4" filter="url(#dotGlow)">
+          <animateMotion dur="2.5s" repeatCount="indefinite" begin="0.8s">
+            <mpath href="#line-in-3"/>
+          </animateMotion>
+        </circle>
+        <circle r="5" fill="#06B6D4" filter="url(#dotGlow)">
+          <animateMotion dur="2.5s" repeatCount="indefinite" begin="1.2s">
+            <mpath href="#line-in-4"/>
+          </animateMotion>
+        </circle>
+        <circle r="5" fill="#06B6D4" filter="url(#dotGlow)">
+          <animateMotion dur="2.5s" repeatCount="indefinite" begin="1.6s">
+            <mpath href="#line-in-5"/>
+          </animateMotion>
+        </circle>
+        <circle r="5" fill="#06B6D4" filter="url(#dotGlow)">
+          <animateMotion dur="2.5s" repeatCount="indefinite" begin="0s">
+            <mpath href="#line-out-1"/>
+          </animateMotion>
+        </circle>
+        <circle r="5" fill="#06B6D4" filter="url(#dotGlow)">
+          <animateMotion dur="2.5s" repeatCount="indefinite" begin="0.5s">
+            <mpath href="#line-out-2"/>
+          </animateMotion>
+        </circle>
+        <circle r="5" fill="#06B6D4" filter="url(#dotGlow)">
+          <animateMotion dur="2.5s" repeatCount="indefinite" begin="1s">
+            <mpath href="#line-out-3"/>
+          </animateMotion>
+        </circle>
+      </svg>
+
+      <!-- LEFT: channel input cards -->
+      <div class="flow-left">
+        <span class="col-label">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+            <path d="M3 11 a5 5 0 0 1 10 0"/>
+            <path d="M5 11 a3 3 0 0 1 6 0"/>
+            <circle cx="8" cy="11" r="1" fill="currentColor"/>
+          </svg>
+          Your Campaigns
+        </span>
+
+        <div class="channel-card card-google">
+          <div class="icon-box" style="background: linear-gradient(135deg, #4285F4, #34A853);">
+            <svg viewBox="0 0 24 24" fill="white"><path d="M12 10v4h6c-.5 2-2 4-6 4-4 0-7-3-7-7s3-7 7-7c2 0 3.5.8 4.4 1.6l3-3C18 1.1 15 0 12 0 5.4 0 0 5.4 0 12s5.4 12 12 12c7 0 11.6-4.9 11.6-11.8 0-.8-.1-1.4-.2-2.2H12z"/></svg>
+          </div>
+          <div>
+            <div class="card-name">Google Ads</div>
+            <div class="card-sub">Search · Display</div>
+          </div>
+        </div>
+
+        <div class="channel-card card-meta">
+          <div class="icon-box" style="background: linear-gradient(135deg, #0866FF, #EE2A7B);">
+            <svg viewBox="0 0 24 24" fill="white"><path d="M22 12c0-5.5-4.5-10-10-10S2 6.5 2 12c0 5 3.7 9.1 8.4 9.9v-7H7.9V12h2.5V9.8c0-2.5 1.5-3.9 3.8-3.9 1.1 0 2.2.2 2.2.2v2.5h-1.3c-1.2 0-1.6.8-1.6 1.6V12h2.8l-.4 2.9h-2.3v7C18.3 21.1 22 17 22 12z"/></svg>
+          </div>
+          <div>
+            <div class="card-name">Meta</div>
+            <div class="card-sub">Facebook · Instagram</div>
+          </div>
+        </div>
+
+        <div class="channel-card card-youtube">
+          <div class="icon-box" style="background: #FF0000;">
+            <svg viewBox="0 0 24 24" fill="white"><path d="M23 7s-.2-1.6-1-2.3c-.9-1-1.9-1-2.4-1C16.4 3.5 12 3.5 12 3.5s-4.4 0-7.6.2c-.5 0-1.5 0-2.4 1C1.2 5.4 1 7 1 7S.7 8.8.7 10.7v1.8c0 1.9.2 3.7.2 3.7s.2 1.6 1 2.3c.9.9 2.1.9 2.6 1 1.9.2 8 .2 8 .2s4.4 0 7.6-.2c.5 0 1.5-.1 2.4-1 .8-.8 1-2.3 1-2.3s.2-1.8.2-3.7v-1.8c.1-1.9-.2-3.7-.2-3.7zm-13.2 7.5V7.7L15.5 11l-5.7 3.5z"/></svg>
+          </div>
+          <div>
+            <div class="card-name">YouTube</div>
+            <div class="card-sub">Video ads</div>
+          </div>
+        </div>
+
+        <div class="channel-card card-tiktok">
+          <div class="icon-box" style="background: linear-gradient(135deg, #25F4EE, #000000, #FE2C55);">
+            <svg viewBox="0 0 24 24" fill="white"><path d="M19.6 5.8c-1.2-.8-2.1-2.1-2.4-3.6h-3v13.2c-.1 1.4-1.3 2.6-2.7 2.6-1.5 0-2.7-1.2-2.7-2.7 0-1.6 1.6-2.9 3.2-2.4V9.7c-3.4-.4-6.4 2.2-6.4 5.7 0 3.4 2.8 5.8 5.8 5.8 3.2 0 5.8-2.6 5.8-5.8V9.1c1.3.9 2.9 1.5 4.6 1.5V7.5c0 .1-1.1.1-2.2-1.7z"/></svg>
+          </div>
+          <div>
+            <div class="card-name">TikTok</div>
+            <div class="card-sub">Short video</div>
+          </div>
+        </div>
+
+        <div class="channel-card card-whatsapp">
+          <div class="icon-box" style="background: #25D366;">
+            <svg viewBox="0 0 24 24" fill="white"><path d="M17.5 14.4c-.3-.1-1.7-.8-2-.9-.3-.1-.5-.1-.7.1-.2.3-.8.9-1 1.1-.2.2-.4.2-.7.1-.3-.1-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.5.1-.6.1-.1.3-.4.4-.5.1-.2.2-.3.3-.5.1-.2 0-.4-.1-.5-.1-.1-.7-1.7-1-2.3-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.5s1.1 2.9 1.2 3.1c.1.2 2.1 3.2 5.1 4.5.7.3 1.3.5 1.7.6.7.2 1.4.2 1.9.1.6-.1 1.7-.7 2-1.4.2-.6.2-1.2.2-1.3-.1-.1-.3-.2-.5-.3zM12 2C6.5 2 2 6.5 2 12c0 1.8.5 3.5 1.4 5L2 22l5.2-1.4c1.5.8 3.1 1.3 4.8 1.3 5.5 0 10-4.5 10-10S17.5 2 12 2z"/></svg>
+          </div>
+          <div>
+            <div class="card-name">WhatsApp</div>
+            <div class="card-sub">Direct messaging</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CENTER: BrandAid engine -->
+      <div class="flow-engine">
+        <div class="pulse-ring ring-1"></div>
+        <div class="pulse-ring ring-2"></div>
+        <div class="pulse-ring ring-3"></div>
+
+        <div class="engine-body">
+          <div class="engine-logo">+</div>
+          <div class="engine-brand">BrandAid AI</div>
+          <div class="engine-status" id="engineStatus">Analyzing...</div>
+          <div class="engine-eq">
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+          </div>
+        </div>
+
+        <div class="orbit-dot"></div>
+        <div class="orbit-dot"></div>
+        <div class="orbit-dot"></div>
+      </div>
+
+      <!-- RIGHT: prediction outputs -->
+      <div class="flow-right">
+        <span class="col-label indigo">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 12 L13 4 M8 4 L13 4 L13 9"/>
+          </svg>
+          Predicted Outcomes
+        </span>
+
+        <!-- ROAS -->
+        <div class="prediction-card">
+          <div class="pred-top">
+            <span class="pred-label">Predicted ROAS</span>
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#10B981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11 L8 6 L12 10 L14 8 M14 8 L14 4 L10 4"/></svg>
+          </div>
+          <div class="pred-big">3.6×</div>
+          <div class="pred-delta">+1.2× vs original</div>
+          <div class="pred-bars">
+            <div class="b"></div><div class="b"></div><div class="b"></div>
+            <div class="b"></div><div class="b"></div><div class="b"></div>
+          </div>
+        </div>
+
+        <!-- Revenue -->
+        <div class="prediction-card">
+          <div class="pred-top">
+            <span class="pred-label">Revenue Forecast</span>
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#10B981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11 L8 6 L12 10 L14 8"/></svg>
+          </div>
+          <div class="pred-big dark">৳458K</div>
+          <div class="pred-sub">Estimated total revenue</div>
+          <svg class="pred-spark" width="100%" height="20" viewBox="0 0 80 20" preserveAspectRatio="none">
+            <polyline points="2,17 14,14 26,11 38,8 50,6 62,4 74,2"
+              fill="none" stroke="#06B6D4" stroke-width="2.5"
+              stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="74" cy="2" r="2.5" fill="#06B6D4"/>
+          </svg>
+          <span class="pred-growth-badge">+280% growth</span>
+        </div>
+
+        <!-- Reach -->
+        <div class="prediction-card">
+          <div class="pred-top">
+            <span class="pred-label">Estimated Reach</span>
+          </div>
+          <div class="pred-big dark" style="font-size: 26px;">215K – 280K</div>
+          <div class="audience-stack">
+            <div class="av" style="background:#4338CA;"></div>
+            <div class="av" style="background:#6366F1;"></div>
+            <div class="av" style="background:#818CF8;"></div>
+            <div class="av" style="background:#A5B4FC;"></div>
+          </div>
+          <div class="pred-sub" style="margin-top: 6px;">Unique people across 3 channels</div>
+        </div>
+      </div>
+
+      <!-- Floating money symbols -->
+      <span class="money-float money-1">৳</span>
+      <span class="money-float money-2">৳</span>
+      <span class="money-float money-3">৳</span>
+      <span class="money-float money-4">৳</span>
+      <span class="money-float money-5">৳</span>
+      <span class="money-float money-6">৳</span>
+      <span class="money-float money-7">৳</span>
+    </div>
+  </section>
+
+  <!-- ============ SECTION 3: Problem ============ -->
+  <section class="section-problem animate-on-scroll" id="about">
+    <div class="container">
+      <div class="section-head">
+        <span class="pill danger">The Problem</span>
+        <h2>Every campaign is a guess —<br>until you've <span class="danger-word">spent the budget</span>.</h2>
+        <p class="sub">You design the campaign. You set the budget. You hit launch. And then you wait three weeks to know if it worked. By then, the money is gone.</p>
+      </div>
+
+      <div class="marketer-svg-wrap">
+        <img src="assets/problem-icon.webp" alt="Stressed marketer at laptop" class="marketer-photo">
+      </div>
+
+      <div class="pain-grid">
+        <!-- Pain 1: Launch and pray -->
+        <div class="pain-card">
+          <div class="pain-icon">
+            <svg viewBox="0 0 42 42" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M21 4 L28 18 L21 24 L14 18 Z" fill="#EF4444"/>
+              <circle cx="21" cy="14" r="2.5" fill="#FEF2F2"/>
+              <path d="M14 18 L11 26 L14 23 Z" fill="#F59E0B"/>
+              <path d="M28 18 L31 26 L28 23 Z" fill="#F59E0B"/>
+              <circle cx="21" cy="30" r="2.5" fill="#94A3B8" opacity="0.55"/>
+              <circle cx="17" cy="34" r="1.8" fill="#94A3B8" opacity="0.4"/>
+              <circle cx="25" cy="34" r="1.8" fill="#94A3B8" opacity="0.4"/>
+              <text x="9"  y="13" font-family="Arial" font-size="9" fill="#EF4444" font-weight="800">?</text>
+              <text x="32" y="16" font-family="Arial" font-size="8" fill="#F59E0B" font-weight="800">?</text>
+            </svg>
+          </div>
+          <div class="pain-title">Launch and pray</div>
+          <div class="pain-body">Most marketers hit 'launch' without knowing if the campaign will actually deliver. Then wait weeks to find out it didn't.</div>
+          <div class="pain-meta">
+            <div class="av-stack">
+              <div class="av" style="background:#EF4444;"></div>
+              <div class="av" style="background:#F59E0B;"></div>
+              <div class="av" style="background:#94A3B8;"></div>
+            </div>
+            <span class="meta-text">73% of SMEs report this</span>
+          </div>
+        </div>
+
+        <!-- Pain 2: Expensive trial and error -->
+        <div class="pain-card">
+          <div class="pain-icon">
+            <svg viewBox="0 0 42 42" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="11" y="22" width="20" height="11" fill="#4338CA" rx="1.5"/>
+              <rect x="13" y="20" width="20" height="11" fill="#10B981" rx="1.5"/>
+              <rect x="12" y="18" width="20" height="11" fill="#6366F1" rx="1.5"/>
+              <text x="22" y="26" font-family="Arial" font-size="7" fill="white" font-weight="800" text-anchor="middle">৳</text>
+              <path d="M22 17 Q18 11 20 5 Q22 9 24 5 Q26 11 22 17" fill="#EF4444"/>
+              <path d="M22 15 Q19.5 10.5 21 6 Q22 9 23 6 Q24.5 10.5 22 15" fill="#F59E0B"/>
+              <path d="M22 13 Q21 10 21.5 7.5 Q22 9 22.5 7.5 Q23 10 22 13" fill="#FBBF24"/>
+            </svg>
+          </div>
+          <div class="pain-title">Expensive trial and error</div>
+          <div class="pain-body">A/B tests and pilot campaigns cost real budget and real weeks. Most SMEs can't afford to learn the hard way.</div>
+          <div class="pain-meta">
+            <div class="av-stack">
+              <div class="av" style="background:#F59E0B;"></div>
+              <div class="av" style="background:#EF4444;"></div>
+              <div class="av" style="background:#6366F1;"></div>
+            </div>
+            <span class="meta-text">৳40K avg wasted</span>
+          </div>
+        </div>
+
+        <!-- Pain 3: One-size-fits-none -->
+        <div class="pain-card">
+          <div class="pain-icon">
+            <svg viewBox="0 0 42 42" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="10" y="9" width="22" height="24" rx="2.5" fill="#E2E8F0" stroke="#94A3B8" stroke-width="1.4"/>
+              <rect x="13" y="13" width="11" height="2.5" rx="1" fill="#94A3B8"/>
+              <rect x="13" y="18" width="16" height="1.6" rx="0.8" fill="#CBD5E1"/>
+              <rect x="13" y="22" width="13" height="1.6" rx="0.8" fill="#CBD5E1"/>
+              <rect x="13" y="26" width="9"  height="2.5" rx="1"   fill="#94A3B8"/>
+              <text x="5"  y="14" font-family="Arial" font-size="9" fill="#EF4444" font-weight="800">✕</text>
+              <text x="33" y="22" font-family="Arial" font-size="8" fill="#EF4444" font-weight="800">✕</text>
+              <text x="31" y="34" font-family="Arial" font-size="7" fill="#EF4444" font-weight="800">✕</text>
+            </svg>
+          </div>
+          <div class="pain-title">One-size-fits-none</div>
+          <div class="pain-body">Industry benchmarks don't know your audience, your offer, or your market. Generic advice produces generic results.</div>
+          <div class="pain-meta">
+            <div class="av-stack">
+              <div class="av" style="background:#6366F1;"></div>
+              <div class="av" style="background:#4338CA;"></div>
+              <div class="av" style="background:#A5B4FC;"></div>
+            </div>
+            <span class="meta-text">Generic = no ROI</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SECTION 4: How It Works ============ -->
+  <section class="section-how animate-on-scroll" id="how">
+    <div class="container">
+      <div class="section-head">
+        <span class="pill indigo">How It Works</span>
+        <h2>Three steps from idea to confident launch.</h2>
+        <p class="sub">No forms. No setup wizards. Just describe your campaign and watch the AI work.</p>
+      </div>
+
+      <div class="steps-wrap">
+        <!-- Step 1: Browser scan -->
+        <div class="step-row">
+          <div class="step-viz">
+            <div class="browser-mock">
+              <div class="browser-bar">
+                <span class="browser-dot r"></span>
+                <span class="browser-dot a"></span>
+                <span class="browser-dot g"></span>
+                <div class="browser-url">
+                  <span class="lock">🔒</span>
+                  <span>abcfashion.com</span>
+                </div>
+              </div>
+              <div class="browser-body">
+                <div class="scan-block-h"></div>
+                <div class="scan-block-2col">
+                  <div class="a"></div>
+                  <div class="b"></div>
+                </div>
+                <div class="scan-block-grid">
+                  <div class="sq"></div>
+                  <div class="sq"></div>
+                  <div class="sq"></div>
+                  <div class="sq"></div>
+                </div>
+                <div class="scan-line"></div>
+              </div>
+            </div>
+
+            <div class="profile-emerge">
+              <div class="profile-emerge-head">
+                <span class="e-dot"></span>
+                Profile Generated
+              </div>
+              <div class="profile-line pl1"><span class="em-ck">✓</span>Business: D2C Fashion</div>
+              <div class="profile-line pl2"><span class="em-ck">✓</span>Audience: Women 22-38</div>
+              <div class="profile-line pl3"><span class="em-ck">✓</span>Channels: FB, IG, WA</div>
+              <div class="profile-line pl4"><span class="em-ck">✓</span>Tone: Warm, premium</div>
+            </div>
+          </div>
+
+          <div>
+            <div class="step-num">01</div>
+            <div class="step-title">Share your website</div>
+            <div class="step-body">Drop in your URL. BrandAid reads your homepage, products, audience signals, and brand voice — automatically. No forms, no setup wizard. Your business profile is built in 30 seconds.</div>
+            <div class="step-pills">
+              <span class="step-pill">Auto-detected products</span>
+              <span class="step-pill">Audience inferred</span>
+              <span class="step-pill">Brand voice analyzed</span>
+              <span class="step-pill">No forms</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2: Chat -->
+        <div class="step-row reverse">
+          <div class="step-viz">
+            <div class="chat-mock">
+              <div class="chat-msg ai m1">
+                <span class="chat-avatar">B</span>
+                <span>What's your campaign goal?</span>
+              </div>
+              <div class="chat-options m1" style="opacity:0; animation: chat-in 6s ease-in-out infinite; animation-delay: 0.3s;">
+                <span class="chip-option">🎯 Awareness</span>
+                <span class="chip-option sel">💰 Conversion</span>
+                <span class="chip-option">🔁 Retention</span>
+              </div>
+              <div class="chat-msg user m2">Conversion</div>
+              <div class="chat-msg ai m3">
+                <span class="chat-avatar">B</span>
+                <span>Great — driving sales. Show me your creative and the offer...</span>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="step-num">02</div>
+            <div class="step-title">Brief your campaign</div>
+            <div class="step-body">Have a conversation, not a form. Tell BrandAid your goal, your budget, your channels. Upload your creative. The AI asks smart questions based on your business — never generic ones.</div>
+            <div class="step-pills">
+              <span class="step-pill">Smart questions</span>
+              <span class="step-pill">Upload creative</span>
+              <span class="step-pill">No redundancy</span>
+              <span class="step-pill">Talks like a strategist</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3: Simulation results -->
+        <div class="step-row">
+          <div class="step-viz">
+            <div class="sim-mock">
+              <div class="sim-mock-top">Eid Collection 2026 — Results</div>
+              <div class="sim-metric-grid">
+                <div class="mini-metric">
+                  <div class="mini-metric-label">Reach</div>
+                  <div class="mini-metric-value">215K – 280K</div>
+                </div>
+                <div class="mini-metric">
+                  <div class="mini-metric-label">ROAS</div>
+                  <div class="mini-metric-value em">3.6×</div>
+                </div>
+                <div class="mini-metric">
+                  <div class="mini-metric-label">Orders</div>
+                  <div class="mini-metric-value">145 – 210</div>
+                </div>
+                <div class="mini-metric">
+                  <div class="mini-metric-label">CPA</div>
+                  <div class="mini-metric-value">620 BDT</div>
+                </div>
+              </div>
+              <div class="mini-bars">
+                <div class="mb mb1"></div>
+                <div class="mb mb2"></div>
+                <div class="mb mb3"></div>
+                <div class="mb mb4"></div>
+                <div class="mb mb5"></div>
+              </div>
+              <div class="sim-mock-insights">
+                <div class="sim-mock-insight good">✓ Strong audience fit</div>
+                <div class="sim-mock-insight good">✓ Offer competitive</div>
+                <div class="sim-mock-insight warn">⚠ Budget runway short</div>
+              </div>
+              <div class="sim-mock-recs">3 recommendations →</div>
+            </div>
+          </div>
+
+          <div>
+            <div class="step-num">03</div>
+            <div class="step-title">Get predictions + a plan</div>
+            <div class="step-body">See your ROAS, reach, conversions — with confidence ranges. Get reasoning for every prediction and ranked recommendations to improve. Apply them, rerun the simulation, and launch with a complete playbook.</div>
+            <div class="step-pills">
+              <span class="step-pill">Confidence intervals</span>
+              <span class="step-pill">Ranked recommendations</span>
+              <span class="step-pill">Launch plan</span>
+              <span class="step-pill">Before/after comparison</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SECTION 5: Features ============ -->
+  <section class="section-features animate-on-scroll" id="features">
+    <div class="container">
+      <div class="section-head">
+        <span class="pill indigo">Features</span>
+        <h2>Everything you need to launch with confidence.</h2>
+        <p class="sub">Built specifically for the moment you decide to spend money.</p>
+      </div>
+
+      <div class="features-grid">
+        <!-- Feature 1 — Domain Intelligence -->
+        <div class="feat-card">
+          <div class="feat-illu">
+            <svg width="100%" height="80" viewBox="0 0 200 80">
+              <rect x="30" y="20" width="60" height="45" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="2" rx="4"/>
+              <rect x="34" y="24" width="52" height="6" fill="#E2E8F0" rx="2"/>
+              <rect x="34" y="34" width="40" height="3" fill="#CBD5E1" rx="1"/>
+              <rect x="34" y="40" width="48" height="3" fill="#CBD5E1" rx="1"/>
+              <rect x="34" y="46" width="35" height="3" fill="#CBD5E1" rx="1"/>
+              <path d="M 100 42 L 125 42 M 120 38 L 125 42 L 120 46" stroke="#4338CA" stroke-width="2" fill="none" stroke-linecap="round"/>
+              <rect x="130" y="20" width="55" height="45" fill="#EEF2FF" stroke="#4338CA" stroke-width="2" rx="4"/>
+              <circle cx="142" cy="32" r="5" fill="#4338CA"/>
+              <rect x="152" y="29" width="22" height="3" fill="#4338CA" rx="1"/>
+              <rect x="152" y="35" width="18" height="2" fill="#10B981" rx="1"/>
+              <rect x="134" y="44" width="46" height="3" fill="#6366F1" rx="1"/>
+              <rect x="134" y="50" width="40" height="3" fill="#A5B4FC" rx="1"/>
+              <rect x="134" y="56" width="35" height="3" fill="#A7F3D0" rx="1"/>
+            </svg>
+          </div>
+          <div class="feat-title">Instant business profile</div>
+          <div class="feat-body">Submit your domain. We read your website, understand your products, audience, and brand voice — in 30 seconds.</div>
+        </div>
+
+        <!-- Feature 2 — Full simulation -->
+        <div class="feat-card">
+          <div class="feat-illu">
+            <svg width="100%" height="80" viewBox="0 0 200 80">
+              <rect x="30"  y="15" width="40" height="55" fill="#EEF2FF" stroke="#A5B4FC" rx="4"/>
+              <rect x="80"  y="15" width="40" height="55" fill="#EEF2FF" stroke="#A5B4FC" rx="4"/>
+              <rect x="130" y="15" width="40" height="55" fill="#EEF2FF" stroke="#A5B4FC" rx="4"/>
+              <rect x="35"  y="50" width="6" height="15" fill="#4338CA"/>
+              <rect x="45"  y="45" width="6" height="20" fill="#4338CA"/>
+              <rect x="55"  y="40" width="6" height="25" fill="#4338CA"/>
+              <rect x="85"  y="40" width="6" height="25" fill="#4338CA"/>
+              <rect x="95"  y="32" width="6" height="33" fill="#4338CA"/>
+              <rect x="105" y="25" width="6" height="40" fill="#4338CA"/>
+              <rect x="135" y="30" width="6" height="35" fill="#4338CA"/>
+              <rect x="145" y="22" width="6" height="43" fill="#4338CA"/>
+              <rect x="155" y="18" width="6" height="47" fill="#4338CA"/>
+            </svg>
+          </div>
+          <div class="feat-title">Full campaign simulation</div>
+          <div class="feat-body">Not just creative scoring — we simulate the entire campaign: audience reactions, channel performance, and budget efficiency.</div>
+        </div>
+
+        <!-- Feature 3 — ROAS forecast -->
+        <div class="feat-card">
+          <div class="feat-illu">
+            <svg width="100%" height="80" viewBox="0 0 200 80">
+              <polyline points="20,60 50,52 80,40 110,28 140,18 170,10"
+                fill="none" stroke="#4338CA" stroke-width="3" stroke-linecap="round"/>
+              <circle cx="20"  cy="60" r="4" fill="#4338CA"/>
+              <circle cx="50"  cy="52" r="4" fill="#4338CA"/>
+              <circle cx="80"  cy="40" r="4" fill="#4338CA"/>
+              <circle cx="110" cy="28" r="4" fill="#4338CA"/>
+              <circle cx="140" cy="18" r="4" fill="#4338CA"/>
+              <circle cx="170" cy="10" r="5" fill="#3730A3"/>
+              <text x="35"  y="40" font-family="Arial" font-size="14" fill="#6366F1" font-weight="700">৳</text>
+              <text x="95"  y="20" font-family="Arial" font-size="16" fill="#10B981" font-weight="700">৳</text>
+              <text x="155" y="5"  font-family="Arial" font-size="18" fill="#4338CA" font-weight="700">৳</text>
+            </svg>
+          </div>
+          <div class="feat-title">ROAS &amp; revenue forecast</div>
+          <div class="feat-body">Predicted revenue, conversions, and return on ad spend with confidence ranges — so you know what to expect before committing.</div>
+        </div>
+
+        <!-- Feature 4 — Explainable -->
+        <div class="feat-card">
+          <div class="feat-illu">
+            <svg width="100%" height="80" viewBox="0 0 200 80">
+              <text x="100" y="32" font-family="Arial" font-size="24" fill="#4338CA" font-weight="800" text-anchor="middle">3.6×</text>
+              <circle cx="135" cy="22" r="10" fill="none" stroke="#0F172A" stroke-width="2"/>
+              <line x1="143" y1="30" x2="150" y2="37" stroke="#0F172A" stroke-width="2" stroke-linecap="round"/>
+              <rect x="40" y="45" width="120" height="4" fill="#E2E8F0" rx="2"/>
+              <rect x="40" y="45" width="80"  height="4" fill="#4338CA" rx="2"/>
+              <rect x="40" y="55" width="120" height="4" fill="#E2E8F0" rx="2"/>
+              <rect x="40" y="55" width="60"  height="4" fill="#6366F1" rx="2"/>
+              <rect x="40" y="65" width="120" height="4" fill="#E2E8F0" rx="2"/>
+              <rect x="40" y="65" width="100" height="4" fill="#4338CA" rx="2"/>
+            </svg>
+          </div>
+          <div class="feat-title">Explainable predictions</div>
+          <div class="feat-body">Every number comes with a reason. Know what's strengthening your campaign and what's holding it back — not just the score.</div>
+        </div>
+
+        <!-- Feature 5 — Apply & rerun -->
+        <div class="feat-card">
+          <div class="feat-illu">
+            <svg width="100%" height="80" viewBox="0 0 200 80">
+              <rect x="20" y="20" width="55" height="40" fill="#FEE2E2" stroke="#FCA5A5" rx="4"/>
+              <text x="47" y="40" font-family="Arial" font-size="14" fill="#DC2626" font-weight="700" text-anchor="middle">2.4×</text>
+              <text x="47" y="52" font-family="Arial" font-size="9"  fill="#94A3B8" text-anchor="middle">Before</text>
+              <path d="M 90 30 Q 100 25, 110 30 L 105 35 M 110 30 L 110 25" stroke="#4338CA" stroke-width="2" fill="none" stroke-linecap="round"/>
+              <path d="M 110 50 Q 100 55, 90 50 L 95 45 M 90 50 L 90 55"   stroke="#4338CA" stroke-width="2" fill="none" stroke-linecap="round"/>
+              <rect x="125" y="20" width="55" height="40" fill="#E0E7FF" stroke="#4338CA" stroke-width="2" rx="4"/>
+              <text x="152" y="40" font-family="Arial" font-size="14" fill="#3730A3" font-weight="700" text-anchor="middle">3.6×</text>
+              <text x="152" y="52" font-family="Arial" font-size="9"  fill="#94A3B8" text-anchor="middle">After</text>
+            </svg>
+          </div>
+          <div class="feat-title">Apply &amp; rerun instantly</div>
+          <div class="feat-body">Apply AI recommendations and rerun the simulation. See before/after comparisons until you're confident the campaign will win.</div>
+        </div>
+
+        <!-- Feature 6 — Launch plan -->
+        <div class="feat-card">
+          <div class="feat-illu">
+            <svg width="100%" height="80" viewBox="0 0 200 80">
+              <rect x="40" y="15" width="120" height="55" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="2" rx="6"/>
+              <circle cx="52" cy="28" r="4" fill="#4338CA"/>
+              <path d="M 49 28 L 51 30 L 55 26" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+              <rect x="62" y="25" width="80" height="3" fill="#0F172A" rx="1"/>
+              <circle cx="52" cy="42" r="4" fill="#4338CA"/>
+              <path d="M 49 42 L 51 44 L 55 40" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+              <rect x="62" y="40" width="70" height="3" fill="#0F172A" rx="1"/>
+              <circle cx="52" cy="56" r="4" fill="white" stroke="#4338CA" stroke-width="2"/>
+              <rect x="62" y="54" width="90" height="3" fill="#94A3B8" rx="1"/>
+            </svg>
+          </div>
+          <div class="feat-title">Step-by-step launch plan</div>
+          <div class="feat-body">BrandAid doesn't just predict — it gives you the exact setup, pacing, and optimisation playbook for the campaign you're about to launch.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SECTION 6: Funnel ============ -->
+  <section class="section-funnel animate-on-scroll">
+    <!-- decorative dots -->
+    <div class="funnel-dot-decor" style="top: 12%;  left: 8%;  animation-delay: 0s;"></div>
+    <div class="funnel-dot-decor" style="top: 30%;  right: 6%; animation-delay: 0.8s;"></div>
+    <div class="funnel-dot-decor" style="top: 60%;  left: 14%; animation-delay: 1.6s;"></div>
+    <div class="funnel-dot-decor" style="bottom: 14%; right: 20%; animation-delay: 2.4s;"></div>
+    <div class="funnel-dot-decor" style="bottom: 22%; left: 40%; animation-delay: 3.2s;"></div>
+    <div class="funnel-dot-decor" style="top: 8%; right: 30%; animation-delay: 4s;"></div>
+
+    <div class="container">
+      <div class="section-head">
+        <span class="pill dark-em">Full Funnel Coverage</span>
+        <h2 class="white">
+          Any campaign type. Any funnel stage.<br>
+          We've got you
+          <span class="squig-wrap">
+            <span class="accent-word">covered.</span>
+            <svg class="squig" viewBox="0 0 200 14" preserveAspectRatio="none">
+              <path d="M 2 8 Q 50 2, 100 8 T 198 8"
+                stroke="#6366F1" stroke-width="4" fill="none" stroke-linecap="round"/>
+            </svg>
+          </span>
+        </h2>
+        <p class="sub muted-dark">From a Facebook awareness push to a WhatsApp flash sale — BrandAid simulates campaigns across every channel and every stage of your marketing funnel.</p>
+      </div>
+
+      <div class="funnel-wrap">
+        <svg class="funnel-svg" viewBox="0 0 1100 380" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="funnelGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%"   stop-color="#6366F1" stop-opacity="0.15"/>
+              <stop offset="50%"  stop-color="#4338CA" stop-opacity="0.25"/>
+              <stop offset="100%" stop-color="#10B981" stop-opacity="0.35"/>
+            </linearGradient>
+          </defs>
+          <path d="M 50 60 L 1050 130 L 1050 250 L 50 320 Z"
+            fill="url(#funnelGrad)"
+            stroke="#6366F1"
+            stroke-width="1.5"
+            stroke-dasharray="6 4"
+            opacity="0.6"/>
+        </svg>
+
+        <!-- Floating cards above funnel -->
+        <div class="floating-cards">
+          <div class="float-card fc1">
+            <div class="fc-title">📱 Eid Push</div>
+            <div class="fc-sub">Meta · 3.2× ROAS</div>
+          </div>
+          <div class="float-card fc2">
+            <div class="fc-title">📧 Newsletter</div>
+            <div class="fc-sub">Email · 28% open</div>
+          </div>
+          <div class="float-card fc3">
+            <div class="fc-title">💬 Flash WA</div>
+            <div class="fc-sub">WhatsApp · 14% CVR</div>
+          </div>
+          <div class="float-card fc4">
+            <div class="fc-title">🎬 Brand Video</div>
+            <div class="fc-sub">YouTube · 245K reach</div>
+          </div>
+          <div class="float-card fc5">
+            <div class="fc-title">🛒 Cart Recovery</div>
+            <div class="fc-sub">Email · 12% recover</div>
+          </div>
+          <div class="float-card fc6">
+            <div class="fc-title">🔍 Brand Search</div>
+            <div class="fc-sub">Google · 4.1% CTR</div>
+          </div>
+        </div>
+
+        <div class="funnel-stages">
+          <div class="stage">
+            <div class="stage-num">01</div>
+            <div class="stage-title">Awareness</div>
+            <div class="stage-sub">Get noticed</div>
+            <div class="stage-chips">
+              <span class="stage-chip">Social Paid</span>
+              <span class="stage-chip">Influencer</span>
+              <span class="stage-chip">Video Ads</span>
+            </div>
+          </div>
+          <div class="stage">
+            <div class="stage-num">02</div>
+            <div class="stage-title">Consideration</div>
+            <div class="stage-sub">Build trust</div>
+            <div class="stage-chips">
+              <span class="stage-chip">Search Ads</span>
+              <span class="stage-chip">Content</span>
+              <span class="stage-chip">Email</span>
+            </div>
+          </div>
+          <div class="stage featured">
+            <div class="stage-num">03</div>
+            <div class="stage-title">Conversion</div>
+            <div class="stage-sub">Close the deal</div>
+            <div class="stage-chips">
+              <span class="stage-chip">Google Shopping</span>
+              <span class="stage-chip">WhatsApp</span>
+              <span class="stage-chip">Retargeting</span>
+            </div>
+          </div>
+          <div class="stage">
+            <div class="stage-num">04</div>
+            <div class="stage-title">Retention</div>
+            <div class="stage-sub">Keep them coming back</div>
+            <div class="stage-chips">
+              <span class="stage-chip">Email Series</span>
+              <span class="stage-chip">Loyalty</span>
+              <span class="stage-chip">Win-back</span>
+            </div>
+          </div>
+          <div class="stage">
+            <div class="stage-num">05</div>
+            <div class="stage-title">Advocacy</div>
+            <div class="stage-sub">Turn into promoters</div>
+            <div class="stage-chips">
+              <span class="stage-chip">Referrals</span>
+              <span class="stage-chip">UGC</span>
+              <span class="stage-chip">Reviews</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="funnel-stats">
+        <div class="funnel-stat">
+          <div class="funnel-stat-val em">12+ Campaign Types</div>
+          <div class="funnel-stat-label">Supported</div>
+        </div>
+        <div class="funnel-stat">
+          <div class="funnel-stat-val">5 Funnel Stages</div>
+          <div class="funnel-stat-label">Covered</div>
+        </div>
+        <div class="funnel-stat">
+          <div class="funnel-stat-val em">20+ Channels</div>
+          <div class="funnel-stat-label">Predicted</div>
+        </div>
+      </div>
+
+      <div class="funnel-cta">
+        <a href="#features">Explore all campaign types →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SECTION 7: Live Demo ============ -->
+  <section class="section-livedemo animate-on-scroll">
+    <div class="container">
+      <div class="section-head">
+        <span class="pill lightning">⚡ Live Demo</span>
+        <h2>Watch the simulation in motion.</h2>
+        <p class="sub">Three minutes from campaign brief to confident launch plan.</p>
+      </div>
+
+      <div class="livedemo-panels">
+        <!-- Panel 1: Brief -->
+        <div class="demo-panel">
+          <div class="demo-step-label">Step 1 of 3</div>
+          <div class="demo-panel-title">Brief</div>
+          <div class="demo-panel-sub">Tell BrandAid your campaign</div>
+          <div class="demo-viz">
+            <div class="demo-chat-fragment">What's your campaign goal?</div>
+            <div class="demo-chip-row">
+              <span class="demo-chip">Awareness</span>
+              <span class="demo-chip sel">Conversion</span>
+              <span class="demo-chip">Retention</span>
+            </div>
+            <div class="demo-chat-fragment">Got it. What's your budget?</div>
+            <div class="demo-slider-wrap">
+              <div class="demo-slider-track">
+                <div class="demo-slider-fill"></div>
+                <div class="demo-slider-handle"></div>
+              </div>
+              <div class="demo-slider-label">150K BDT</div>
+            </div>
+          </div>
+          <div class="demo-bottom">🕐 ~90 seconds</div>
+        </div>
+
+        <!-- Panel 2: Analyze -->
+        <div class="demo-panel">
+          <div class="demo-step-label">Step 2 of 3</div>
+          <div class="demo-panel-title">Analyze</div>
+          <div class="demo-panel-sub">AI runs 6-layer simulation</div>
+          <div class="demo-viz">
+            <div class="demo-pipeline-step">
+              <span class="dot done">✓</span>
+              <span>Creative scoring</span>
+            </div>
+            <div class="demo-pipeline-step">
+              <span class="dot done">✓</span>
+              <span>Audience simulation</span>
+            </div>
+            <div class="demo-pipeline-step">
+              <span class="dot done">✓</span>
+              <span>Channel forecasting</span>
+            </div>
+            <div class="demo-pipeline-step">
+              <span class="dot active"></span>
+              <span>Budget analysis</span>
+            </div>
+            <div class="demo-pipeline-step pending">
+              <span class="dot pending"></span>
+              <span>Recommendation gen</span>
+            </div>
+            <div class="demo-pipeline-step pending">
+              <span class="dot pending"></span>
+              <span>Confidence score</span>
+            </div>
+          </div>
+          <div class="demo-bottom">🕐 ~30 seconds</div>
+        </div>
+
+        <!-- Panel 3: Predict -->
+        <div class="demo-panel">
+          <div class="demo-step-label">Step 3 of 3</div>
+          <div class="demo-panel-title">Predict</div>
+          <div class="demo-panel-sub">Get your campaign forecast</div>
+          <div class="demo-viz">
+            <div class="predict-roas">3.6×</div>
+            <div class="predict-roas-label">Predicted ROAS</div>
+            <div class="predict-stats">
+              <div class="predict-stat">215K reach</div>
+              <div class="predict-stat">188 orders</div>
+              <div class="predict-stat">89% conf.</div>
+            </div>
+          </div>
+          <div class="demo-bottom ready">Ready to launch →</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SECTION 8: Pricing ============ -->
+  <section class="section-pricing animate-on-scroll" id="pricing">
+    <div class="container">
+      <div class="section-head">
+        <span class="pill indigo">Pricing</span>
+        <h2>Start free. Scale as you grow.</h2>
+        <p class="sub">No credit card. No commitment. Cancel anytime.</p>
+      </div>
+
+      <div class="pricing-grid">
+        <!-- Starter -->
+        <div class="price-card">
+          <div class="plan-name">Starter</div>
+          <div class="price-row">
+            <span class="price-amount">Free</span>
+          </div>
+          <div class="price-sub">Forever</div>
+          <div class="price-divider"></div>
+          <ul class="feature-list">
+            <li><span class="check-circle">✓</span> 5 campaign simulations per month</li>
+            <li><span class="check-circle">✓</span> 1 business profile (domain crawl)</li>
+            <li><span class="check-circle">✓</span> Awareness &amp; Conversion stages</li>
+            <li><span class="check-circle">✓</span> Basic prediction output</li>
+            <li><span class="check-circle">✓</span> Email support</li>
+          </ul>
+          <button class="price-cta outline" data-modal-open>Get started free</button>
+        </div>
+
+        <!-- Growth (Featured) -->
+        <div class="price-card featured">
+          <div class="featured-badge">⭐ Most Popular</div>
+          <div class="plan-name em">Growth</div>
+          <div class="price-row">
+            <span class="price-amount">$29</span>
+            <span class="price-period">/month</span>
+          </div>
+          <div class="price-sub">Billed monthly</div>
+          <div class="price-divider"></div>
+          <ul class="feature-list">
+            <li><span class="check-circle">✓</span> Unlimited simulations</li>
+            <li><span class="check-circle">✓</span> 3 business profiles</li>
+            <li><span class="check-circle">✓</span> All 5 campaign stages</li>
+            <li><span class="check-circle">✓</span> Creative scoring &amp; upload</li>
+            <li><span class="check-circle">✓</span> Launch plan generation</li>
+            <li><span class="check-circle">✓</span> Priority email support</li>
+          </ul>
+          <button class="price-cta solid" data-modal-open>Start 14-day free trial</button>
+        </div>
+
+        <!-- Agency -->
+        <div class="price-card">
+          <div class="plan-name">Agency</div>
+          <div class="price-row">
+            <span class="price-amount">$99</span>
+            <span class="price-period">/month</span>
+          </div>
+          <div class="price-sub">Per workspace</div>
+          <div class="price-divider"></div>
+          <ul class="feature-list">
+            <li><span class="check-circle">✓</span> Everything in Growth</li>
+            <li><span class="check-circle">✓</span> 20 business profiles</li>
+            <li><span class="check-circle">✓</span> White-label reports (PDF)</li>
+            <li><span class="check-circle">✓</span> API access</li>
+            <li><span class="check-circle">✓</span> Multi-user collaboration</li>
+            <li><span class="check-circle">✓</span> Priority phone &amp; chat support</li>
+          </ul>
+          <button class="price-cta outline">Contact us</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SECTION 9: Final CTA ============ -->
+  <section class="section-final-cta animate-on-scroll">
+    <div class="cta-blob-1"></div>
+    <div class="cta-blob-2"></div>
+    <div class="cta-particles">
+      <span style="left: 10%;  bottom: 20%; font-size: 16px; animation-delay: 0s;">৳</span>
+      <span style="left: 25%;  bottom: 10%; font-size: 12px; animation-delay: 0.6s;">৳</span>
+      <span style="right: 12%; bottom: 18%; font-size: 18px; animation-delay: 1.2s;">৳</span>
+      <span style="right: 28%; bottom: 8%;  font-size: 14px; animation-delay: 1.8s;">৳</span>
+      <span style="left: 50%;  bottom: 4%;  font-size: 13px; animation-delay: 2.4s;">৳</span>
+    </div>
+
+    <div class="cta-content">
+      <span class="pill solid-em">Ready to launch?</span>
+      <h2>
+        Your next campaign deserves
+        <span class="squig-wrap">
+          <span style="color: var(--indigo);">to win.</span>
+          <svg class="squig" viewBox="0 0 200 14" preserveAspectRatio="none">
+            <path d="M 2 8 Q 50 2, 100 8 T 198 8"
+              stroke="#6366F1" stroke-width="4" fill="none" stroke-linecap="round"/>
+          </svg>
+        </span>
+        <br>Not deserves to guess.
+      </h2>
+      <p class="cta-sub">Start your free simulation now. No credit card. Know if your campaign will work in under 3 minutes.</p>
+      <div class="cta-buttons">
+        <button class="btn-final-primary" data-modal-open>Start Free Simulation →</button>
+        <button class="btn-final-secondary">Schedule a demo</button>
+      </div>
+      <div class="cta-trustline">Free for 5 campaigns · No credit card required · Cancel anytime</div>
+    </div>
+  </section>
+
+  <!-- ============ SECTION 10: Footer ============ -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="logo">
+            <div class="logo-icon">+</div>
+            <div class="logo-text white">BrandAid</div>
+          </div>
+          <div class="footer-sub">AI-powered campaign intelligence for modern marketers.</div>
+          <div class="social-row">
+            <button class="social-btn" aria-label="LinkedIn">in</button>
+            <button class="social-btn" aria-label="X / Twitter">𝕏</button>
+            <button class="social-btn" aria-label="Facebook">f</button>
+          </div>
+        </div>
+        <div>
+          <div class="footer-label">Product</div>
+          <div class="footer-links">
+            <a href="#features">Features</a>
+            <a href="#how">How It Works</a>
+            <a href="#pricing">Pricing</a>
+            <a href="#">Changelog</a>
+          </div>
+        </div>
+        <div>
+          <div class="footer-label">Company</div>
+          <div class="footer-links">
+            <a href="#about">About</a>
+            <a href="#">Blog</a>
+            <a href="#">Careers</a>
+            <a href="#">Contact</a>
+          </div>
+        </div>
+        <div>
+          <div class="footer-label">Resources</div>
+          <div class="footer-links">
+            <a href="#">Documentation</a>
+            <a href="#">API Reference</a>
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms of Service</a>
+          </div>
+        </div>
+      </div>
+      <div class="footer-divider"></div>
+      <div class="footer-bottom">
+        <div>© 2026 BrandAid. All rights reserved.</div>
+        <div>Made with ❤ for marketers in South Asia</div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ============ Modal ============ -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <button class="modal-close" id="modalClose" aria-label="Close">×</button>
+      <div class="logo">
+        <div class="logo-icon">+</div>
+        <div class="logo-text">BrandAid</div>
+      </div>
+      <div class="modal-heading">Create your free account</div>
+      <div class="modal-sub">Start with 5 free campaign simulations. No credit card.</div>
+      <form class="modal-form" onsubmit="event.preventDefault(); alert('Account creation stub — implementation comes in D-phase.'); document.getElementById('modalOverlay').classList.remove('open');">
+        <input type="text" placeholder="Your full name" required>
+        <input type="email" placeholder="your@email.com" required>
+        <input type="text" placeholder="yourwebsite.com or company name">
+        <input type="password" placeholder="Create a password" required>
+        <button type="submit" class="modal-submit">Create Free Account →</button>
+      </form>
+      <div class="modal-signin">Already have an account? <a>Sign in</a></div>
+    </div>
+  </div>
+
+  <script>
+    // ============ Smooth scroll ============
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener('click', e => {
+        const href = a.getAttribute('href');
+        if (!href || href === '#') return;
+        const target = document.querySelector(href);
+        if (!target) return;
+        e.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth' });
+        document.getElementById('mobileMenu').classList.remove('open');
+      });
+    });
+
+    // ============ Sticky nav state ============
+    const nav = document.getElementById('mainNav');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 60) nav.classList.add('scrolled');
+      else nav.classList.remove('scrolled');
+    });
+
+    // ============ Hamburger ============
+    const hamburger = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobileMenu');
+    hamburger.addEventListener('click', () => {
+      mobileMenu.classList.toggle('open');
+    });
+
+    // ============ Scroll-triggered fade-in ============
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in-view');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12 });
+    document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
+
+    // ============ Hero: draw squiggle underline under "outcome" ============
+    window.addEventListener('load', () => {
+      const path = document.querySelector('.underline-svg path');
+      if (path) {
+        const length = path.getTotalLength();
+        path.style.strokeDasharray = length;
+        path.style.strokeDashoffset = length;
+        path.style.transition = 'stroke-dashoffset 1.2s ease-out 0.5s';
+        setTimeout(() => { path.style.strokeDashoffset = 0; }, 100);
+      }
+    });
+
+    // ============ Hero: cycle "Analyzing." → "Analyzing.." → "Analyzing..." ============
+    const statusEl = document.getElementById('engineStatus');
+    if (statusEl) {
+      let dotCount = 0;
+      setInterval(() => {
+        dotCount = (dotCount + 1) % 4;
+        statusEl.textContent = 'Analyzing' + '.'.repeat(dotCount);
+      }, 500);
+    }
+
+    // ============ Modal ============
+    const modalOverlay = document.getElementById('modalOverlay');
+    const modalClose = document.getElementById('modalClose');
+    document.querySelectorAll('[data-modal-open]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        modalOverlay.classList.add('open');
+        document.body.style.overflow = 'hidden';
+        mobileMenu.classList.remove('open');
+      });
+    });
+    function closeModal() {
+      modalOverlay.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+    modalClose.addEventListener('click', closeModal);
+    modalOverlay.addEventListener('click', (e) => {
+      if (e.target === modalOverlay) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modalOverlay.classList.contains('open')) closeModal();
+    });
+  </script>
+</body>
+</html>

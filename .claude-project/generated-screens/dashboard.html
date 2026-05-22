@@ -1,0 +1,1313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — BrandAid</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <style>
+    :root {
+      --emerald:        #059669;
+      --emerald-bright: #34D399;
+      --emerald-light:  #6EE7B7;
+      --emerald-wash:   #ECFDF5;
+      --emerald-mint:   #D1FAE5;
+      --midnight:       #0F172A;
+      --slate:          #1E293B;
+      --slate-mid:      #334155;
+      --neutral:        #64748B;
+      --border:         #E2E8F0;
+      --white:          #FFFFFF;
+      --warning:        #F59E0B;
+      --danger:         #EF4444;
+      --page-bg:        #F8FAFC;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body { width: 100%; }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--midnight);
+      background: var(--page-bg);
+      padding-top: 3px;
+      min-height: 100vh;
+    }
+
+    /* Brand strip — pinned to viewport top, sits above all content */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--emerald);
+      z-index: 100;
+    }
+
+    button { font-family: inherit; }
+    input { font-family: inherit; }
+    a { color: inherit; text-decoration: none; }
+
+    /* ============ Layout ============ */
+    .app-layout {
+      display: flex;
+      min-height: calc(100vh - 3px);
+    }
+
+    /* ============ Sidebar ============ */
+    .sidebar {
+      width: 240px;
+      background: var(--midnight);
+      position: fixed;
+      top: 3px;
+      left: 0;
+      bottom: 0;
+      display: flex;
+      flex-direction: column;
+      z-index: 50;
+    }
+
+    .sidebar-logo {
+      height: 64px;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    .logo-icon {
+      width: 28px;
+      height: 28px;
+      border: 1.5px solid var(--emerald);
+      border-radius: 7px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--white);
+      flex-shrink: 0;
+    }
+    .logo-icon svg { width: 16px; height: 16px; stroke-width: 2.5; }
+
+    .logo-text {
+      color: var(--white);
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    /* Navigation */
+    .sidebar-nav {
+      padding: 24px 12px 0;
+      position: relative;
+      flex: 1;
+    }
+
+    .nav-indicator {
+      position: absolute;
+      left: 0;
+      width: 3px;
+      height: 28px;
+      background: var(--emerald);
+      border-radius: 0 2px 2px 0;
+      transition: top 0.2s ease;
+      pointer-events: none;
+    }
+
+    .nav-item {
+      height: 44px;
+      padding: 0 16px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #94A3B8;
+      cursor: pointer;
+      transition: background 0.15s ease;
+      margin-bottom: 2px;
+      user-select: none;
+    }
+
+    .nav-item .nav-icon {
+      width: 18px;
+      height: 18px;
+      color: #64748B;
+      transition: color 0.15s ease;
+      flex-shrink: 0;
+    }
+
+    .nav-item .nav-label {
+      font-size: 14px;
+      color: #94A3B8;
+      transition: color 0.15s ease;
+    }
+
+    .nav-item:hover { background: var(--slate); }
+    .nav-item:hover .nav-icon { color: #CBD5E1; }
+    .nav-item:hover .nav-label { color: #E2E8F0; }
+
+    .nav-item.active { background: var(--slate); }
+    .nav-item.active .nav-icon { color: var(--emerald); }
+    .nav-item.active .nav-label { color: var(--white); }
+
+    /* KB Status Card */
+    .kb-card {
+      position: absolute;
+      left: 16px;
+      right: 16px;
+      bottom: 72px;
+      background: var(--slate);
+      border: 1px solid var(--slate-mid);
+      border-radius: 10px;
+      padding: 14px 16px;
+    }
+
+    .kb-top {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .kb-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--emerald);
+      flex-shrink: 0;
+    }
+
+    .kb-label {
+      font-size: 11px;
+      color: #94A3B8;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 500;
+    }
+
+    .kb-name {
+      font-size: 13px;
+      color: var(--white);
+      font-weight: 500;
+      margin-bottom: 10px;
+      line-height: 1.3;
+    }
+
+    .kb-bar {
+      width: 100%;
+      height: 4px;
+      background: var(--slate-mid);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .kb-bar-fill {
+      height: 100%;
+      width: 82%;
+      background: var(--emerald);
+      border-radius: 2px;
+    }
+
+    .kb-progress-text {
+      font-size: 11px;
+      color: var(--neutral);
+      text-align: right;
+      margin-top: 6px;
+    }
+
+    .kb-synced {
+      font-size: 11px;
+      color: #4B5563;
+      margin-top: 4px;
+    }
+
+    /* User Profile */
+    .user-profile {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 56px;
+      padding: 0 16px;
+      border-top: 1px solid var(--slate);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    .user-profile:hover { background: var(--slate); }
+
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--emerald);
+      color: var(--white);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .user-info { flex: 1; min-width: 0; }
+
+    .user-name {
+      font-size: 13px;
+      color: var(--white);
+      font-weight: 500;
+      line-height: 1.3;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .user-sub {
+      font-size: 11px;
+      color: #4B5563;
+      line-height: 1.3;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .user-chevron {
+      width: 14px;
+      height: 14px;
+      color: #4B5563;
+      flex-shrink: 0;
+    }
+
+    /* ============ Main Content ============ */
+    .main-content {
+      margin-left: 240px;
+      flex: 1;
+      min-width: 0;
+    }
+
+    /* Top Bar */
+    .topbar {
+      height: 64px;
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 3px;
+      z-index: 10;
+    }
+
+    .topbar-left .greeting {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--midnight);
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+
+    .topbar-left .date {
+      font-size: 13px;
+      color: var(--neutral);
+      margin-top: 2px;
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .search-wrap {
+      position: relative;
+    }
+
+    .search-wrap .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 15px;
+      height: 15px;
+      color: #94A3B8;
+      pointer-events: none;
+    }
+
+    .search-input {
+      width: 220px;
+      height: 36px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0 12px 0 36px;
+      font-size: 13px;
+      color: var(--midnight);
+      background: var(--white);
+      transition: border-color 0.15s ease;
+    }
+
+    .search-input::placeholder { color: #94A3B8; }
+    .search-input:focus { outline: none; border-color: var(--emerald); }
+
+    .bell-wrap { position: relative; }
+
+    .bell-btn {
+      position: relative;
+      width: 36px;
+      height: 36px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--white);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: border-color 0.15s ease;
+      padding: 0;
+    }
+
+    .bell-btn:hover { border-color: var(--emerald); }
+    .bell-btn .bell-icon { width: 16px; height: 16px; color: var(--neutral); }
+
+    .bell-dot {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      width: 8px;
+      height: 8px;
+      background: var(--danger);
+      border-radius: 50%;
+      border: 2px solid var(--white);
+    }
+
+    .btn-primary {
+      background: var(--emerald);
+      color: var(--white);
+      border: none;
+      border-radius: 8px;
+      padding: 10px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.15s ease, transform 0.15s ease;
+      line-height: 1;
+    }
+
+    .btn-primary:hover {
+      background: #047857;
+      transform: translateY(-1px);
+    }
+
+    .btn-primary .btn-icon { width: 15px; height: 15px; }
+
+    @keyframes pulse-once {
+      0%   { transform: scale(1); }
+      50%  { transform: scale(1.04); }
+      100% { transform: scale(1); }
+    }
+    .btn-primary.pulse { animation: pulse-once 0.6s ease-out; }
+
+    /* Notification dropdown */
+    .notification-dropdown {
+      position: absolute;
+      top: 44px;
+      right: 0;
+      width: 220px;
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      display: none;
+      z-index: 30;
+    }
+
+    .notification-dropdown.open { display: block; }
+
+    .notification-dropdown-header {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--midnight);
+      padding-bottom: 8px;
+      margin-bottom: 4px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .notif-row {
+      display: flex;
+      gap: 10px;
+      padding: 10px 0;
+      align-items: flex-start;
+      border-bottom: 1px solid #F1F5F9;
+    }
+    .notif-row:last-child { border-bottom: none; padding-bottom: 0; }
+
+    .notif-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-top: 5px;
+    }
+
+    .notif-content { flex: 1; min-width: 0; }
+
+    .notif-title {
+      font-size: 12px;
+      color: var(--midnight);
+      line-height: 1.4;
+      font-weight: 500;
+    }
+
+    .notif-time {
+      font-size: 11px;
+      color: var(--neutral);
+      margin-top: 2px;
+    }
+
+    /* ============ Metric Row ============ */
+    .metric-row {
+      margin: 24px 32px 0 32px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .metric-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px 24px;
+      transition: border-color 0.15s ease, transform 0.15s ease;
+      cursor: default;
+    }
+
+    .metric-card:hover {
+      border-color: var(--emerald);
+      transform: translateY(-2px);
+    }
+
+    .metric-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .metric-label {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--neutral);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .metric-icon { width: 18px; height: 18px; color: var(--emerald); flex-shrink: 0; }
+
+    .metric-value {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--midnight);
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      margin-bottom: 8px;
+    }
+    .metric-value.emerald { color: var(--emerald); }
+
+    .metric-sub {
+      font-size: 12px;
+      color: var(--neutral);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .metric-sub.positive { color: var(--emerald); }
+    .metric-sub .sub-icon { width: 13px; height: 13px; }
+
+    .metric-sub-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--emerald);
+      flex-shrink: 0;
+    }
+
+    /* ============ Content Grid ============ */
+    .content-grid {
+      margin: 20px 32px 32px 32px;
+      display: grid;
+      grid-template-columns: 65fr 35fr;
+      gap: 20px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--midnight);
+    }
+
+    .section-link {
+      font-size: 13px;
+      color: var(--emerald);
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .section-link:hover { text-decoration: underline; }
+
+    /* Campaigns */
+    .campaigns-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .campaign-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      cursor: pointer;
+      transition: border-color 0.15s ease, background 0.15s ease;
+    }
+
+    .campaign-card:hover {
+      border-color: var(--emerald-mint);
+      background: #FAFFFE;
+    }
+
+    .campaign-card:hover .campaign-chevron {
+      color: var(--emerald);
+      transform: translateX(3px);
+    }
+
+    /* Channel cluster */
+    .channel-cluster {
+      display: flex;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+
+    .channel-square {
+      width: 26px;
+      height: 26px;
+      border-radius: 7px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--white);
+      flex-shrink: 0;
+    }
+    .channel-square svg { width: 14px; height: 14px; }
+
+    .channel-square.fb { background: #1877F2; }
+    .channel-square.ig { background: linear-gradient(135deg, #833AB4 0%, #FD1D1D 50%, #F77737 100%); }
+    .channel-square.wa { background: #25D366; }
+    .channel-square.em { background: #6366F1; }
+    .channel-square.empty { background: #E2E8F0; color: #94A3B8; }
+
+    .campaign-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .campaign-top {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .status-chip {
+      font-size: 11px;
+      font-weight: 500;
+      border-radius: 20px;
+      padding: 3px 10px;
+      flex-shrink: 0;
+      line-height: 1.4;
+    }
+    .status-chip.simulated { background: var(--emerald-mint); color: #065F46; }
+    .status-chip.launched  { background: #FEF3C7; color: #92400E; }
+    .status-chip.completed { background: #F1F5F9; color: #475569; }
+    .status-chip.draft     { background: #F8FAFC; color: #94A3B8; border: 1px solid var(--border); padding: 2px 9px; }
+
+    .campaign-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--midnight);
+      line-height: 1.4;
+    }
+    .campaign-name.muted { color: #94A3B8; }
+
+    .campaign-meta {
+      font-size: 12px;
+      color: var(--neutral);
+      margin-top: 4px;
+      line-height: 1.5;
+    }
+
+    .campaign-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    .metric-badge {
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 6px;
+      padding: 4px 10px;
+      white-space: nowrap;
+    }
+    .metric-badge.roas  { background: var(--emerald-mint); color: var(--emerald); }
+    .metric-badge.reach { background: #EFF6FF; color: #1D4ED8; }
+
+    .continue-link {
+      font-size: 13px;
+      color: var(--emerald);
+      font-weight: 500;
+    }
+
+    .campaign-chevron {
+      width: 16px;
+      height: 16px;
+      color: #CBD5E1;
+      transition: color 0.15s ease, transform 0.15s ease;
+      flex-shrink: 0;
+    }
+
+    /* Empty state card */
+    .empty-card {
+      border: 2px dashed var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: border-color 0.15s ease, background 0.15s ease;
+      margin-top: 10px;
+    }
+
+    .empty-card:hover {
+      border-color: var(--emerald);
+      background: #FAFFFE;
+    }
+
+    .empty-card .empty-icon {
+      width: 24px;
+      height: 24px;
+      color: var(--emerald-mint);
+      transition: color 0.15s ease;
+      flex-shrink: 0;
+    }
+
+    .empty-card:hover .empty-icon { color: var(--emerald); }
+
+    .empty-card-text {
+      font-size: 13px;
+      color: #94A3B8;
+      transition: color 0.15s ease;
+      font-weight: 500;
+    }
+
+    .empty-card:hover .empty-card-text { color: var(--emerald); }
+
+    /* Activity column */
+    .activity-column {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .activity-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+    }
+
+    .activity-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .activity-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--midnight);
+    }
+
+    .activity-sub {
+      font-size: 12px;
+      color: var(--neutral);
+    }
+
+    .chart-wrap {
+      height: 120px;
+      position: relative;
+    }
+
+    .activity-stats {
+      display: flex;
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid #F1F5F9;
+    }
+
+    .stat-block {
+      flex: 1;
+    }
+    .stat-block:first-child { padding-right: 16px; }
+    .stat-block:last-child  { padding-left: 16px; border-left: 1px solid #F1F5F9; }
+
+    .stat-value {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--midnight);
+      line-height: 1.2;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: var(--neutral);
+      margin-top: 2px;
+    }
+
+    /* Insights */
+    .insight-row {
+      display: flex;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid #F1F5F9;
+      align-items: flex-start;
+    }
+    .insight-row:first-of-type { padding-top: 4px; }
+    .insight-row:last-child { border-bottom: none; padding-bottom: 0; }
+
+    .insight-icon-wrap {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .insight-icon-wrap.green { background: var(--emerald-mint); }
+    .insight-icon-wrap.amber { background: #FEF3C7; }
+    .insight-icon-wrap.blue  { background: #EFF6FF; }
+
+    .insight-icon-wrap svg { width: 14px; height: 14px; }
+    .insight-icon-wrap.green svg { color: var(--emerald); }
+    .insight-icon-wrap.amber svg { color: #D97706; }
+    .insight-icon-wrap.blue  svg { color: #3B82F6; }
+
+    .insight-content { flex: 1; min-width: 0; }
+
+    .insight-title {
+      font-size: 13px;
+      color: var(--midnight);
+      font-weight: 500;
+      line-height: 1.4;
+    }
+
+    .insight-sub {
+      font-size: 12px;
+      color: var(--neutral);
+      margin-top: 2px;
+      line-height: 1.4;
+    }
+
+    /* ============ Responsive ============ */
+    @media (max-width: 1180px) {
+      .metric-row { grid-template-columns: repeat(2, 1fr); }
+      .content-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); transition: transform 0.2s ease; }
+      .main-content { margin-left: 0; }
+      .topbar { padding: 0 16px; }
+      .topbar-left .greeting { font-size: 16px; }
+      .search-input { width: 160px; }
+      .metric-row { margin: 16px; gap: 12px; }
+      .content-grid { margin: 16px; gap: 12px; }
+      .campaign-card { padding: 14px 16px; gap: 12px; }
+      .channel-cluster { display: none; }
+      .campaign-right { gap: 8px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-layout">
+
+    <!-- ============ SIDEBAR ============ -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-icon"><i data-lucide="plus"></i></div>
+        <div class="logo-text">BrandAid</div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-indicator" id="navIndicator"></div>
+        <div class="nav-item active" data-nav="dashboard">
+          <i data-lucide="layout-dashboard" class="nav-icon"></i>
+          <span class="nav-label">Dashboard</span>
+        </div>
+        <div class="nav-item" data-nav="campaigns">
+          <i data-lucide="target" class="nav-icon"></i>
+          <span class="nav-label">Campaigns</span>
+        </div>
+        <div class="nav-item" data-nav="knowledge">
+          <i data-lucide="database" class="nav-icon"></i>
+          <span class="nav-label">Knowledge Base</span>
+        </div>
+        <div class="nav-item" data-nav="settings">
+          <i data-lucide="settings" class="nav-icon"></i>
+          <span class="nav-label">Settings</span>
+        </div>
+      </nav>
+
+      <div class="kb-card">
+        <div class="kb-top">
+          <div class="kb-dot"></div>
+          <div class="kb-label">Knowledge Base</div>
+        </div>
+        <div class="kb-name">ABC Fashion Co.</div>
+        <div class="kb-bar"><div class="kb-bar-fill"></div></div>
+        <div class="kb-progress-text">82% complete</div>
+        <div class="kb-synced">Last synced 2 days ago</div>
+      </div>
+
+      <div class="user-profile">
+        <div class="user-avatar">M</div>
+        <div class="user-info">
+          <div class="user-name">Mr. X</div>
+          <div class="user-sub">ABC Fashion Co.</div>
+        </div>
+        <i data-lucide="chevron-right" class="user-chevron"></i>
+      </div>
+    </aside>
+
+    <!-- ============ MAIN CONTENT ============ -->
+    <main class="main-content">
+
+      <!-- TOP BAR -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <div class="greeting">Good morning, Mr. X <span aria-hidden="true">👋</span></div>
+          <div class="date">Wednesday, 20 May 2026</div>
+        </div>
+        <div class="topbar-right">
+          <div class="search-wrap">
+            <i data-lucide="search" class="search-icon"></i>
+            <input type="text" class="search-input" placeholder="Search campaigns...">
+          </div>
+          <div class="bell-wrap">
+            <button class="bell-btn" id="bellBtn" aria-label="Notifications">
+              <i data-lucide="bell" class="bell-icon"></i>
+              <span class="bell-dot"></span>
+            </button>
+            <div class="notification-dropdown" id="notifDropdown">
+              <div class="notification-dropdown-header">Notifications</div>
+              <div class="notif-row">
+                <div class="notif-dot" style="background: #059669;"></div>
+                <div class="notif-content">
+                  <div class="notif-title">Eid campaign simulation ready</div>
+                  <div class="notif-time">2 min ago</div>
+                </div>
+              </div>
+              <div class="notif-row">
+                <div class="notif-dot" style="background: #F59E0B;"></div>
+                <div class="notif-content">
+                  <div class="notif-title">Knowledge base synced</div>
+                  <div class="notif-time">2 days ago</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <button class="btn-primary pulse" id="newCampaignBtn">
+            <i data-lucide="plus" class="btn-icon"></i>
+            New Campaign
+          </button>
+        </div>
+      </header>
+
+      <!-- CONTENT AREA -->
+      <div class="content-area">
+
+        <!-- METRIC ROW -->
+        <div class="metric-row">
+          <div class="metric-card">
+            <div class="metric-top">
+              <div class="metric-label">Active Campaigns</div>
+              <i data-lucide="target" class="metric-icon"></i>
+            </div>
+            <div class="metric-value" data-target="3" data-format="int">0</div>
+            <div class="metric-sub positive">
+              <i data-lucide="trending-up" class="sub-icon"></i>
+              <span>+1 this month</span>
+            </div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-top">
+              <div class="metric-label">Simulations Run</div>
+              <i data-lucide="cpu" class="metric-icon"></i>
+            </div>
+            <div class="metric-value" data-target="12" data-format="int">0</div>
+            <div class="metric-sub">This month</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-top">
+              <div class="metric-label">Avg Predicted ROAS</div>
+              <i data-lucide="bar-chart-2" class="metric-icon"></i>
+            </div>
+            <div class="metric-value emerald" data-target="3.2" data-format="multiplier">0×</div>
+            <div class="metric-sub">Across 3 live campaigns</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-top">
+              <div class="metric-label">Prediction Accuracy</div>
+              <i data-lucide="check-circle" class="metric-icon"></i>
+            </div>
+            <div class="metric-value" data-target="89" data-format="percent">0%</div>
+            <div class="metric-sub positive">
+              <div class="metric-sub-dot"></div>
+              <span>High confidence</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- CONTENT GRID -->
+        <div class="content-grid">
+
+          <!-- LEFT — Campaigns -->
+          <div class="campaigns-column">
+            <div class="section-header">
+              <div class="section-title">Your Campaigns</div>
+              <a class="section-link" href="#">View all</a>
+            </div>
+
+            <div class="campaigns-list">
+
+              <!-- Card 1 -->
+              <div class="campaign-card" data-campaign="Eid Collection 2026">
+                <div class="channel-cluster">
+                  <div class="channel-square fb"><i data-lucide="facebook"></i></div>
+                  <div class="channel-square ig"><i data-lucide="instagram"></i></div>
+                  <div class="channel-square wa"><i data-lucide="message-circle"></i></div>
+                </div>
+                <div class="campaign-info">
+                  <div class="campaign-top">
+                    <span class="status-chip simulated">Simulated</span>
+                    <span class="campaign-name">Eid Collection 2026</span>
+                  </div>
+                  <div class="campaign-meta">Conversion · Facebook, Instagram, WhatsApp · 180K BDT · Mar 15 – Mar 28</div>
+                </div>
+                <div class="campaign-right">
+                  <span class="metric-badge roas">3.2× ROAS</span>
+                  <i data-lucide="chevron-right" class="campaign-chevron"></i>
+                </div>
+              </div>
+
+              <!-- Card 2 -->
+              <div class="campaign-card" data-campaign="Brand Awareness Q1">
+                <div class="channel-cluster">
+                  <div class="channel-square fb"><i data-lucide="facebook"></i></div>
+                  <div class="channel-square ig"><i data-lucide="instagram"></i></div>
+                </div>
+                <div class="campaign-info">
+                  <div class="campaign-top">
+                    <span class="status-chip launched">Launched</span>
+                    <span class="campaign-name">Brand Awareness Q1</span>
+                  </div>
+                  <div class="campaign-meta">Awareness · Facebook, Instagram · 120K BDT · Feb 1 – Feb 28</div>
+                </div>
+                <div class="campaign-right">
+                  <span class="metric-badge reach">245K Reach</span>
+                  <i data-lucide="chevron-right" class="campaign-chevron"></i>
+                </div>
+              </div>
+
+              <!-- Card 3 -->
+              <div class="campaign-card" data-campaign="Winter Sale Push">
+                <div class="channel-cluster">
+                  <div class="channel-square fb"><i data-lucide="facebook"></i></div>
+                  <div class="channel-square wa"><i data-lucide="message-circle"></i></div>
+                  <div class="channel-square em"><i data-lucide="mail"></i></div>
+                </div>
+                <div class="campaign-info">
+                  <div class="campaign-top">
+                    <span class="status-chip completed">Completed</span>
+                    <span class="campaign-name">Winter Sale Push</span>
+                  </div>
+                  <div class="campaign-meta">Conversion · Facebook, WhatsApp, Email · 200K BDT · Jan 5 – Jan 19</div>
+                </div>
+                <div class="campaign-right">
+                  <span class="metric-badge roas">2.7× ROAS</span>
+                  <i data-lucide="chevron-right" class="campaign-chevron"></i>
+                </div>
+              </div>
+
+              <!-- Card 4 (Draft) -->
+              <div class="campaign-card" data-campaign="Ramadan 2026 Campaign">
+                <div class="channel-cluster">
+                  <div class="channel-square empty"><i data-lucide="help-circle"></i></div>
+                </div>
+                <div class="campaign-info">
+                  <div class="campaign-top">
+                    <span class="status-chip draft">Draft</span>
+                    <span class="campaign-name muted">Ramadan 2026 Campaign</span>
+                  </div>
+                  <div class="campaign-meta">Not yet configured · Created today</div>
+                </div>
+                <div class="campaign-right">
+                  <span class="continue-link">Continue →</span>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Empty state card -->
+            <div class="empty-card" id="emptyCard">
+              <i data-lucide="plus-circle" class="empty-icon"></i>
+              <span class="empty-card-text">Plan a new campaign</span>
+            </div>
+          </div>
+
+          <!-- RIGHT — Activity + Insights -->
+          <div class="activity-column">
+
+            <div class="activity-card">
+              <div class="activity-header">
+                <div class="activity-title">Simulation Activity</div>
+                <div class="activity-sub">Last 30 days</div>
+              </div>
+              <div class="chart-wrap"><canvas id="activityChart"></canvas></div>
+              <div class="activity-stats">
+                <div class="stat-block">
+                  <div class="stat-value">12 total</div>
+                  <div class="stat-label">Simulations</div>
+                </div>
+                <div class="stat-block">
+                  <div class="stat-value">3 campaigns</div>
+                  <div class="stat-label">Active</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="activity-card">
+              <div class="activity-header">
+                <div class="activity-title">AI Insights</div>
+              </div>
+              <div class="insight-row">
+                <div class="insight-icon-wrap green"><i data-lucide="trending-up"></i></div>
+                <div class="insight-content">
+                  <div class="insight-title">Eid campaigns perform 35% better</div>
+                  <div class="insight-sub">Based on your last 2 seasonal campaigns</div>
+                </div>
+              </div>
+              <div class="insight-row">
+                <div class="insight-icon-wrap amber"><i data-lucide="alert-circle"></i></div>
+                <div class="insight-content">
+                  <div class="insight-title">WhatsApp is your highest-ROAS channel</div>
+                  <div class="insight-sub">Avg 4.1× vs 2.9× on Facebook</div>
+                </div>
+              </div>
+              <div class="insight-row">
+                <div class="insight-icon-wrap blue"><i data-lucide="lightbulb"></i></div>
+                <div class="insight-content">
+                  <div class="insight-title">3 campaigns ready to launch</div>
+                  <div class="insight-sub">Simulations complete, awaiting action</div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // ============ Initialize Lucide icons ============
+    lucide.createIcons();
+
+    // ============ Nav indicator + active state ============
+    function positionIndicator() {
+      const activeNav = document.querySelector('.nav-item.active');
+      const indicator = document.getElementById('navIndicator');
+      if (activeNav && indicator) {
+        // 8px padding above and below the 28px indicator within the 44px-tall nav item
+        indicator.style.top = (activeNav.offsetTop + 8) + 'px';
+      }
+    }
+
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.addEventListener('click', () => {
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        item.classList.add('active');
+        positionIndicator();
+      });
+    });
+
+    positionIndicator();
+    window.addEventListener('resize', positionIndicator);
+
+    // ============ Campaign card clicks ============
+    document.querySelectorAll('.campaign-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const name = card.dataset.campaign;
+        alert('Opening ' + name + '...');
+      });
+    });
+
+    // ============ New Campaign + Empty state ============
+    const newCampaignBtn = document.getElementById('newCampaignBtn');
+    const emptyCard = document.getElementById('emptyCard');
+
+    newCampaignBtn.addEventListener('click', () => {
+      window.location.href = 'new-campaign.html';
+    });
+    emptyCard.addEventListener('click', () => {
+      window.location.href = 'new-campaign.html';
+    });
+
+    // Remove pulse class after the one-time animation finishes
+    newCampaignBtn.addEventListener('animationend', () => {
+      newCampaignBtn.classList.remove('pulse');
+    });
+
+    // ============ Notification dropdown ============
+    const bellBtn = document.getElementById('bellBtn');
+    const dropdown = document.getElementById('notifDropdown');
+
+    bellBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      dropdown.classList.toggle('open');
+    });
+
+    document.addEventListener('click', (e) => {
+      if (dropdown.classList.contains('open') &&
+          !dropdown.contains(e.target) &&
+          !bellBtn.contains(e.target)) {
+        dropdown.classList.remove('open');
+      }
+    });
+
+    // ============ Number counter animation ============
+    function formatValue(value, format) {
+      if (format === 'int')        return Math.round(value).toString();
+      if (format === 'percent')    return Math.round(value) + '%';
+      if (format === 'multiplier') return value.toFixed(1) + '×';
+      return value.toString();
+    }
+
+    function easeOutCubic(t) {
+      return 1 - Math.pow(1 - t, 3);
+    }
+
+    function animateNumber(el) {
+      const target = parseFloat(el.dataset.target);
+      const format = el.dataset.format;
+      const duration = 800;
+      const start = performance.now();
+
+      function step(now) {
+        const elapsed = now - start;
+        const t = Math.min(elapsed / duration, 1);
+        const eased = easeOutCubic(t);
+        const value = target * eased;
+        el.textContent = formatValue(value, format);
+        if (t < 1) {
+          requestAnimationFrame(step);
+        } else {
+          el.textContent = formatValue(target, format);
+        }
+      }
+
+      requestAnimationFrame(step);
+    }
+
+    document.querySelectorAll('.metric-value').forEach(el => animateNumber(el));
+
+    // ============ Chart.js bar chart ============
+    const ctx = document.getElementById('activityChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['M', 'T', 'W', 'T', 'F', 'S', 'S', 'M'],
+        datasets: [{
+          data: [1, 0, 2, 1, 3, 0, 1, 2],
+          backgroundColor: '#059669',
+          hoverBackgroundColor: '#34D399',
+          borderRadius: { topLeft: 4, topRight: 4, bottomLeft: 0, bottomRight: 0 },
+          borderSkipped: false,
+          categoryPercentage: 0.4,
+          barPercentage: 0.9
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#0F172A',
+            titleFont: { family: 'Arial', size: 11 },
+            bodyFont: { family: 'Arial', size: 12 },
+            padding: 8,
+            displayColors: false,
+            callbacks: {
+              title: () => '',
+              label: (ctx) => ctx.parsed.y + ' simulation' + (ctx.parsed.y === 1 ? '' : 's')
+            }
+          }
+        },
+        scales: {
+          x: {
+            grid: { display: false },
+            border: { display: false },
+            ticks: {
+              color: '#94A3B8',
+              font: { family: 'Arial', size: 11 }
+            }
+          },
+          y: {
+            display: false,
+            beginAtZero: true,
+            grid: { display: false }
+          }
+        }
+      }
+    });
+  </script>
+</body>
+</html>

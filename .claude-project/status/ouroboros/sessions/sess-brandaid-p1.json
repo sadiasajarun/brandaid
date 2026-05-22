@@ -1,0 +1,56 @@
+{
+  "id": "sess-brandaid-p1",
+  "project": "brandaid",
+  "topic": "BrandAid — AI-powered pre-launch marketing campaign simulation MVP",
+  "mode": "gap-fill-interview",
+  "reference_doc": "C:/Users/Sajarun Sadia/Downloads/brandaid_complete_knowledge.md",
+  "started_at": "2026-05-20T00:00:00Z",
+  "completed_at": "2026-05-20T00:00:00Z",
+  "rounds": [
+    {
+      "round": 1,
+      "questions": [
+        { "header": "Tech stack", "q": "Next.js (doc) vs NestJS+React Router 7 (project rules)?", "a": "Defer to developer; remind after P3 approval" },
+        { "header": "Build scope", "q": "Hackathon MVP vs full SaaS?", "a": "Hackathon MVP (doc §20)" },
+        { "header": "AI engine", "q": "Real Claude / canned / hybrid?", "a": "OpenAI API" },
+        { "header": "Auth model", "q": "JWT cookies + single-user / JWT + Organization / mock?", "a": "Mock auth (no JWT) — demo only" }
+      ]
+    },
+    {
+      "round": 2,
+      "questions": [
+        { "header": "Crawl behavior", "q": "Real crawl / fallback / scripted?", "a": "Real crawl (fetch + parse + OpenAI extract)" },
+        { "header": "Stage scope", "q": "Awareness+Conversion only / +Consideration / all 5?", "a": "Awareness + Consideration + Conversion" },
+        { "header": "Creative scoring", "q": "Real OpenAI vision / cached / mocked?", "a": "Real OpenAI vision (gpt-4o-mini)" },
+        { "header": "Data layer", "q": "PostgreSQL+local / SQLite+local / Postgres+MinIO?", "a": "PostgreSQL + local file storage" }
+      ]
+    },
+    {
+      "round": 3,
+      "questions": [
+        { "header": "Journey scope", "q": "Stages 0–3 / 0–4 / 0–5?", "a": "Stages 0–4 (add Launch Plan)" },
+        { "header": "Sim layers 3+4", "q": "OpenAI personas+formula / fully deterministic / OpenAI everything?", "a": "Fully deterministic (no LLM in sim layers)" },
+        { "header": "Locale & data", "q": "USD-only-EN / BDT+USD-EN / USD-single-session?", "a": "BDT + USD toggle, English-only, multi-campaign" },
+        { "header": "Screen count", "q": "~8–10 / ~12–16 / ~18–24?", "a": "~12–16 screens (full flow + dashboard)" }
+      ]
+    },
+    {
+      "round": 4,
+      "questions": [
+        { "header": "Stage features", "q": "Multi-platform calibration / Audience warmth / LP scoring / Conversion intelligence (multi-select)?", "a": "Multi-platform calibration + Landing page scoring (Consideration)" },
+        { "header": "Demo storyline", "q": "Mr. X Eid fashion / generic global / both seeded?", "a": "Don't need (no canonical demo storyline; judges bring own URL)" },
+        { "header": "Reasoning depth", "q": "Per-metric+flags / brief only / maximal narrative?", "a": "Per-metric + top 3 green/red flags + per-recommendation impact" },
+        { "header": "Gap enrichment", "q": "All 5 / 3 critical / skip entirely?", "a": "Yes — all 5 questions, all optional" }
+      ]
+    }
+  ],
+  "scores": {
+    "goal_clarity": 0.95,
+    "constraint_clarity": 0.90,
+    "success_criteria_clarity": 0.85
+  },
+  "ambiguity_score": 0.095,
+  "verdict": "PASS",
+  "status": "completed",
+  "next_command": "/fullstack-pm brandaid --phase P2-prd"
+}

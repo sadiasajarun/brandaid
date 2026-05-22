@@ -1,0 +1,10 @@
+# claude-fullstack pipeline machinery — not part of the BrandAid codebase
+/.claude/
+
+# Browser QA tooling artifacts (screenshots, console logs, snapshots)
+/.playwright-cli/
+
+# OS / editor cruft
+Thumbs.db
+.DS_Store
+*.bak
