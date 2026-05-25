@@ -1,0 +1,1421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Consideration Purpose — BrandAid</title>
+  <style>
+    :root {
+      --indigo:        #4338CA;
+      --indigo-dark:   #3730A3;
+      --indigo-bright: #6366F1;
+      --indigo-light:  #A5B4FC;
+      --indigo-mist:   #E0E7FF;
+      --indigo-wash:   #EEF2FF;
+      --cyan:          #06B6D4;
+      --cyan-bright:   #22D3EE;
+      --cyan-light:    #67E8F9;
+      --cyan-deep:     #0E7490;
+      --cyan-wash:     #ECFEFF;
+      --cyan-border:   #A5F3FC;
+      --midnight:      #0F172A;
+      --slate:         #334155;
+      --neutral:       #64748B;
+      --neutral-light: #94A3B8;
+      --border:        #E2E8F0;
+      --border-soft:   #F1F5F9;
+      --white:         #FFFFFF;
+      --page-bg:       #FAFAFE;
+      --warning:       #F59E0B;
+      --warning-soft:  #FEF3C7;
+      --success-soft:  #D1FAE5;
+      --success-dark:  #047857;
+      --danger:        #EF4444;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--midnight);
+      background-color: var(--page-bg);
+      background-image: radial-gradient(circle, rgba(67,56,202,0.04) 1px, transparent 1px);
+      background-size: 32px 32px;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    button, input, textarea { font-family: inherit; }
+    button { cursor: pointer; border: none; background: transparent; }
+    a { color: inherit; text-decoration: none; }
+
+    /* ============ Top Bar ============ */
+    .topbar {
+      height: 60px;
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .topbar-left { display: flex; align-items: center; gap: 12px; }
+    .logo { display: inline-flex; align-items: center; gap: 10px; }
+    .logo-icon {
+      width: 28px; height: 28px;
+      background: var(--indigo);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--white);
+      font-size: 18px; font-weight: 700; line-height: 1;
+    }
+    .logo-text {
+      font-size: 17px; font-weight: 700;
+      color: var(--midnight); letter-spacing: -0.01em;
+    }
+    .topbar-crumb { display: inline-flex; align-items: center; gap: 8px; }
+    .crumb-chevron { color: #CBD5E1; font-size: 12px; }
+    .crumb-text { font-size: 14px; color: var(--neutral); }
+    .topbar-right { display: flex; align-items: center; gap: 16px; }
+    .save-exit {
+      font-size: 13px; color: var(--neutral);
+      transition: color 0.2s ease;
+    }
+    .save-exit:hover { color: var(--midnight); }
+    .close-btn {
+      width: 36px; height: 36px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--neutral); font-size: 18px; line-height: 1;
+      transition: all 0.2s ease;
+    }
+    .close-btn:hover { background: #FEE2E2; border-color: #FCA5A5; color: var(--danger); }
+
+    /* ============ Constellation Navigator ============ */
+    .navigator {
+      background: var(--page-bg);
+      padding: 24px 32px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .nav-inner { max-width: 1100px; margin: 0 auto; position: relative; }
+    .nav-line-bg, .nav-line-fg {
+      position: absolute;
+      left: 18px; right: 18px; top: 18px;
+      height: 2px;
+      pointer-events: none;
+    }
+    .nav-line-bg {
+      background-image: linear-gradient(to right, #E2E8F0 50%, transparent 50%);
+      background-size: 8px 2px;
+      background-repeat: repeat-x;
+    }
+    .nav-line-fg {
+      background: var(--indigo);
+      width: 0%;
+      transition: width 0.6s ease;
+    }
+    .nav-nodes {
+      position: relative; z-index: 1;
+      display: flex; justify-content: space-between; align-items: flex-start;
+    }
+    .nav-node {
+      display: flex; flex-direction: column;
+      align-items: center; gap: 10px;
+      user-select: none;
+    }
+    .node-circle {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: var(--white);
+      border: 2px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--neutral-light);
+      font-size: 13px; font-weight: 700;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+    .nav-node.active .node-circle {
+      background: var(--indigo);
+      border: 4px solid var(--indigo-mist);
+      color: var(--white);
+      animation: node-pulse 1.8s ease-in-out infinite;
+    }
+    @keyframes node-pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(67,56,202,0.0); }
+      50%      { box-shadow: 0 0 0 8px rgba(67,56,202,0.12); }
+    }
+    .nav-node.done .node-circle {
+      background: var(--indigo);
+      border: 2px solid var(--indigo);
+      color: var(--white);
+    }
+    .nav-node.done .node-circle .num { display: none; }
+    .nav-node .check-icon { width: 14px; height: 14px; display: none; }
+    .nav-node.done .check-icon { display: block; }
+    .node-label {
+      font-size: 11px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      text-align: center;
+      color: var(--neutral-light);
+      transition: color 0.3s ease;
+    }
+    .nav-node.active .node-label { color: var(--midnight); }
+    .nav-node.done .node-label { color: var(--indigo); }
+    .sub-progress {
+      position: absolute;
+      inset: -8px;
+      border-radius: 50%;
+      background: conic-gradient(var(--cyan) var(--sub-progress, 0%), transparent 0);
+      mask: radial-gradient(circle, transparent 18px, black 19px, black 23px, transparent 24px);
+      -webkit-mask: radial-gradient(circle, transparent 18px, black 19px, black 23px, transparent 24px);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .nav-node.active.has-sub .sub-progress { opacity: 1; }
+
+    /* ============ Main / Screens ============ */
+    .main { flex: 1; overflow-y: auto; }
+    .screen {
+      display: none;
+      padding: 56px 32px 48px;
+      max-width: 1080px;
+      margin: 0 auto;
+    }
+    .screen.active { display: block; }
+    .screen.exiting  { animation: screen-out 0.35s ease-in forwards; }
+    .screen.entering { animation: screen-in 0.45s ease-out both; }
+    @keyframes screen-out {
+      from { opacity: 1; transform: translateY(0); }
+      to   { opacity: 0; transform: translateY(-12px); }
+    }
+    @keyframes screen-in {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ============ Screen 1: Editorial framing ============ */
+    .framing { max-width: 720px; margin: 0 auto; text-align: center; }
+    .step-pill {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--white);
+      border: 1px solid var(--border);
+      color: var(--indigo);
+      padding: 6px 14px;
+      border-radius: 24px;
+      font-size: 11px; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      margin-bottom: 28px;
+    }
+    .pill-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--indigo);
+      animation: pill-dot 2s ease-in-out infinite;
+    }
+    @keyframes pill-dot {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50%      { transform: scale(1.35); opacity: 0.45; }
+    }
+
+    /* ---- Ambient conversation bubbles (replaces awareness's radar) ---- */
+    .ambient-bubbles {
+      position: relative;
+      width: 150px; height: 96px;
+      margin: 0 auto 32px;
+    }
+    .bubble { position: absolute; transform-origin: center; }
+    .bubble.left  { left: 0; top: 6px;  animation: bubble-pulse 3.2s ease-in-out infinite; }
+    .bubble.right { right: 0; top: 38px; animation: bubble-pulse 3.2s ease-in-out infinite 1.6s; }
+    @keyframes bubble-pulse {
+      0%, 100% { opacity: 0.7; transform: translateY(0)  scale(1); }
+      50%      { opacity: 1;   transform: translateY(-4px) scale(1.03); }
+    }
+    .typing-dot { animation: typing-bob 1.1s ease-in-out infinite; }
+    .td-2 { animation-delay: 0.18s; }
+    .td-3 { animation-delay: 0.36s; }
+    @keyframes typing-bob {
+      0%, 100% { transform: translateY(0); opacity: 0.6; }
+      50%      { transform: translateY(-2px); opacity: 1; }
+    }
+
+    .framing-headline {
+      font-size: 36px;
+      font-weight: 700;
+      color: var(--midnight);
+      line-height: 1.15;
+      letter-spacing: -0.025em;
+      margin-top: 12px;
+    }
+    .framing-headline .line { display: block; }
+    .framing-desc {
+      font-size: 16px;
+      color: #475569;
+      line-height: 1.7;
+      max-width: 580px;
+      margin: 18px auto 0;
+    }
+    .framing-desc .accent { color: var(--indigo); font-weight: 600; }
+    .framing-desc .cyan { color: var(--cyan-deep); font-weight: 600; }
+
+    .soft-divider {
+      display: flex; align-items: center;
+      gap: 16px; justify-content: center;
+      max-width: 400px;
+      margin: 56px auto;
+    }
+    .soft-divider .line {
+      flex: 1; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
+    }
+    .soft-divider .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--cyan);
+    }
+
+    .purpose-question {
+      text-align: center;
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--midnight);
+      letter-spacing: -0.015em;
+      margin-bottom: 16px;
+    }
+    .purpose-sub {
+      text-align: center;
+      font-size: 14px;
+      color: var(--neutral);
+      max-width: 480px;
+      margin: 0 auto 40px;
+    }
+
+    .cards-hint {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin: 28px auto 0;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--neutral-light);
+      letter-spacing: 0.04em;
+      transition: opacity 0.35s ease, transform 0.35s ease;
+    }
+    .cards-hint.dismissed { opacity: 0; transform: translateY(-4px); pointer-events: none; }
+
+    .purpose-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .purpose-card {
+      background: var(--white);
+      border: 1.5px solid var(--border);
+      border-radius: 16px;
+      padding: 32px 24px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      text-align: left;
+      min-height: 360px;
+      display: flex;
+      flex-direction: column;
+    }
+    .purpose-card:hover {
+      border-color: var(--indigo-light);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px -8px rgba(67,56,202,0.15);
+    }
+    .purpose-card.selected {
+      border-color: var(--indigo);
+      border-width: 2px;
+      box-shadow:
+        0 0 0 6px rgba(67,56,202,0.06),
+        0 12px 32px -8px rgba(67,56,202,0.25);
+    }
+    .purpose-card .select-mark {
+      position: absolute;
+      top: 16px; right: 16px;
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      background: var(--cyan);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--white);
+      font-size: 11px; font-weight: 800;
+      opacity: 0; transform: scale(0.6);
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+    .purpose-card.selected .select-mark { opacity: 1; transform: scale(1); }
+
+    .purpose-illu { width: 100%; display: flex; justify-content: center; margin-bottom: 4px; }
+    .pc-title {
+      font-size: 19px; font-weight: 700;
+      color: var(--midnight);
+      letter-spacing: -0.015em;
+      margin-top: 24px;
+    }
+    .pc-desc {
+      font-size: 14px;
+      color: var(--neutral);
+      line-height: 1.55;
+      margin-top: 8px;
+    }
+    .pc-context {
+      margin-top: auto;
+      padding-top: 24px;
+      border-top: 1px solid var(--border-soft);
+    }
+    .pc-context-label {
+      font-size: 10px; font-weight: 700;
+      color: var(--neutral-light);
+      letter-spacing: 0.1em; text-transform: uppercase;
+    }
+    .pc-context-text {
+      font-size: 12px;
+      color: #475569;
+      line-height: 1.5;
+      margin-top: 6px;
+    }
+    .magnet-particle { animation: magnet-pull 2.4s ease-in-out infinite; transform-origin: center; transform-box: fill-box; }
+    .mp-2 { animation-delay: 0.5s; }
+    .mp-3 { animation-delay: 1s; }
+    @keyframes magnet-pull {
+      0%, 100% { transform: translateY(0); opacity: 0.55; }
+      50%      { transform: translateY(8px); opacity: 1; }
+    }
+    .footprint { animation: foot-step 2.1s ease-in-out infinite; transform-origin: center; transform-box: fill-box; }
+    .fp-2 { animation-delay: 0.4s; }
+    .fp-3 { animation-delay: 0.8s; }
+    @keyframes foot-step {
+      0%, 100% { opacity: 0.35; }
+      50%      { opacity: 1; }
+    }
+
+    /* ============ Branch shared bits ============ */
+    .branch-wrap { max-width: 720px; margin: 0 auto; }
+    .selection-strip {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 18px;
+      display: flex; align-items: center; gap: 16px;
+      margin-bottom: 40px;
+    }
+    .strip-label {
+      font-size: 10px; font-weight: 700;
+      color: var(--neutral-light);
+      letter-spacing: 0.1em; text-transform: uppercase;
+    }
+    .strip-value {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 14px; font-weight: 600;
+      color: var(--midnight);
+      margin-right: auto;
+    }
+    .strip-change {
+      font-size: 13px; font-weight: 600;
+      color: var(--indigo);
+      padding: 6px 0;
+    }
+    .strip-change:hover { text-decoration: underline; }
+
+    .section-header { text-align: center; margin-bottom: 32px; }
+    .section-header .h-label {
+      font-size: 11px; font-weight: 700;
+      color: var(--indigo);
+      letter-spacing: 0.1em; text-transform: uppercase;
+    }
+    .section-header h2 {
+      margin-top: 10px;
+      font-size: 24px; font-weight: 700;
+      color: var(--midnight);
+      letter-spacing: -0.015em;
+    }
+    .section-header .h-sub {
+      margin-top: 8px;
+      font-size: 14px;
+      color: var(--neutral);
+    }
+
+    /* ============ Question card ============ */
+    .q-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      margin-top: 20px;
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    .q-card:first-of-type { margin-top: 0; }
+    .screen.active .q-card { animation: card-rise 0.5s ease-out forwards; }
+    .screen.active .q-card.delay-1 { animation-delay: 0.18s; }
+    .screen.active .q-card.delay-2 { animation-delay: 0.32s; }
+    .screen.active .q-card.delay-3 { animation-delay: 0.46s; }
+    @keyframes card-rise { to { opacity: 1; transform: translateY(0); } }
+
+    .q-number {
+      font-size: 32px; font-weight: 800;
+      color: var(--indigo-mist);
+      letter-spacing: -0.02em;
+      line-height: 1;
+    }
+    .q-title {
+      margin-top: 4px;
+      font-size: 18px; font-weight: 700;
+      color: var(--midnight);
+      letter-spacing: -0.01em;
+      line-height: 1.4;
+    }
+    .q-hint {
+      margin-top: 8px;
+      font-size: 13px;
+      color: var(--neutral);
+      line-height: 1.5;
+    }
+
+    /* ---- Multi-select chips (2A lead offers) ---- */
+    .chip-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 22px;
+    }
+    .chip-select {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--page-bg);
+      border: 1.5px solid var(--border);
+      color: var(--slate);
+      font-size: 13px; font-weight: 500;
+      padding: 9px 16px;
+      border-radius: 24px;
+      transition: all 0.2s ease;
+    }
+    .chip-select:hover { border-color: var(--indigo-light); background: var(--white); }
+    .chip-select.selected {
+      background: var(--indigo-wash);
+      border-color: var(--indigo);
+      color: var(--indigo);
+      font-weight: 600;
+    }
+    .chip-check {
+      width: 14px; height: 14px; border-radius: 50%;
+      background: var(--border);
+      color: var(--white);
+      font-size: 9px; font-weight: 800;
+      display: inline-flex; align-items: center; justify-content: center;
+      transition: background 0.2s ease;
+    }
+    .chip-select.selected .chip-check { background: var(--indigo); }
+
+    /* ---- Radio cards (post-lead flow / segment / on-site action / existing content) ---- */
+    .radio-grid {
+      display: grid;
+      gap: 12px;
+      margin-top: 22px;
+    }
+    .radio-grid.cols-2 { grid-template-columns: 1fr 1fr; }
+    .radio-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+    .radio-grid.cols-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+    .radio-card {
+      background: var(--page-bg);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 18px 16px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .radio-card:hover { border-color: var(--indigo-light); background: var(--white); }
+    .radio-card.selected {
+      border-color: var(--indigo);
+      border-width: 2px;
+      background: var(--indigo-wash);
+      box-shadow: 0 0 0 4px rgba(67,56,202,0.06);
+    }
+    .rc-head { display: flex; align-items: center; gap: 10px; }
+    .rc-radio {
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      border: 2px solid #CBD5E1;
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s ease;
+    }
+    .radio-card.selected .rc-radio {
+      background: var(--indigo);
+      border-color: var(--indigo);
+    }
+    .rc-radio::after {
+      content: '';
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--white);
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+    .radio-card.selected .rc-radio::after { opacity: 1; }
+    .rc-title { font-size: 14px; font-weight: 600; color: var(--midnight); }
+    .rc-sub { font-size: 12px; color: var(--neutral); line-height: 1.5; }
+
+    /* ---- Inputs ---- */
+    .ta-base {
+      width: 100%;
+      min-height: 110px;
+      background: var(--page-bg);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-size: 15px; line-height: 1.55;
+      color: var(--midnight);
+      resize: vertical;
+      outline: none;
+      transition: all 0.25s ease;
+      margin-top: 22px;
+    }
+    .ta-base::placeholder { color: var(--neutral-light); }
+    .ta-base:focus {
+      border-color: var(--indigo);
+      background: var(--white);
+      box-shadow: 0 0 0 4px rgba(67,56,202,0.08);
+    }
+
+    .input-with-prefix {
+      display: flex;
+      align-items: stretch;
+      margin-top: 22px;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      background: var(--page-bg);
+      transition: all 0.25s ease;
+      overflow: hidden;
+    }
+    .input-with-prefix:focus-within {
+      border-color: var(--indigo);
+      background: var(--white);
+      box-shadow: 0 0 0 4px rgba(67,56,202,0.08);
+    }
+    .ip-prefix {
+      display: flex; align-items: center; gap: 6px;
+      padding: 0 16px;
+      font-size: 14px; color: var(--neutral); font-weight: 500;
+      background: rgba(67,56,202,0.03);
+      border-right: 1px solid var(--border);
+    }
+    .ip-input {
+      flex: 1;
+      height: 52px;
+      background: transparent;
+      border: none;
+      padding: 0 16px;
+      font-size: 16px; font-weight: 500;
+      color: var(--midnight);
+      outline: none;
+    }
+    .ip-input::placeholder { color: var(--neutral-light); }
+
+    .field-hint {
+      margin-top: 10px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--neutral-light);
+      letter-spacing: 0.04em;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: color 0.25s ease;
+    }
+    .field-hint.met { color: var(--indigo); }
+    .fh-check {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 14px; height: 14px; border-radius: 50%;
+      background: var(--border); color: var(--white);
+      font-size: 9px; font-weight: 800;
+      transition: background 0.25s ease;
+    }
+    .field-hint.met .fh-check { background: var(--indigo); }
+    .field-note {
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--neutral);
+      line-height: 1.5;
+    }
+
+    /* Conditional content (e.g., 2B existing-content URL slot) */
+    .conditional {
+      max-height: 0;
+      overflow: hidden;
+      opacity: 0;
+      transition: max-height 0.3s ease, opacity 0.3s ease, margin-top 0.3s ease;
+    }
+    .conditional.shown {
+      max-height: 180px;
+      opacity: 1;
+      margin-top: 18px;
+    }
+
+    /* ============ Bottom nav ============ */
+    .bottombar {
+      position: sticky; bottom: 0;
+      height: 72px;
+      background: var(--white);
+      border-top: 1px solid var(--border);
+      padding: 0 32px;
+      display: flex; align-items: center; justify-content: space-between;
+      z-index: 50;
+      flex-shrink: 0;
+    }
+    .bb-back {
+      background: transparent;
+      border: 1px solid var(--border);
+      padding: 12px 24px;
+      border-radius: 10px;
+      font-size: 14px; font-weight: 600;
+      color: var(--neutral);
+      transition: all 0.2s ease;
+    }
+    .bb-back:hover { background: var(--page-bg); color: var(--midnight); }
+    .bb-step { font-size: 13px; font-weight: 600; color: var(--neutral); }
+    .bb-next {
+      background: var(--border-soft);
+      color: var(--neutral-light);
+      padding: 12px 28px;
+      border-radius: 10px;
+      font-size: 14px; font-weight: 700;
+      cursor: not-allowed;
+      transition: all 0.3s ease;
+    }
+    .bb-next.enabled {
+      background: linear-gradient(135deg, var(--indigo) 0%, var(--indigo-dark) 100%);
+      color: var(--white);
+      cursor: pointer;
+      box-shadow: 0 4px 16px -4px rgba(67,56,202,0.4);
+    }
+    .bb-next.enabled:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 22px -4px rgba(67,56,202,0.55);
+    }
+    .bb-next.just-enabled { animation: bb-pulse 0.6s ease-out; }
+    @keyframes bb-pulse {
+      0%   { transform: scale(1); }
+      40%  { transform: scale(1.025); }
+      100% { transform: scale(1); }
+    }
+
+    /* ============ Toast ============ */
+    .toast {
+      position: fixed;
+      bottom: 92px; left: 50%;
+      transform: translateX(-50%) translateY(10px);
+      background: var(--midnight);
+      color: var(--white);
+      font-size: 12px;
+      padding: 10px 16px;
+      border-radius: 10px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      z-index: 100;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* ============ Responsive ============ */
+    @media (max-width: 980px) {
+      .purpose-cards { grid-template-columns: 1fr; max-width: 520px; }
+      .radio-grid.cols-3, .radio-grid.cols-4 { grid-template-columns: 1fr; }
+      .radio-grid.cols-2 { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 768px) {
+      .framing-headline { font-size: 28px; }
+      .nav-nodes { gap: 4px; }
+      .node-label { font-size: 9px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ============ Top Bar ============ -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <a href="dashboard.html" class="logo">
+        <div class="logo-icon">+</div>
+        <div class="logo-text">BrandAid</div>
+      </a>
+      <div class="topbar-crumb">
+        <span class="crumb-chevron">›</span>
+        <a class="crumb-text" href="new-campaign.html" style="color:var(--neutral);">New Campaign</a>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <button class="save-exit" onclick="alert('Draft saved.');">Save &amp; exit</button>
+      <button class="close-btn" aria-label="Close"
+        onclick="if(confirm('Close without saving?')) window.location.href='dashboard.html';">×</button>
+    </div>
+  </header>
+
+  <!-- ============ Constellation Navigator ============ -->
+  <div class="navigator">
+    <div class="nav-inner">
+      <div class="nav-line-bg"></div>
+      <div class="nav-line-fg" id="navLineFg" style="width:21.43%"></div>
+      <div class="nav-nodes">
+        <div class="nav-node done" data-step="1">
+          <div class="node-circle">
+            <span class="num">1</span>
+            <svg class="check-icon" viewBox="0 0 16 16" fill="none">
+              <path d="M3 8 L7 12 L13 4" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="node-label">Goal</div>
+        </div>
+        <div class="nav-node active" id="step2node" data-step="2">
+          <div class="node-circle">
+            <span class="num">2</span>
+            <svg class="check-icon" viewBox="0 0 16 16" fill="none">
+              <path d="M3 8 L7 12 L13 4" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <div class="sub-progress" id="subProgress"></div>
+          </div>
+          <div class="node-label">Purpose</div>
+        </div>
+        <div class="nav-node" data-step="3"><div class="node-circle"><span class="num">3</span></div><div class="node-label">Channels</div></div>
+        <div class="nav-node" data-step="4"><div class="node-circle"><span class="num">4</span></div><div class="node-label">Creative</div></div>
+        <div class="nav-node" data-step="5"><div class="node-circle"><span class="num">5</span></div><div class="node-label">Audience</div></div>
+        <div class="nav-node" data-step="6"><div class="node-circle"><span class="num">6</span></div><div class="node-label">Budget</div></div>
+        <div class="nav-node" data-step="7"><div class="node-circle"><span class="num">7</span></div><div class="node-label">Timing</div></div>
+        <div class="nav-node" data-step="8"><div class="node-circle"><span class="num">8</span></div><div class="node-label">Review</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ Main ============ -->
+  <main class="main">
+
+    <!-- ===== Screen 1: Purpose Selection ===== -->
+    <section class="screen active" id="screen-purpose-selection">
+      <div class="framing">
+        <span class="step-pill"><span class="pill-dot"></span>Step 2 · Consideration</span>
+
+        <!-- Ambient conversation bubbles (not radar) -->
+        <div class="ambient-bubbles" aria-hidden="true">
+          <svg class="bubble left" width="74" height="58" viewBox="0 0 74 58" fill="none">
+            <path d="M 4 10 Q 4 4 10 4 L 64 4 Q 70 4 70 10 L 70 32 Q 70 38 64 38 L 30 38 L 22 50 L 26 38 L 10 38 Q 4 38 4 32 Z"
+              fill="#EEF2FF" stroke="#4338CA" stroke-width="2" stroke-linejoin="round"/>
+            <circle class="typing-dot"     cx="22" cy="21" r="2.4" fill="#4338CA"/>
+            <circle class="typing-dot td-2" cx="32" cy="21" r="2.4" fill="#4338CA"/>
+            <circle class="typing-dot td-3" cx="42" cy="21" r="2.4" fill="#4338CA"/>
+          </svg>
+          <svg class="bubble right" width="66" height="52" viewBox="0 0 66 52" fill="none">
+            <path d="M 4 10 Q 4 4 10 4 L 56 4 Q 62 4 62 10 L 62 30 Q 62 36 56 36 L 48 36 L 56 46 L 42 36 L 10 36 Q 4 36 4 30 Z"
+              fill="#ECFEFF" stroke="#06B6D4" stroke-width="2" stroke-linejoin="round"/>
+            <circle cx="22" cy="20" r="2" fill="#0E7490"/>
+            <circle cx="30" cy="20" r="2" fill="#0E7490"/>
+            <circle cx="38" cy="20" r="2" fill="#0E7490"/>
+          </svg>
+        </div>
+
+        <h1 class="framing-headline">
+          <span class="line">Your audience knows you exist.</span>
+          <span class="line">Now make them <span style="color:var(--cyan-deep);">lean in</span>.</span>
+        </h1>
+        <p class="framing-desc">
+          Consideration campaigns are about <span class="accent">earning attention</span>, building trust, and giving people a reason to choose you over everyone else. The goal isn't to be seen — it's to be <span class="cyan">understood</span>.
+        </p>
+      </div>
+
+      <div class="soft-divider"><div class="line"></div><div class="dot"></div><div class="line"></div></div>
+
+      <h2 class="purpose-question">What does "consideration" look like for you right now?</h2>
+      <p class="purpose-sub">I want to make sure we're optimizing for the right outcome.</p>
+
+      <div class="purpose-cards">
+
+        <!-- Card 1: Lead Generation -->
+        <div class="purpose-card" data-purpose="lead-generation" onclick="selectPurpose('lead-generation')">
+          <div class="select-mark">✓</div>
+          <div class="purpose-illu">
+            <svg width="96" height="96" viewBox="0 0 96 96" fill="none">
+              <!-- Magnet U-shape -->
+              <path d="M 26 40 L 26 58 Q 26 74 48 74 Q 70 74 70 58 L 70 40"
+                fill="none" stroke="#4338CA" stroke-width="6" stroke-linecap="round"/>
+              <!-- Red end (left tip) -->
+              <rect x="20" y="30" width="14" height="14" rx="2" fill="#EF4444"/>
+              <!-- Indigo end (right tip) -->
+              <rect x="62" y="30" width="14" height="14" rx="2" fill="#4338CA"/>
+              <!-- Attracted particles falling toward magnet -->
+              <circle class="magnet-particle"      cx="48" cy="14" r="3" fill="#06B6D4"/>
+              <circle class="magnet-particle mp-2" cx="36" cy="10" r="2" fill="#06B6D4" opacity="0.7"/>
+              <circle class="magnet-particle mp-3" cx="60" cy="10" r="2" fill="#06B6D4" opacity="0.7"/>
+              <!-- Subtle dashed attraction line -->
+              <line x1="48" y1="18" x2="48" y2="28" stroke="#06B6D4" stroke-width="1" stroke-dasharray="2 2" opacity="0.5"/>
+            </svg>
+          </div>
+          <div class="pc-title">Lead generation</div>
+          <div class="pc-desc">People raise their hand — fill a form, request a demo, download something.</div>
+          <div class="pc-context">
+            <div class="pc-context-label">When this applies</div>
+            <div class="pc-context-text">B2B, SaaS, high-ticket, services with a sales follow-up</div>
+          </div>
+        </div>
+
+        <!-- Card 2: Engagement & Education -->
+        <div class="purpose-card" data-purpose="engagement-education" onclick="selectPurpose('engagement-education')">
+          <div class="select-mark">✓</div>
+          <div class="purpose-illu">
+            <svg width="96" height="96" viewBox="0 0 96 96" fill="none">
+              <!-- Left bubble (brand) -->
+              <path d="M 12 26 Q 12 20 18 20 L 46 20 Q 52 20 52 26 L 52 42 Q 52 48 46 48 L 28 48 L 22 56 L 24 48 L 18 48 Q 12 48 12 42 Z"
+                fill="#EEF2FF" stroke="#4338CA" stroke-width="2" stroke-linejoin="round"/>
+              <!-- Lightbulb inside -->
+              <circle cx="32" cy="34" r="4" fill="#FBBF24"/>
+              <line x1="32" y1="26" x2="32" y2="23" stroke="#F59E0B" stroke-width="1.5" stroke-linecap="round"/>
+              <line x1="38" y1="30" x2="40" y2="28" stroke="#F59E0B" stroke-width="1.5" stroke-linecap="round"/>
+              <line x1="26" y1="30" x2="24" y2="28" stroke="#F59E0B" stroke-width="1.5" stroke-linecap="round"/>
+              <!-- Right bubble (audience) -->
+              <path d="M 46 56 Q 46 50 52 50 L 78 50 Q 84 50 84 56 L 84 70 Q 84 76 78 76 L 72 76 L 76 84 L 64 76 L 52 76 Q 46 76 46 70 Z"
+                fill="#ECFEFF" stroke="#06B6D4" stroke-width="2" stroke-linejoin="round"/>
+              <circle cx="60" cy="63" r="1.6" fill="#0E7490"/>
+              <circle cx="65" cy="63" r="1.6" fill="#0E7490"/>
+              <circle cx="70" cy="63" r="1.6" fill="#0E7490"/>
+            </svg>
+          </div>
+          <div class="pc-title">Engagement &amp; education</div>
+          <div class="pc-desc">People engage with your content — read, watch, interact, follow.</div>
+          <div class="pc-context">
+            <div class="pc-context-label">When this applies</div>
+            <div class="pc-context-text">Brand building, long-cycle products, new or unfamiliar category</div>
+          </div>
+        </div>
+
+        <!-- Card 3: Traffic & Intent -->
+        <div class="purpose-card" data-purpose="traffic-intent" onclick="selectPurpose('traffic-intent')">
+          <div class="select-mark">✓</div>
+          <div class="purpose-illu">
+            <svg width="96" height="96" viewBox="0 0 96 96" fill="none">
+              <!-- Dashed path -->
+              <path d="M 16 76 Q 32 64 44 52 Q 58 36 70 22"
+                stroke="#A5B4FC" stroke-width="2" stroke-dasharray="3 4" fill="none"/>
+              <!-- Footprints along the path -->
+              <circle class="footprint"      cx="20" cy="72" r="3.2" fill="#4338CA"/>
+              <circle class="footprint fp-2" cx="34" cy="60" r="3.2" fill="#4338CA"/>
+              <circle class="footprint fp-3" cx="48" cy="48" r="3.2" fill="#4338CA"/>
+              <!-- Door / destination -->
+              <rect x="62" y="14" width="22" height="26" rx="3" fill="#EEF2FF" stroke="#4338CA" stroke-width="2"/>
+              <circle cx="78" cy="28" r="1.6" fill="#4338CA"/>
+              <!-- Cyan glow above door -->
+              <circle cx="73" cy="12" r="9" fill="#06B6D4" opacity="0.22"/>
+              <circle cx="73" cy="12" r="3.2" fill="#06B6D4"/>
+            </svg>
+          </div>
+          <div class="pc-title">Traffic &amp; intent</div>
+          <div class="pc-desc">Qualified people land on your site and actually explore.</div>
+          <div class="pc-context">
+            <div class="pc-context-label">When this applies</div>
+            <div class="pc-context-text">E-commerce, content-heavy brands, comparison-stage buyers</div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="cards-hint" id="cardsHint">
+        Pick the one that fits — Continue activates once you choose
+      </div>
+    </section>
+
+    <!-- ===== Screen 2A: Lead Generation ===== -->
+    <section class="screen" id="screen-lead-generation">
+      <div class="branch-wrap">
+
+        <div class="selection-strip">
+          <span class="strip-label">Selected purpose</span>
+          <div class="strip-value">
+            <svg width="22" height="22" viewBox="0 0 96 96" fill="none">
+              <path d="M 26 40 L 26 58 Q 26 74 48 74 Q 70 74 70 58 L 70 40" fill="none" stroke="#4338CA" stroke-width="8" stroke-linecap="round"/>
+              <rect x="20" y="30" width="14" height="14" rx="2" fill="#EF4444"/>
+              <rect x="62" y="30" width="14" height="14" rx="2" fill="#4338CA"/>
+            </svg>
+            Lead generation
+          </div>
+          <button class="strip-change" onclick="returnToPurpose()">Change</button>
+        </div>
+
+        <div class="section-header">
+          <div class="h-label">Lead Strategy</div>
+          <h2>How will leads come in?</h2>
+          <p class="h-sub">Three quick calibrations so we predict CPL accurately for your offer.</p>
+        </div>
+
+        <div class="q-card delay-1">
+          <div class="q-number">01</div>
+          <h3 class="q-title">What are you asking people to do?</h3>
+          <p class="q-hint">Pick all that apply. A demo request and a newsletter sign-up have very different CPLs — 3–5× apart.</p>
+          <div class="chip-grid" id="leadOfferChips">
+            <button class="chip-select" data-offer="demo"            onclick="toggleOffer('demo', this)"><span class="chip-check">✓</span>Demo request</button>
+            <button class="chip-select" data-offer="trial"           onclick="toggleOffer('trial', this)"><span class="chip-check">✓</span>Free trial</button>
+            <button class="chip-select" data-offer="download"        onclick="toggleOffer('download', this)"><span class="chip-check">✓</span>Download (guide / report / template)</button>
+            <button class="chip-select" data-offer="consultation"    onclick="toggleOffer('consultation', this)"><span class="chip-check">✓</span>Consultation call</button>
+            <button class="chip-select" data-offer="quote"           onclick="toggleOffer('quote', this)"><span class="chip-check">✓</span>Quote request</button>
+            <button class="chip-select" data-offer="newsletter"      onclick="toggleOffer('newsletter', this)"><span class="chip-check">✓</span>Newsletter sign-up</button>
+            <button class="chip-select" data-offer="waitlist"        onclick="toggleOffer('waitlist', this)"><span class="chip-check">✓</span>Waitlist</button>
+          </div>
+          <div class="field-hint" id="leadOfferHint">
+            <span class="fh-check">✓</span>
+            <span class="fh-text">Pick at least 1 offer</span>
+          </div>
+        </div>
+
+        <div class="q-card delay-2">
+          <div class="q-number">02</div>
+          <h3 class="q-title">What happens after someone fills the form?</h3>
+          <p class="q-hint">This calibrates lead-quality expectations and downstream conversion estimates.</p>
+          <div class="radio-grid cols-2" id="postLeadGrid">
+            <div class="radio-card" data-flow="sales-call"  onclick="selectPostLead('sales-call')">
+              <div class="rc-head"><div class="rc-radio"></div><div class="rc-title">Immediate sales call</div></div>
+              <div class="rc-sub">Hot-lead handoff to your sales team. High intent, high cost-per-lead.</div>
+            </div>
+            <div class="radio-card" data-flow="nurture"     onclick="selectPostLead('nurture')">
+              <div class="rc-head"><div class="rc-radio"></div><div class="rc-title">Nurture sequence</div></div>
+              <div class="rc-sub">Multi-touch email / content drip. Slower, lower-cost qualification.</div>
+            </div>
+            <div class="radio-card" data-flow="self-serve"  onclick="selectPostLead('self-serve')">
+              <div class="rc-head"><div class="rc-radio"></div><div class="rc-title">Self-serve trial</div></div>
+              <div class="rc-sub">User activates immediately, product-led from there.</div>
+            </div>
+            <div class="radio-card" data-flow="human-review" onclick="selectPostLead('human-review')">
+              <div class="rc-head"><div class="rc-radio"></div><div class="rc-title">Human review &amp; qualify</div></div>
+              <div class="rc-sub">Internal team reviews before reach-out. Quality filter in place.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card delay-3">
+          <div class="q-number">03</div>
+          <h3 class="q-title">Your current cost per lead, even roughly?</h3>
+          <p class="q-hint">Optional. Leave blank if you don't know — we'll use industry &amp; geography benchmarks.</p>
+          <div class="input-with-prefix">
+            <div class="ip-prefix">৳</div>
+            <input class="ip-input" id="currentCpl" type="number" min="0" placeholder="e.g. 1200" oninput="onCplInput(this)">
+            <div class="ip-prefix" style="border-right:none;border-left:1px solid var(--border);">/ lead</div>
+          </div>
+          <div class="field-note">If you have a baseline from a past campaign, it sharpens the forecast considerably.</div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ===== Screen 2B: Engagement & Education ===== -->
+    <section class="screen" id="screen-engagement-education">
+      <div class="branch-wrap">
+
+        <div class="selection-strip">
+          <span class="strip-label">Selected purpose</span>
+          <div class="strip-value">
+            <svg width="22" height="22" viewBox="0 0 96 96" fill="none">
+              <path d="M 12 26 Q 12 20 18 20 L 46 20 Q 52 20 52 26 L 52 42 Q 52 48 46 48 L 28 48 L 22 56 L 24 48 L 18 48 Q 12 48 12 42 Z" fill="#EEF2FF" stroke="#4338CA" stroke-width="2.5"/>
+              <path d="M 46 56 Q 46 50 52 50 L 78 50 Q 84 50 84 56 L 84 70 Q 84 76 78 76 L 72 76 L 76 84 L 64 76 L 52 76 Q 46 76 46 70 Z" fill="#ECFEFF" stroke="#06B6D4" stroke-width="2.5"/>
+            </svg>
+            Engagement &amp; education
+          </div>
+          <button class="strip-change" onclick="returnToPurpose()">Change</button>
+        </div>
+
+        <div class="section-header">
+          <div class="h-label">Content Foundation</div>
+          <h2>What does your audience need to understand?</h2>
+          <p class="h-sub">This becomes the anchor your creative is built around.</p>
+        </div>
+
+        <div class="q-card delay-1">
+          <div class="q-number">01</div>
+          <h3 class="q-title">What's the key thing your audience needs to understand before they'll consider you seriously?</h3>
+          <p class="q-hint">Examples: how the category works · why this approach is better · what problem this solves · how you're different from alternatives.</p>
+          <textarea id="educationGap" class="ta-base"
+            placeholder="e.g., Subscription dental care is more affordable AND higher quality than the annual check-up model people grew up with."
+            oninput="onEduField('educationGap', this)"></textarea>
+          <div class="field-hint" id="eduGapHint">
+            <span class="fh-check">✓</span>
+            <span class="fh-text">0 / 15 characters minimum</span>
+          </div>
+        </div>
+
+        <div class="q-card delay-2">
+          <div class="q-number">02</div>
+          <h3 class="q-title">Do you already have content that explains this — articles, videos, guides?</h3>
+          <p class="q-hint">If yes, drop a link. If not, we'll include a content-creation brief in your launch plan.</p>
+          <div class="radio-grid cols-2" id="contentGrid">
+            <div class="radio-card" data-have="yes" onclick="selectHasContent('yes')">
+              <div class="rc-head"><div class="rc-radio"></div><div class="rc-title">Yes — I have content</div></div>
+              <div class="rc-sub">We'll lean on what you've made.</div>
+            </div>
+            <div class="radio-card" data-have="no" onclick="selectHasContent('no')">
+              <div class="rc-head"><div class="rc-radio"></div><div class="rc-title">No — the campaign needs to build it</div></div>
+              <div class="rc-sub">Launch plan will include a content brief.</div>
+            </div>
+          </div>
+          <div class="conditional" id="contentUrlSlot">
+            <div class="input-with-prefix">
+              <div class="ip-prefix">https://</div>
+              <input class="ip-input" id="contentUrl" type="text" placeholder="example.com/your-best-piece" oninput="onContentUrl(this)">
+            </div>
+            <div class="field-note">Paste a link if you have a representative piece. Optional but helps calibrate.</div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ===== Screen 2C: Traffic & Intent ===== -->
+    <section class="screen" id="screen-traffic-intent">
+      <div class="branch-wrap">
+
+        <div class="selection-strip">
+          <span class="strip-label">Selected purpose</span>
+          <div class="strip-value">
+            <svg width="22" height="22" viewBox="0 0 96 96" fill="none">
+              <path d="M 16 76 Q 32 64 44 52 Q 58 36 70 22" stroke="#A5B4FC" stroke-width="3" stroke-dasharray="3 4" fill="none"/>
+              <circle cx="48" cy="48" r="3.2" fill="#4338CA"/>
+              <rect x="62" y="14" width="22" height="26" rx="3" fill="#EEF2FF" stroke="#4338CA" stroke-width="2.5"/>
+              <circle cx="73" cy="12" r="3.2" fill="#06B6D4"/>
+            </svg>
+            Traffic &amp; intent
+          </div>
+          <button class="strip-change" onclick="returnToPurpose()">Change</button>
+        </div>
+
+        <div class="section-header">
+          <div class="h-label">Destination &amp; Action</div>
+          <h2>Where are you sending people?</h2>
+          <p class="h-sub">The landing page is the variable that quietly makes or breaks a traffic campaign.</p>
+        </div>
+
+        <div class="q-card delay-1">
+          <div class="q-number">01</div>
+          <h3 class="q-title">What page will people land on?</h3>
+          <p class="q-hint">We'll fetch it and score clarity, CTA, load signal, and message match. A weak page suppresses conversions even with a great campaign — so we flag this before you spend.</p>
+          <div class="input-with-prefix">
+            <div class="ip-prefix">https://</div>
+            <input class="ip-input" id="destinationUrl" type="text" placeholder="example.com/spring-collection" oninput="onDestUrl(this)">
+          </div>
+          <div class="field-hint" id="destHint">
+            <span class="fh-check">✓</span>
+            <span class="fh-text">Paste a destination URL</span>
+          </div>
+        </div>
+
+        <div class="q-card delay-2">
+          <div class="q-number">02</div>
+          <h3 class="q-title">What do you want them to do when they get there?</h3>
+          <p class="q-hint">This determines which on-site behaviour signal we predict.</p>
+          <div class="radio-grid cols-3" id="actionGrid">
+            <div class="radio-card" data-action="browse"   onclick="selectOnSite('browse')">
+              <div class="rc-head"><div class="rc-radio"></div><div class="rc-title">Browse products</div></div>
+              <div class="rc-sub">Pages per session, time on site.</div>
+            </div>
+            <div class="radio-card" data-action="read"     onclick="selectOnSite('read')">
+              <div class="rc-head"><div class="rc-radio"></div><div class="rc-title">Read content</div></div>
+              <div class="rc-sub">Scroll depth, time on page.</div>
+            </div>
+            <div class="radio-card" data-action="signup"   onclick="selectOnSite('signup')">
+              <div class="rc-head"><div class="rc-radio"></div><div class="rc-title">Sign up</div></div>
+              <div class="rc-sub">Form starts, completion rate.</div>
+            </div>
+            <div class="radio-card" data-action="book"     onclick="selectOnSite('book')">
+              <div class="rc-head"><div class="rc-radio"></div><div class="rc-title">Book a call</div></div>
+              <div class="rc-sub">Calendar slots, booking rate.</div>
+            </div>
+            <div class="radio-card" data-action="download" onclick="selectOnSite('download')">
+              <div class="rc-head"><div class="rc-radio"></div><div class="rc-title">Download</div></div>
+              <div class="rc-sub">Asset downloads, return visits.</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============ Bottom Bar ============ -->
+  <footer class="bottombar">
+    <button class="bb-back" id="bbBack" onclick="handleBack()">← Back</button>
+    <div class="bb-step" id="bbStep">Step 2 of 8</div>
+    <button class="bb-next" id="bbNext" onclick="handleContinue()" disabled>Continue →</button>
+  </footer>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const state = {
+      screen: 'purpose-selection',
+      selectedPurpose: null,
+      answers: {
+        // 2A
+        leadOffers: [],
+        postLeadFlow: null,
+        currentCplBaseline: null,
+        // 2B
+        educationGap: '',
+        existingContent: null,    // 'yes' | 'no'
+        existingContentUrl: '',
+        // 2C
+        destinationUrl: '',
+        onSiteAction: null
+      }
+    };
+
+    const continueBtn = document.getElementById('bbNext');
+    const subProgress = document.getElementById('subProgress');
+    const step2node   = document.getElementById('step2node');
+
+    // ============ Purpose selection ============
+    function selectPurpose(purpose) {
+      state.selectedPurpose = purpose;
+      document.querySelectorAll('.purpose-card').forEach(c => c.classList.remove('selected'));
+      document.querySelector('[data-purpose="' + purpose + '"]').classList.add('selected');
+      const hint = document.getElementById('cardsHint');
+      if (hint) hint.classList.add('dismissed');
+      setContinueEnabled(true, true);
+    }
+
+    function setContinueEnabled(enabled, pulse) {
+      const wasEnabled = continueBtn.classList.contains('enabled');
+      continueBtn.disabled = !enabled;
+      continueBtn.classList.toggle('enabled', enabled);
+      if (enabled && !wasEnabled && pulse) {
+        continueBtn.classList.add('just-enabled');
+        setTimeout(() => continueBtn.classList.remove('just-enabled'), 600);
+      }
+    }
+
+    // ============ Screen transitions ============
+    function showScreen(screenId, isBranch) {
+      const current = document.querySelector('.screen.active');
+      if (current && current.id === screenId) return;
+      current.classList.add('exiting');
+      setTimeout(() => {
+        current.classList.remove('active', 'exiting');
+        const next = document.getElementById(screenId);
+        next.classList.add('active', 'entering');
+        setTimeout(() => next.classList.remove('entering'), 450);
+        step2node.classList.toggle('has-sub', !!isBranch);
+        if (!isBranch) updateSubProgress(0, 1);
+        document.querySelector('.main').scrollTop = 0;
+      }, 350);
+    }
+
+    function returnToPurpose() {
+      state.screen = 'purpose-selection';
+      showScreen('screen-purpose-selection', false);
+      setContinueEnabled(!!state.selectedPurpose, false);
+    }
+
+    // ============ Continue / Back ============
+    function handleContinue() {
+      if (continueBtn.disabled) return;
+      if (state.screen === 'purpose-selection') {
+        state.screen = state.selectedPurpose;
+        showScreen('screen-' + state.selectedPurpose, true);
+        setTimeout(updateContinueValidation, 360);
+      } else {
+        // Hand off to wizard at Stage 3
+        try {
+          sessionStorage.setItem('brandaid:consideration', JSON.stringify({
+            goal: 'consideration',
+            purpose: state.selectedPurpose,
+            answers: state.answers,
+            ts: Date.now()
+          }));
+        } catch (e) {}
+        showToast('Saved · continuing to Channels');
+        setTimeout(() => { window.location.href = 'new-campaign.html?from=consideration'; }, 600);
+      }
+    }
+
+    function handleBack() {
+      if (state.screen === 'purpose-selection') {
+        window.location.href = 'new-campaign.html';
+      } else {
+        returnToPurpose();
+      }
+    }
+
+    // ============ Validation + sub-progress ring ============
+    function updateContinueValidation() {
+      let valid = false, filled = 0, total = 1;
+      const a = state.answers;
+      if (state.screen === 'lead-generation') {
+        const o = a.leadOffers.length >= 1;
+        const f = a.postLeadFlow !== null;
+        valid = o && f;
+        total = 2;
+        filled = (o ? 1 : 0) + (f ? 1 : 0);
+      } else if (state.screen === 'engagement-education') {
+        const g = a.educationGap.trim().length >= 15;
+        const c = a.existingContent !== null;
+        valid = g && c;
+        total = 2;
+        filled = (g ? 1 : 0) + (c ? 1 : 0);
+      } else if (state.screen === 'traffic-intent') {
+        const u = isLikelyUrl(a.destinationUrl);
+        const k = a.onSiteAction !== null;
+        valid = u && k;
+        total = 2;
+        filled = (u ? 1 : 0) + (k ? 1 : 0);
+      } else if (state.screen === 'purpose-selection') {
+        valid = !!state.selectedPurpose;
+      }
+      setContinueEnabled(valid, true);
+      if (state.screen !== 'purpose-selection') updateSubProgress(filled, total);
+    }
+    function updateSubProgress(filled, total) {
+      const pct = total === 0 ? 0 : Math.round((filled / total) * 100);
+      subProgress.style.setProperty('--sub-progress', pct + '%');
+    }
+    function isLikelyUrl(s) {
+      if (!s) return false;
+      const v = s.trim();
+      // Allow naked domains since we prefix https:// in the UI
+      return /^([a-z0-9-]+\.)+[a-z]{2,}(\/.*)?$/i.test(v) || /^https?:\/\/.+\..+/i.test(v);
+    }
+
+    // ============ 2A handlers ============
+    function toggleOffer(offer, btn) {
+      const i = state.answers.leadOffers.indexOf(offer);
+      if (i === -1) {
+        state.answers.leadOffers.push(offer);
+        btn.classList.add('selected');
+      } else {
+        state.answers.leadOffers.splice(i, 1);
+        btn.classList.remove('selected');
+      }
+      const hint = document.getElementById('leadOfferHint');
+      const n = state.answers.leadOffers.length;
+      hint.classList.toggle('met', n >= 1);
+      hint.querySelector('.fh-text').textContent =
+        n >= 1 ? n + ' offer' + (n === 1 ? '' : 's') + ' selected' : 'Pick at least 1 offer';
+      updateContinueValidation();
+    }
+    function selectPostLead(flow) {
+      state.answers.postLeadFlow = flow;
+      document.querySelectorAll('#postLeadGrid .radio-card').forEach(c => c.classList.remove('selected'));
+      document.querySelector('[data-flow="' + flow + '"]').classList.add('selected');
+      updateContinueValidation();
+    }
+    function onCplInput(input) {
+      const v = parseInt(input.value, 10);
+      state.answers.currentCplBaseline = isNaN(v) ? null : v;
+      // optional, no validation gating
+    }
+
+    // ============ 2B handlers ============
+    function onEduField(field, ta) {
+      state.answers[field] = ta.value;
+      const hint = document.getElementById('eduGapHint');
+      const len = ta.value.trim().length;
+      hint.classList.toggle('met', len >= 15);
+      hint.querySelector('.fh-text').textContent =
+        len >= 15 ? 'Looks good · ' + len + ' characters' : len + ' / 15 characters minimum';
+      updateContinueValidation();
+    }
+    function selectHasContent(have) {
+      state.answers.existingContent = have;
+      document.querySelectorAll('#contentGrid .radio-card').forEach(c => c.classList.remove('selected'));
+      document.querySelector('[data-have="' + have + '"]').classList.add('selected');
+      document.getElementById('contentUrlSlot').classList.toggle('shown', have === 'yes');
+      updateContinueValidation();
+    }
+    function onContentUrl(input) {
+      state.answers.existingContentUrl = input.value;
+      // optional
+    }
+
+    // ============ 2C handlers ============
+    function onDestUrl(input) {
+      state.answers.destinationUrl = input.value;
+      const hint = document.getElementById('destHint');
+      const ok = isLikelyUrl(input.value);
+      hint.classList.toggle('met', ok);
+      hint.querySelector('.fh-text').textContent =
+        ok ? 'Looks like a valid URL · we\'ll score it before launch' : 'Paste a destination URL';
+      updateContinueValidation();
+    }
+    function selectOnSite(action) {
+      state.answers.onSiteAction = action;
+      document.querySelectorAll('#actionGrid .radio-card').forEach(c => c.classList.remove('selected'));
+      document.querySelector('[data-action="' + action + '"]').classList.add('selected');
+      updateContinueValidation();
+    }
+
+    // ============ Toast ============
+    let toastTimer;
+    function showToast(text) {
+      const t = document.getElementById('toast');
+      t.textContent = text;
+      t.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+    }
+
+    // ============ Restore prior state on return-navigation ============
+    (function restorePriorState() {
+      try {
+        const raw = sessionStorage.getItem('brandaid:consideration');
+        if (!raw) return;
+        const data = JSON.parse(raw);
+        if (!data.purpose) return;
+        state.selectedPurpose = data.purpose;
+        if (data.answers) Object.assign(state.answers, data.answers);
+
+        const card = document.querySelector('[data-purpose="' + data.purpose + '"]');
+        if (card) card.classList.add('selected');
+        const hint = document.getElementById('cardsHint');
+        if (hint) hint.classList.add('dismissed');
+
+        const a = state.answers;
+        if (data.purpose === 'lead-generation') {
+          (a.leadOffers || []).forEach(o => {
+            const btn = document.querySelector('[data-offer="' + o + '"]');
+            if (btn) btn.classList.add('selected');
+          });
+          if (a.postLeadFlow) {
+            const r = document.querySelector('[data-flow="' + a.postLeadFlow + '"]');
+            if (r) r.classList.add('selected');
+          }
+          if (a.currentCplBaseline) document.getElementById('currentCpl').value = a.currentCplBaseline;
+        } else if (data.purpose === 'engagement-education') {
+          const eg = document.getElementById('educationGap');
+          if (eg) { eg.value = a.educationGap || ''; onEduField('educationGap', eg); }
+          if (a.existingContent) selectHasContent(a.existingContent);
+          if (a.existingContentUrl) document.getElementById('contentUrl').value = a.existingContentUrl;
+        } else if (data.purpose === 'traffic-intent') {
+          const du = document.getElementById('destinationUrl');
+          if (du) { du.value = a.destinationUrl || ''; onDestUrl(du); }
+          if (a.onSiteAction) selectOnSite(a.onSiteAction);
+        }
+
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('return') === '1') {
+          state.screen = data.purpose;
+          document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+          document.getElementById('screen-' + data.purpose).classList.add('active');
+          step2node.classList.add('has-sub');
+          updateContinueValidation();
+        } else {
+          setContinueEnabled(true, false);
+        }
+      } catch (e) { /* malformed — start fresh */ }
+    })();
+  </script>
+</body>
+</html>

@@ -2737,9 +2737,22 @@
     };
 
     const purposeLabels = {
-      direct_purchase: 'Direct Purchase',
-      signup_trial: 'Sign-up / Trial',
-      flash_sale: 'Flash Sale / Promo'
+      // legacy in-file Stage 2 conversion keys (snake_case) — kept for back-compat
+      direct_purchase:        'Direct Purchase',
+      signup_trial:           'Sign-up / Trial',
+      flash_sale:             'Flash Sale / Promo',
+      // Awareness purpose page
+      'new-brand':            'New brand',
+      'repositioning':        'Repositioning',
+      'product-launch':       'Product launch',
+      // Consideration purpose page
+      'lead-generation':      'Lead generation',
+      'engagement-education': 'Engagement & education',
+      'traffic-intent':       'Traffic & intent',
+      // Conversion purpose page
+      'direct-purchase':      'Direct purchase',
+      'signup-trial':         'Sign-up · Trial · Install',
+      'flash-sale':           'Promotional · Flash sale'
     };
 
     const channelMeta = {
@@ -2814,10 +2827,30 @@
 
     function goNext() {
       if (!validateStage(campaignState.currentStage)) return;
+      // All three goals now have dedicated Stage-2 purpose pages
+      if (campaignState.currentStage === 1) {
+        const purposePages = {
+          awareness:     'awareness-purpose.html',
+          consideration: 'consideration-purpose.html',
+          conversion:    'conversion-purpose.html'
+        };
+        const target = purposePages[campaignState.goal];
+        if (target) { window.location.href = target; return; }
+      }
       if (campaignState.currentStage < 8) goToStage(campaignState.currentStage + 1);
     }
 
     function goBack() {
+      // All three goals skip the in-file Stage 2 — bounce back to their dedicated page
+      if (campaignState.currentStage === 3) {
+        const purposePages = {
+          awareness:     'awareness-purpose.html?return=1',
+          consideration: 'consideration-purpose.html?return=1',
+          conversion:    'conversion-purpose.html?return=1'
+        };
+        const target = purposePages[campaignState.goal];
+        if (target) { window.location.href = target; return; }
+      }
       if (campaignState.currentStage > 1) goToStage(campaignState.currentStage - 1);
     }
 
@@ -3364,17 +3397,54 @@
     document.querySelectorAll('.nav-node').forEach((node, i) => {
       node.addEventListener('click', () => {
         const step = i + 1;
+        // For all three goals, Stage 2 lives in its own dedicated page
+        if (step === 2) {
+          const purposePages = {
+            awareness:     'awareness-purpose.html?return=1',
+            consideration: 'consideration-purpose.html?return=1',
+            conversion:    'conversion-purpose.html?return=1'
+          };
+          const target = purposePages[campaignState.goal];
+          if (target) { window.location.href = target; return; }
+        }
         // Allow jumping to any reached step
         if (step <= campaignState.maxReachedStage) goToStage(step);
       });
     });
 
+    // ============ Stage-2 handoff ingest (awareness / consideration / conversion) ============
+    // Each dedicated purpose page saves state to sessionStorage and redirects here with
+    // ?from=<goal>. Pick up the payload, restore goal+purpose+answers, and jump to Stage 3.
+    (function ingestPurposeHandoff() {
+      const params = new URLSearchParams(window.location.search);
+      const from = params.get('from');
+      const valid = { awareness: 1, consideration: 1, conversion: 1 };
+      if (!valid[from]) return;
+      try {
+        const raw = sessionStorage.getItem('brandaid:' + from);
+        if (!raw) return;
+        const data = JSON.parse(raw);
+        if (data.goal !== from || !data.purpose) return;
+        campaignState.goal = from;
+        campaignState.purpose = data.purpose;
+        // Stash full per-stage answers under a stable key for later stages to consume
+        campaignState[from + 'Answers'] = data.answers || {};
+        campaignState.currentStage = 3;
+        campaignState.maxReachedStage = 3;
+      } catch (e) { /* ignore malformed handoff */ }
+    })();
+
     // ============ Init ============
     renderCalendar();
     setTimeout(initDonut, 100);
-    updateNavigator();
-    updateBottomBar();
-    updateAiHint();
+    // If the awareness handoff set a later stage, jump to it; otherwise stay on Stage 1
+    if (campaignState.currentStage > 1) {
+      goToStage(campaignState.currentStage);
+    } else {
+      updateNavigator();
+      updateBottomBar();
+      updateAiHint();
+    }
   </script>
 </body>
 </html>

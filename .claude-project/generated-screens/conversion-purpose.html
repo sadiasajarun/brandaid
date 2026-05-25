@@ -1,0 +1,1464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Conversion Purpose — BrandAid</title>
+  <style>
+    :root {
+      --indigo:        #4338CA;
+      --indigo-dark:   #3730A3;
+      --indigo-bright: #6366F1;
+      --indigo-light:  #A5B4FC;
+      --indigo-mist:   #E0E7FF;
+      --indigo-wash:   #EEF2FF;
+      --cyan:          #06B6D4;
+      --cyan-bright:   #22D3EE;
+      --cyan-light:    #67E8F9;
+      --cyan-deep:     #0E7490;
+      --cyan-wash:     #ECFEFF;
+      --cyan-border:   #A5F3FC;
+      --midnight:      #0F172A;
+      --slate:         #334155;
+      --neutral:       #64748B;
+      --neutral-light: #94A3B8;
+      --border:        #E2E8F0;
+      --border-soft:   #F1F5F9;
+      --white:         #FFFFFF;
+      --page-bg:       #FAFAFE;
+      --warning:       #F59E0B;
+      --warning-soft:  #FEF3C7;
+      --warning-dark:  #92400E;
+      --danger:        #EF4444;
+      --success-dark:  #047857;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--midnight);
+      background-color: var(--page-bg);
+      background-image: radial-gradient(circle, rgba(67,56,202,0.04) 1px, transparent 1px);
+      background-size: 32px 32px;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    button, input, textarea, select { font-family: inherit; }
+    button { cursor: pointer; border: none; background: transparent; }
+    a { color: inherit; text-decoration: none; }
+
+    /* ============ Top Bar ============ */
+    .topbar {
+      height: 60px;
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .topbar-left { display: flex; align-items: center; gap: 12px; }
+    .logo { display: inline-flex; align-items: center; gap: 10px; }
+    .logo-icon {
+      width: 28px; height: 28px;
+      background: var(--indigo);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--white);
+      font-size: 18px; font-weight: 700; line-height: 1;
+    }
+    .logo-text { font-size: 17px; font-weight: 700; color: var(--midnight); letter-spacing: -0.01em; }
+    .topbar-crumb { display: inline-flex; align-items: center; gap: 8px; }
+    .crumb-chevron { color: #CBD5E1; font-size: 12px; }
+    .crumb-text { font-size: 14px; color: var(--neutral); }
+    .topbar-right { display: flex; align-items: center; gap: 16px; }
+    .save-exit { font-size: 13px; color: var(--neutral); transition: color 0.2s ease; }
+    .save-exit:hover { color: var(--midnight); }
+    .close-btn {
+      width: 36px; height: 36px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--neutral); font-size: 18px; line-height: 1;
+      transition: all 0.2s ease;
+    }
+    .close-btn:hover { background: #FEE2E2; border-color: #FCA5A5; color: var(--danger); }
+
+    /* ============ Constellation Navigator ============ */
+    .navigator {
+      background: var(--page-bg);
+      padding: 24px 32px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .nav-inner { max-width: 1100px; margin: 0 auto; position: relative; }
+    .nav-line-bg, .nav-line-fg {
+      position: absolute;
+      left: 18px; right: 18px; top: 18px;
+      height: 2px;
+      pointer-events: none;
+    }
+    .nav-line-bg {
+      background-image: linear-gradient(to right, #E2E8F0 50%, transparent 50%);
+      background-size: 8px 2px;
+      background-repeat: repeat-x;
+    }
+    .nav-line-fg { background: var(--indigo); width: 0%; transition: width 0.6s ease; }
+    .nav-nodes { position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: flex-start; }
+    .nav-node { display: flex; flex-direction: column; align-items: center; gap: 10px; user-select: none; }
+    .node-circle {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: var(--white);
+      border: 2px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--neutral-light);
+      font-size: 13px; font-weight: 700;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+    .nav-node.active .node-circle {
+      background: var(--indigo);
+      border: 4px solid var(--indigo-mist);
+      color: var(--white);
+      animation: node-pulse 1.8s ease-in-out infinite;
+    }
+    @keyframes node-pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(67,56,202,0.0); }
+      50%      { box-shadow: 0 0 0 8px rgba(67,56,202,0.12); }
+    }
+    .nav-node.done .node-circle {
+      background: var(--indigo);
+      border: 2px solid var(--indigo);
+      color: var(--white);
+    }
+    .nav-node.done .node-circle .num { display: none; }
+    .nav-node .check-icon { width: 14px; height: 14px; display: none; }
+    .nav-node.done .check-icon { display: block; }
+    .node-label {
+      font-size: 11px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      text-align: center;
+      color: var(--neutral-light);
+      transition: color 0.3s ease;
+    }
+    .nav-node.active .node-label { color: var(--midnight); }
+    .nav-node.done .node-label { color: var(--indigo); }
+    .sub-progress {
+      position: absolute;
+      inset: -8px;
+      border-radius: 50%;
+      background: conic-gradient(var(--cyan) var(--sub-progress, 0%), transparent 0);
+      mask: radial-gradient(circle, transparent 18px, black 19px, black 23px, transparent 24px);
+      -webkit-mask: radial-gradient(circle, transparent 18px, black 19px, black 23px, transparent 24px);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .nav-node.active.has-sub .sub-progress { opacity: 1; }
+
+    /* ============ Main / Screens ============ */
+    .main { flex: 1; overflow-y: auto; }
+    .screen { display: none; padding: 56px 32px 48px; max-width: 1080px; margin: 0 auto; }
+    .screen.active { display: block; }
+    .screen.exiting  { animation: screen-out 0.35s ease-in forwards; }
+    .screen.entering { animation: screen-in 0.45s ease-out both; }
+    @keyframes screen-out { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-12px); } }
+    @keyframes screen-in  { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* ============ Screen 1: Editorial framing ============ */
+    .framing { max-width: 740px; margin: 0 auto; text-align: center; }
+    .step-pill {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--white);
+      border: 1px solid var(--border);
+      color: var(--cyan-deep);
+      padding: 6px 14px;
+      border-radius: 24px;
+      font-size: 11px; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      margin-bottom: 28px;
+    }
+    .pill-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--cyan);
+      animation: pill-dot 2s ease-in-out infinite;
+    }
+    @keyframes pill-dot {
+      0%, 100% { transform: scale(1);    opacity: 1; }
+      50%      { transform: scale(1.35); opacity: 0.45; }
+    }
+
+    /* ---- Ambient: funnel narrowing to a bright point (converging target) ---- */
+    .ambient-target {
+      position: relative;
+      width: 100px; height: 100px;
+      margin: 0 auto 32px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .target-ring {
+      position: absolute; top: 50%; left: 50%;
+      width: 100%; height: 100%;
+      border-radius: 50%;
+      border: 1.5px solid var(--cyan);
+      transform: translate(-50%,-50%) scale(1.45);
+      opacity: 0;
+      animation: target-converge 4s ease-in infinite;
+    }
+    .target-ring.r1 { animation-delay: 0s; }
+    .target-ring.r2 { animation-delay: 1.3s; }
+    .target-ring.r3 { animation-delay: 2.6s; }
+    @keyframes target-converge {
+      0%   { transform: translate(-50%,-50%) scale(1.45); opacity: 0; }
+      20%  { opacity: 0.6; }
+      100% { transform: translate(-50%,-50%) scale(0.55); opacity: 0; }
+    }
+    .target-core {
+      width: 44px; height: 44px;
+      background: var(--white);
+      border: 1.5px solid var(--cyan-border);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      position: relative; z-index: 2;
+      box-shadow: 0 4px 18px -4px rgba(6,182,212,0.35);
+    }
+
+    .framing-headline {
+      font-size: 36px;
+      font-weight: 700;
+      color: var(--midnight);
+      line-height: 1.15;
+      letter-spacing: -0.025em;
+      margin-top: 12px;
+    }
+    .framing-headline .line { display: block; }
+    .framing-headline .accent-cyan { color: var(--cyan-deep); }
+    .framing-desc {
+      font-size: 16px;
+      color: #475569;
+      line-height: 1.7;
+      max-width: 600px;
+      margin: 18px auto 0;
+    }
+    .framing-desc .accent { color: var(--indigo); font-weight: 600; }
+    .framing-desc .cyan { color: var(--cyan-deep); font-weight: 600; }
+
+    .soft-divider {
+      display: flex; align-items: center; gap: 16px; justify-content: center;
+      max-width: 400px; margin: 56px auto;
+    }
+    .soft-divider .line {
+      flex: 1; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
+    }
+    .soft-divider .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--cyan); }
+
+    .purpose-question {
+      text-align: center;
+      font-size: 24px; font-weight: 700;
+      color: var(--midnight);
+      letter-spacing: -0.015em;
+      margin-bottom: 16px;
+    }
+    .purpose-sub {
+      text-align: center;
+      font-size: 14px;
+      color: var(--neutral);
+      max-width: 500px;
+      margin: 0 auto 40px;
+    }
+
+    .cards-hint {
+      display: flex; align-items: center; justify-content: center;
+      gap: 8px;
+      margin: 28px auto 0;
+      font-size: 12px; font-weight: 500;
+      color: var(--neutral-light);
+      letter-spacing: 0.04em;
+      transition: opacity 0.35s ease, transform 0.35s ease;
+    }
+    .cards-hint.dismissed { opacity: 0; transform: translateY(-4px); pointer-events: none; }
+
+    .purpose-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .purpose-card {
+      background: var(--white);
+      border: 1.5px solid var(--border);
+      border-radius: 16px;
+      padding: 32px 24px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      text-align: left;
+      min-height: 360px;
+      display: flex; flex-direction: column;
+    }
+    .purpose-card:hover {
+      border-color: var(--indigo-light);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px -8px rgba(67,56,202,0.15);
+    }
+    .purpose-card.selected {
+      border-color: var(--indigo);
+      border-width: 2px;
+      box-shadow: 0 0 0 6px rgba(67,56,202,0.06), 0 12px 32px -8px rgba(67,56,202,0.25);
+    }
+    .purpose-card .select-mark {
+      position: absolute;
+      top: 16px; right: 16px;
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      background: var(--cyan);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--white);
+      font-size: 11px; font-weight: 800;
+      opacity: 0; transform: scale(0.6);
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+    .purpose-card.selected .select-mark { opacity: 1; transform: scale(1); }
+    .purpose-illu { width: 100%; display: flex; justify-content: center; margin-bottom: 4px; }
+    .pc-title {
+      font-size: 19px; font-weight: 700;
+      color: var(--midnight);
+      letter-spacing: -0.015em;
+      margin-top: 24px;
+    }
+    .pc-desc { font-size: 14px; color: var(--neutral); line-height: 1.55; margin-top: 8px; }
+    .pc-context { margin-top: auto; padding-top: 24px; border-top: 1px solid var(--border-soft); }
+    .pc-context-label {
+      font-size: 10px; font-weight: 700;
+      color: var(--neutral-light);
+      letter-spacing: 0.1em; text-transform: uppercase;
+    }
+    .pc-context-text { font-size: 12px; color: #475569; line-height: 1.5; margin-top: 6px; }
+    /* Illustration micro-animations */
+    .cart-coin { animation: coin-drop 2.4s ease-in infinite; transform-origin: center; transform-box: fill-box; }
+    @keyframes coin-drop {
+      0%   { transform: translateY(-8px); opacity: 0; }
+      30%  { transform: translateY(0);    opacity: 1; }
+      85%  { transform: translateY(0);    opacity: 1; }
+      100% { transform: translateY(6px);  opacity: 0; }
+    }
+    .install-arrow { animation: arrow-down 1.8s ease-in-out infinite; transform-origin: center; transform-box: fill-box; }
+    @keyframes arrow-down {
+      0%, 100% { transform: translateY(0);  opacity: 0.85; }
+      50%      { transform: translateY(3px); opacity: 1; }
+    }
+    .flash-bolt { animation: bolt-pulse 1.4s ease-in-out infinite; transform-origin: center; transform-box: fill-box; }
+    @keyframes bolt-pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50%      { transform: scale(1.12); opacity: 0.85; }
+    }
+
+    /* ============ Branch shared bits ============ */
+    .branch-wrap { max-width: 720px; margin: 0 auto; }
+    .selection-strip {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 18px;
+      display: flex; align-items: center; gap: 16px;
+      margin-bottom: 40px;
+    }
+    .strip-label {
+      font-size: 10px; font-weight: 700;
+      color: var(--neutral-light);
+      letter-spacing: 0.1em; text-transform: uppercase;
+    }
+    .strip-value {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 14px; font-weight: 600;
+      color: var(--midnight);
+      margin-right: auto;
+    }
+    .strip-change { font-size: 13px; font-weight: 600; color: var(--indigo); padding: 6px 0; }
+    .strip-change:hover { text-decoration: underline; }
+
+    .section-header { text-align: center; margin-bottom: 32px; }
+    .section-header .h-label {
+      font-size: 11px; font-weight: 700;
+      color: var(--cyan-deep);
+      letter-spacing: 0.1em; text-transform: uppercase;
+    }
+    .section-header h2 {
+      margin-top: 10px;
+      font-size: 24px; font-weight: 700;
+      color: var(--midnight);
+      letter-spacing: -0.015em;
+    }
+    .section-header .h-sub { margin-top: 8px; font-size: 14px; color: var(--neutral); }
+
+    /* ============ Question card ============ */
+    .q-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      margin-top: 20px;
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    .q-card:first-of-type { margin-top: 0; }
+    .screen.active .q-card { animation: card-rise 0.5s ease-out forwards; }
+    .screen.active .q-card.delay-1 { animation-delay: 0.18s; }
+    .screen.active .q-card.delay-2 { animation-delay: 0.32s; }
+    .screen.active .q-card.delay-3 { animation-delay: 0.46s; }
+    @keyframes card-rise { to { opacity: 1; transform: translateY(0); } }
+
+    .q-number {
+      font-size: 32px; font-weight: 800;
+      color: var(--indigo-mist);
+      letter-spacing: -0.02em; line-height: 1;
+    }
+    .q-title {
+      margin-top: 4px;
+      font-size: 18px; font-weight: 700;
+      color: var(--midnight);
+      letter-spacing: -0.01em; line-height: 1.4;
+    }
+    .q-hint { margin-top: 8px; font-size: 13px; color: var(--neutral); line-height: 1.5; }
+
+    /* ---- Inputs ---- */
+    .input-text {
+      width: 100%;
+      height: 52px;
+      background: var(--page-bg);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 0 16px;
+      font-size: 16px; font-weight: 500;
+      color: var(--midnight);
+      outline: none;
+      transition: all 0.25s ease;
+    }
+    .input-text::placeholder { color: var(--neutral-light); }
+    .input-text:focus {
+      border-color: var(--indigo);
+      background: var(--white);
+      box-shadow: 0 0 0 4px rgba(67,56,202,0.08);
+    }
+
+    .input-with-prefix {
+      display: flex; align-items: stretch;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      background: var(--page-bg);
+      transition: all 0.25s ease;
+      overflow: hidden;
+    }
+    .input-with-prefix:focus-within {
+      border-color: var(--indigo);
+      background: var(--white);
+      box-shadow: 0 0 0 4px rgba(67,56,202,0.08);
+    }
+    .ip-prefix {
+      display: flex; align-items: center; gap: 6px;
+      padding: 0 16px;
+      font-size: 14px; color: var(--neutral); font-weight: 500;
+      background: rgba(67,56,202,0.03);
+      border-right: 1px solid var(--border);
+    }
+    .ip-input {
+      flex: 1; height: 52px;
+      background: transparent;
+      border: none;
+      padding: 0 16px;
+      font-size: 16px; font-weight: 500;
+      color: var(--midnight);
+      outline: none;
+    }
+    .ip-input::placeholder { color: var(--neutral-light); }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-top: 22px;
+    }
+    .field-label {
+      display: block;
+      font-size: 11px; font-weight: 700;
+      color: var(--neutral);
+      letter-spacing: 0.06em; text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    /* ---- Multi-select chips ---- */
+    .chip-grid {
+      display: flex; flex-wrap: wrap; gap: 10px;
+      margin-top: 22px;
+    }
+    .chip-select {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--page-bg);
+      border: 1.5px solid var(--border);
+      color: var(--slate);
+      font-size: 13px; font-weight: 500;
+      padding: 9px 16px;
+      border-radius: 24px;
+      transition: all 0.2s ease;
+    }
+    .chip-select:hover { border-color: var(--indigo-light); background: var(--white); }
+    .chip-select.selected {
+      background: var(--indigo-wash);
+      border-color: var(--indigo);
+      color: var(--indigo);
+      font-weight: 600;
+    }
+    .chip-check {
+      width: 14px; height: 14px; border-radius: 50%;
+      background: var(--border);
+      color: var(--white);
+      font-size: 9px; font-weight: 800;
+      display: inline-flex; align-items: center; justify-content: center;
+      transition: background 0.2s ease;
+    }
+    .chip-select.selected .chip-check { background: var(--indigo); }
+
+    /* ---- Radio cards ---- */
+    .radio-grid { display: grid; gap: 12px; margin-top: 22px; }
+    .radio-grid.cols-2 { grid-template-columns: 1fr 1fr; }
+    .radio-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+    .radio-grid.cols-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+    .radio-card {
+      background: var(--page-bg);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 18px 16px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      display: flex; flex-direction: column;
+      gap: 6px;
+    }
+    .radio-card:hover { border-color: var(--indigo-light); background: var(--white); }
+    .radio-card.selected {
+      border-color: var(--indigo);
+      border-width: 2px;
+      background: var(--indigo-wash);
+      box-shadow: 0 0 0 4px rgba(67,56,202,0.06);
+    }
+    .rc-head { display: flex; align-items: center; gap: 10px; }
+    .rc-radio {
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      border: 2px solid #CBD5E1;
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s ease;
+    }
+    .radio-card.selected .rc-radio { background: var(--indigo); border-color: var(--indigo); }
+    .rc-radio::after {
+      content: '';
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--white);
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+    .radio-card.selected .rc-radio::after { opacity: 1; }
+    .rc-title { font-size: 14px; font-weight: 600; color: var(--midnight); }
+    .rc-sub { font-size: 12px; color: var(--neutral); line-height: 1.5; }
+
+    /* ---- Field hint ---- */
+    .field-hint {
+      margin-top: 10px;
+      font-size: 11px; font-weight: 600;
+      color: var(--neutral-light);
+      letter-spacing: 0.04em;
+      display: flex; align-items: center; gap: 6px;
+      transition: color 0.25s ease;
+    }
+    .field-hint.met { color: var(--indigo); }
+    .fh-check {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 14px; height: 14px; border-radius: 50%;
+      background: var(--border); color: var(--white);
+      font-size: 9px; font-weight: 800;
+      transition: background 0.25s ease;
+    }
+    .field-hint.met .fh-check { background: var(--indigo); }
+    .field-note { margin-top: 10px; font-size: 12px; color: var(--neutral); line-height: 1.5; }
+
+    /* Conditional reveal */
+    .conditional {
+      max-height: 0; overflow: hidden;
+      opacity: 0;
+      transition: max-height 0.3s ease, opacity 0.3s ease, margin-top 0.3s ease;
+    }
+    .conditional.shown { max-height: 200px; opacity: 1; margin-top: 18px; }
+
+    /* ============ Bottom nav ============ */
+    .bottombar {
+      position: sticky; bottom: 0;
+      height: 72px;
+      background: var(--white);
+      border-top: 1px solid var(--border);
+      padding: 0 32px;
+      display: flex; align-items: center; justify-content: space-between;
+      z-index: 50; flex-shrink: 0;
+    }
+    .bb-back {
+      background: transparent;
+      border: 1px solid var(--border);
+      padding: 12px 24px;
+      border-radius: 10px;
+      font-size: 14px; font-weight: 600;
+      color: var(--neutral);
+      transition: all 0.2s ease;
+    }
+    .bb-back:hover { background: var(--page-bg); color: var(--midnight); }
+    .bb-step { font-size: 13px; font-weight: 600; color: var(--neutral); }
+    .bb-next {
+      background: var(--border-soft);
+      color: var(--neutral-light);
+      padding: 12px 28px;
+      border-radius: 10px;
+      font-size: 14px; font-weight: 700;
+      cursor: not-allowed;
+      transition: all 0.3s ease;
+    }
+    .bb-next.enabled {
+      background: linear-gradient(135deg, var(--cyan) 0%, var(--cyan-deep) 100%);
+      color: var(--white);
+      cursor: pointer;
+      box-shadow: 0 4px 16px -4px rgba(6,182,212,0.4);
+    }
+    .bb-next.enabled:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 22px -4px rgba(6,182,212,0.55);
+    }
+    .bb-next.just-enabled { animation: bb-pulse 0.6s ease-out; }
+    @keyframes bb-pulse {
+      0%   { transform: scale(1); }
+      40%  { transform: scale(1.025); }
+      100% { transform: scale(1); }
+    }
+
+    /* ============ Toast ============ */
+    .toast {
+      position: fixed;
+      bottom: 92px; left: 50%;
+      transform: translateX(-50%) translateY(10px);
+      background: var(--midnight);
+      color: var(--white);
+      font-size: 12px;
+      padding: 10px 16px;
+      border-radius: 10px;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      z-index: 100;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* ============ Responsive ============ */
+    @media (max-width: 980px) {
+      .purpose-cards { grid-template-columns: 1fr; max-width: 520px; }
+      .radio-grid.cols-2, .radio-grid.cols-3, .radio-grid.cols-4 { grid-template-columns: 1fr; }
+      .two-col { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 768px) {
+      .framing-headline { font-size: 28px; }
+      .nav-nodes { gap: 4px; }
+      .node-label { font-size: 9px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ============ Top Bar ============ -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <a href="dashboard.html" class="logo">
+        <div class="logo-icon">+</div>
+        <div class="logo-text">BrandAid</div>
+      </a>
+      <div class="topbar-crumb">
+        <span class="crumb-chevron">›</span>
+        <a class="crumb-text" href="new-campaign.html" style="color:var(--neutral);">New Campaign</a>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <button class="save-exit" onclick="alert('Draft saved.');">Save &amp; exit</button>
+      <button class="close-btn" aria-label="Close"
+        onclick="if(confirm('Close without saving?')) window.location.href='dashboard.html';">×</button>
+    </div>
+  </header>
+
+  <!-- ============ Constellation Navigator ============ -->
+  <div class="navigator">
+    <div class="nav-inner">
+      <div class="nav-line-bg"></div>
+      <div class="nav-line-fg" id="navLineFg" style="width:21.43%"></div>
+      <div class="nav-nodes">
+        <div class="nav-node done" data-step="1">
+          <div class="node-circle">
+            <span class="num">1</span>
+            <svg class="check-icon" viewBox="0 0 16 16" fill="none">
+              <path d="M3 8 L7 12 L13 4" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="node-label">Goal</div>
+        </div>
+        <div class="nav-node active" id="step2node" data-step="2">
+          <div class="node-circle">
+            <span class="num">2</span>
+            <svg class="check-icon" viewBox="0 0 16 16" fill="none">
+              <path d="M3 8 L7 12 L13 4" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <div class="sub-progress" id="subProgress"></div>
+          </div>
+          <div class="node-label">Purpose</div>
+        </div>
+        <div class="nav-node" data-step="3"><div class="node-circle"><span class="num">3</span></div><div class="node-label">Channels</div></div>
+        <div class="nav-node" data-step="4"><div class="node-circle"><span class="num">4</span></div><div class="node-label">Creative</div></div>
+        <div class="nav-node" data-step="5"><div class="node-circle"><span class="num">5</span></div><div class="node-label">Audience</div></div>
+        <div class="nav-node" data-step="6"><div class="node-circle"><span class="num">6</span></div><div class="node-label">Budget</div></div>
+        <div class="nav-node" data-step="7"><div class="node-circle"><span class="num">7</span></div><div class="node-label">Timing</div></div>
+        <div class="nav-node" data-step="8"><div class="node-circle"><span class="num">8</span></div><div class="node-label">Review</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ Main ============ -->
+  <main class="main">
+
+    <!-- ===== Screen 1: Purpose Selection ===== -->
+    <section class="screen active" id="screen-purpose-selection">
+      <div class="framing">
+        <span class="step-pill"><span class="pill-dot"></span>Step 2 · Conversion</span>
+
+        <!-- Ambient: cyan rings converging on a bright target -->
+        <div class="ambient-target" aria-hidden="true">
+          <div class="target-ring r1"></div>
+          <div class="target-ring r2"></div>
+          <div class="target-ring r3"></div>
+          <div class="target-core">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="10" stroke="#06B6D4" stroke-width="2"/>
+              <circle cx="12" cy="12" r="4" fill="#06B6D4"/>
+            </svg>
+          </div>
+        </div>
+
+        <h1 class="framing-headline">
+          <span class="line">This campaign's job</span>
+          <span class="line">is to <span class="accent-cyan">close</span>.</span>
+        </h1>
+        <p class="framing-desc">
+          Your audience is warm enough. Now everything comes down to three things: how <span class="accent">strong</span> your offer is, how easy it is to say yes, and whether you're in front of the right people at the right moment. Let's get all three right before you spend a single <span class="cyan">taka</span>.
+        </p>
+      </div>
+
+      <div class="soft-divider"><div class="line"></div><div class="dot"></div><div class="line"></div></div>
+
+      <h2 class="purpose-question">What does a conversion look like for you in this campaign?</h2>
+      <p class="purpose-sub">I want to make sure we're predicting the right outcome — and applying the right benchmarks.</p>
+
+      <div class="purpose-cards">
+
+        <!-- Card 1: Direct Purchase -->
+        <div class="purpose-card" data-purpose="direct-purchase" onclick="selectPurpose('direct-purchase')">
+          <div class="select-mark">✓</div>
+          <div class="purpose-illu">
+            <svg width="96" height="96" viewBox="0 0 96 96" fill="none">
+              <!-- Cart body -->
+              <path d="M 26 42 L 70 42 L 66 64 L 32 64 Z" fill="#EEF2FF" stroke="#4338CA" stroke-width="2" stroke-linejoin="round"/>
+              <!-- Handle -->
+              <path d="M 26 42 L 20 30 L 14 30" stroke="#4338CA" stroke-width="2" fill="none" stroke-linecap="round"/>
+              <!-- Wheels -->
+              <circle cx="38" cy="74" r="3" fill="#4338CA"/>
+              <circle cx="62" cy="74" r="3" fill="#4338CA"/>
+              <!-- Coin/price tag falling into cart -->
+              <circle class="cart-coin" cx="50" cy="24" r="7" fill="#06B6D4"/>
+              <text class="cart-coin" x="50" y="28" text-anchor="middle" font-family="Arial" font-size="10" font-weight="800" fill="white">৳</text>
+              <!-- Dashed path showing item going in -->
+              <line x1="50" y1="32" x2="50" y2="40" stroke="#06B6D4" stroke-width="1" stroke-dasharray="2 2" opacity="0.5"/>
+              <!-- Sparkle -->
+              <circle cx="18" cy="58" r="1.5" fill="#06B6D4" opacity="0.5"/>
+              <circle cx="82" cy="22" r="1.5" fill="#06B6D4" opacity="0.5"/>
+            </svg>
+          </div>
+          <div class="pc-title">Direct purchase</div>
+          <div class="pc-desc">People buy your product or service right now.</div>
+          <div class="pc-context">
+            <div class="pc-context-label">When this applies</div>
+            <div class="pc-context-text">E-commerce, retail, direct-to-consumer</div>
+          </div>
+        </div>
+
+        <!-- Card 2: Sign-up / Trial / Install -->
+        <div class="purpose-card" data-purpose="signup-trial" onclick="selectPurpose('signup-trial')">
+          <div class="select-mark">✓</div>
+          <div class="purpose-illu">
+            <svg width="96" height="96" viewBox="0 0 96 96" fill="none">
+              <!-- Phone outline -->
+              <rect x="30" y="14" width="36" height="64" rx="6" fill="#EEF2FF" stroke="#4338CA" stroke-width="2"/>
+              <!-- Screen -->
+              <rect x="34" y="22" width="28" height="44" rx="2" fill="white" stroke="#A5B4FC" stroke-width="1"/>
+              <!-- Home indicator -->
+              <circle cx="48" cy="73" r="2" fill="#4338CA"/>
+              <!-- Download arrow (animated) -->
+              <g class="install-arrow">
+                <line x1="48" y1="30" x2="48" y2="52" stroke="#06B6D4" stroke-width="2.5" stroke-linecap="round"/>
+                <path d="M 42 46 L 48 52 L 54 46" stroke="#06B6D4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+              </g>
+              <!-- Sparkles -->
+              <circle cx="18" cy="34" r="2"   fill="#06B6D4" opacity="0.55"/>
+              <circle cx="78" cy="42" r="1.5" fill="#06B6D4" opacity="0.45"/>
+              <circle cx="20" cy="62" r="1.5" fill="#06B6D4" opacity="0.4"/>
+            </svg>
+          </div>
+          <div class="pc-title">Sign-up · Trial · Install</div>
+          <div class="pc-desc">People create an account, start a free trial, or download the app.</div>
+          <div class="pc-context">
+            <div class="pc-context-label">When this applies</div>
+            <div class="pc-context-text">SaaS, apps, subscription services</div>
+          </div>
+        </div>
+
+        <!-- Card 3: Promotional / Flash Sale -->
+        <div class="purpose-card" data-purpose="flash-sale" onclick="selectPurpose('flash-sale')">
+          <div class="select-mark">✓</div>
+          <div class="purpose-illu">
+            <svg width="96" height="96" viewBox="0 0 96 96" fill="none">
+              <!-- Sale tag body -->
+              <path d="M 22 42 L 56 18 L 80 32 L 60 66 L 26 60 Z"
+                fill="#FEF3C7" stroke="#F59E0B" stroke-width="2" stroke-linejoin="round"/>
+              <!-- Tag hole -->
+              <circle cx="54" cy="26" r="2.5" fill="white" stroke="#F59E0B" stroke-width="1.5"/>
+              <!-- Lightning bolt inside (animated) -->
+              <path class="flash-bolt" d="M 52 34 L 38 52 L 46 52 L 40 64 L 56 46 L 48 46 Z" fill="#EF4444" stroke="#B91C1C" stroke-width="1" stroke-linejoin="round"/>
+              <!-- Spark particles -->
+              <circle cx="16" cy="22" r="1.5" fill="#FBBF24" opacity="0.7"/>
+              <circle cx="84" cy="50" r="1.5" fill="#FBBF24" opacity="0.7"/>
+              <circle cx="80" cy="76" r="1.5" fill="#FBBF24" opacity="0.5"/>
+              <circle cx="20" cy="78" r="1.5" fill="#FBBF24" opacity="0.5"/>
+            </svg>
+          </div>
+          <div class="pc-title">Promotional · Flash sale</div>
+          <div class="pc-desc">A time-limited offer — maximise conversions within a window.</div>
+          <div class="pc-context">
+            <div class="pc-context-label">When this applies</div>
+            <div class="pc-context-text">Eid push, Black Friday, seasonal sales, flash deals</div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="cards-hint" id="cardsHint">
+        Pick the one that fits — Continue activates once you choose
+      </div>
+    </section>
+
+    <!-- ===== Screen 2A: Direct Purchase ===== -->
+    <section class="screen" id="screen-direct-purchase">
+      <div class="branch-wrap">
+
+        <div class="selection-strip">
+          <span class="strip-label">Selected purpose</span>
+          <div class="strip-value">
+            <svg width="22" height="22" viewBox="0 0 96 96" fill="none">
+              <path d="M 26 42 L 70 42 L 66 64 L 32 64 Z" fill="#EEF2FF" stroke="#4338CA" stroke-width="3"/>
+              <circle cx="38" cy="74" r="4" fill="#4338CA"/>
+              <circle cx="62" cy="74" r="4" fill="#4338CA"/>
+              <circle cx="50" cy="28" r="7" fill="#06B6D4"/>
+            </svg>
+            Direct purchase
+          </div>
+          <button class="strip-change" onclick="returnToPurpose()">Change</button>
+        </div>
+
+        <div class="section-header">
+          <div class="h-label">Path to Purchase</div>
+          <h2>Tell me what you're selling and what the target looks like.</h2>
+          <p class="h-sub">Three calibrations — these recalibrate the whole simulation.</p>
+        </div>
+
+        <div class="q-card delay-1">
+          <div class="q-number">01</div>
+          <h3 class="q-title">What's the product or service being purchased — and what's the price point?</h3>
+          <p class="q-hint">A ৳500 product and a ৳50,000 product need completely different CPA targets, channels, and offer strategies.</p>
+          <div class="two-col">
+            <div>
+              <label class="field-label">Product / Service</label>
+              <input class="input-text" id="productName" type="text" placeholder="e.g., Eid kurta collection"
+                oninput="onDpField('productName', this)">
+            </div>
+            <div>
+              <label class="field-label">Price point</label>
+              <div class="input-with-prefix">
+                <div class="ip-prefix">৳</div>
+                <input class="ip-input" id="pricePoint" type="number" min="0" placeholder="2500"
+                  oninput="onDpField('pricePoint', this)">
+              </div>
+            </div>
+          </div>
+          <div class="field-hint" id="productHint">
+            <span class="fh-check">✓</span>
+            <span class="fh-text">Enter the product name and a price</span>
+          </div>
+        </div>
+
+        <div class="q-card delay-2">
+          <div class="q-number">02</div>
+          <h3 class="q-title">What's your target ROAS — or maximum CPA — for this campaign?</h3>
+          <p class="q-hint">This is the primary constraint the simulation optimises against.</p>
+          <div class="radio-grid cols-3" id="targetGrid">
+            <div class="radio-card" data-target="roas" onclick="selectTargetType('roas')">
+              <div class="rc-head"><div class="rc-radio"></div><div class="rc-title">Target ROAS</div></div>
+              <div class="rc-sub">Revenue ÷ ad spend, expressed as a multiple.</div>
+            </div>
+            <div class="radio-card" data-target="cpa" onclick="selectTargetType('cpa')">
+              <div class="rc-head"><div class="rc-radio"></div><div class="rc-title">Max CPA</div></div>
+              <div class="rc-sub">Cost per acquisition ceiling, in taka.</div>
+            </div>
+            <div class="radio-card" data-target="unknown" onclick="selectTargetType('unknown')">
+              <div class="rc-head"><div class="rc-radio"></div><div class="rc-title">Use industry benchmark</div></div>
+              <div class="rc-sub">We'll suggest one based on your price point.</div>
+            </div>
+          </div>
+          <div class="conditional" id="targetValueSlot">
+            <div class="input-with-prefix">
+              <div class="ip-prefix" id="targetPrefix">×</div>
+              <input class="ip-input" id="targetValue" type="number" step="0.1" min="0" placeholder="3.5"
+                oninput="onDpField('targetValue', this)">
+              <div class="ip-prefix" id="targetSuffix" style="border-right:none;border-left:1px solid var(--border);">target</div>
+            </div>
+            <div class="field-note">A healthy ROAS for retail is typically 2.5× – 4×. SaaS CPA ceilings vary widely by LTV.</div>
+          </div>
+        </div>
+
+        <div class="q-card delay-3">
+          <div class="q-number">03</div>
+          <h3 class="q-title">What's the offer?</h3>
+          <p class="q-hint">Pick all that apply. The offer is the single biggest lever at conversion — competing on full price requires a stronger product than competing on 25% off.</p>
+          <div class="chip-grid" id="offerChips">
+            <button class="chip-select" data-offer="full-price"     onclick="toggleOffer('full-price', this)"><span class="chip-check">✓</span>Full price</button>
+            <button class="chip-select" data-offer="discount"       onclick="toggleOffer('discount', this)"><span class="chip-check">✓</span>Discount %</button>
+            <button class="chip-select" data-offer="bundle"         onclick="toggleOffer('bundle', this)"><span class="chip-check">✓</span>Bundle deal</button>
+            <button class="chip-select" data-offer="free-shipping"  onclick="toggleOffer('free-shipping', this)"><span class="chip-check">✓</span>Free shipping</button>
+            <button class="chip-select" data-offer="guarantee"      onclick="toggleOffer('guarantee', this)"><span class="chip-check">✓</span>Money-back guarantee</button>
+            <button class="chip-select" data-offer="limited"        onclick="toggleOffer('limited', this)"><span class="chip-check">✓</span>Limited edition</button>
+            <button class="chip-select" data-offer="bogo"           onclick="toggleOffer('bogo', this)"><span class="chip-check">✓</span>BOGO</button>
+          </div>
+          <div class="field-hint" id="offerHint">
+            <span class="fh-check">✓</span>
+            <span class="fh-text">Pick at least 1 offer</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ===== Screen 2B: Sign-up / Trial / Install ===== -->
+    <section class="screen" id="screen-signup-trial">
+      <div class="branch-wrap">
+
+        <div class="selection-strip">
+          <span class="strip-label">Selected purpose</span>
+          <div class="strip-value">
+            <svg width="22" height="22" viewBox="0 0 96 96" fill="none">
+              <rect x="30" y="14" width="36" height="64" rx="6" fill="#EEF2FF" stroke="#4338CA" stroke-width="3"/>
+              <line x1="48" y1="30" x2="48" y2="52" stroke="#06B6D4" stroke-width="3" stroke-linecap="round"/>
+              <path d="M 42 46 L 48 52 L 54 46" stroke="#06B6D4" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            </svg>
+            Sign-up · Trial · Install
+          </div>
+          <button class="strip-change" onclick="returnToPurpose()">Change</button>
+        </div>
+
+        <div class="section-header">
+          <div class="h-label">Activation Path</div>
+          <h2>What are you asking people to sign up for?</h2>
+          <p class="h-sub">The friction shape changes everything about expected conversion rate.</p>
+        </div>
+
+        <div class="q-card delay-1">
+          <div class="q-number">01</div>
+          <h3 class="q-title">What exactly are you asking people to do?</h3>
+          <p class="q-hint">Each has very different conversion-rate benchmarks and friction profiles.</p>
+          <div class="radio-grid cols-2" id="signupGrid">
+            <div class="radio-card" data-signup="app"          onclick="selectSignup('app')">
+              <div class="rc-head"><div class="rc-radio"></div><div class="rc-title">Download an app</div></div>
+              <div class="rc-sub">CPI is the primary metric. Store quality matters.</div>
+            </div>
+            <div class="radio-card" data-signup="free-account" onclick="selectSignup('free-account')">
+              <div class="rc-head"><div class="rc-radio"></div><div class="rc-title">Free account</div></div>
+              <div class="rc-sub">Email + password. Low friction, high volume.</div>
+            </div>
+            <div class="radio-card" data-signup="paid-trial"   onclick="selectSignup('paid-trial')">
+              <div class="rc-head"><div class="rc-radio"></div><div class="rc-title">Paid trial</div></div>
+              <div class="rc-sub">Trial-to-paid conversion downstream is key.</div>
+            </div>
+            <div class="radio-card" data-signup="waitlist"     onclick="selectSignup('waitlist')">
+              <div class="rc-head"><div class="rc-radio"></div><div class="rc-title">Waitlist</div></div>
+              <div class="rc-sub">Lowest friction. Volume play to seed launch.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card delay-2">
+          <div class="q-number">02</div>
+          <h3 class="q-title">Is a credit card required to sign up?</h3>
+          <p class="q-hint">No-card trials convert at 2–4× the rate of card-required trials. This dramatically shifts CVR benchmarks.</p>
+          <div class="radio-grid cols-3" id="paymentGrid">
+            <div class="radio-card" data-payment="no"       onclick="selectPayment('no')">
+              <div class="rc-head"><div class="rc-radio"></div><div class="rc-title">No card needed</div></div>
+              <div class="rc-sub">Highest sign-up CVR.</div>
+            </div>
+            <div class="radio-card" data-payment="optional" onclick="selectPayment('optional')">
+              <div class="rc-head"><div class="rc-radio"></div><div class="rc-title">Optional</div></div>
+              <div class="rc-sub">Mixed — depends on UX.</div>
+            </div>
+            <div class="radio-card" data-payment="yes"      onclick="selectPayment('yes')">
+              <div class="rc-head"><div class="rc-radio"></div><div class="rc-title">Card required</div></div>
+              <div class="rc-sub">Lower CVR but higher intent.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card delay-3">
+          <div class="q-number">03</div>
+          <h3 class="q-title">Your current cost per install or sign-up, if you've run this before?</h3>
+          <p class="q-hint">Optional. Leave blank and we'll use app-category &amp; geography benchmarks.</p>
+          <div class="input-with-prefix">
+            <div class="ip-prefix">৳</div>
+            <input class="ip-input" id="currentCpi" type="number" min="0" placeholder="e.g. 80"
+              oninput="onCpiInput(this)">
+            <div class="ip-prefix" style="border-right:none;border-left:1px solid var(--border);">/ sign-up</div>
+          </div>
+          <div class="field-note">A single baseline number sharpens CPI prediction considerably.</div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ===== Screen 2C: Promotional / Flash Sale ===== -->
+    <section class="screen" id="screen-flash-sale">
+      <div class="branch-wrap">
+
+        <div class="selection-strip">
+          <span class="strip-label">Selected purpose</span>
+          <div class="strip-value">
+            <svg width="22" height="22" viewBox="0 0 96 96" fill="none">
+              <path d="M 22 42 L 56 18 L 80 32 L 60 66 L 26 60 Z" fill="#FEF3C7" stroke="#F59E0B" stroke-width="3"/>
+              <circle cx="54" cy="26" r="3" fill="white" stroke="#F59E0B" stroke-width="2"/>
+              <path d="M 52 34 L 38 52 L 46 52 L 40 64 L 56 46 L 48 46 Z" fill="#EF4444"/>
+            </svg>
+            Promotional · Flash sale
+          </div>
+          <button class="strip-change" onclick="returnToPurpose()">Change</button>
+        </div>
+
+        <div class="section-header">
+          <div class="h-label">Offer &amp; Urgency</div>
+          <h2>Tell me about the promotion.</h2>
+          <p class="h-sub">A flash sale lives or dies on offer strength and credible time pressure.</p>
+        </div>
+
+        <div class="q-card delay-1">
+          <div class="q-number">01</div>
+          <h3 class="q-title">What's the promotion — and how does it compare to what competitors are running?</h3>
+          <p class="q-hint">During Eid, market-average modest-fashion discounts run 20–25%. A 15% offer is below the category norm and will suppress CVR.</p>
+          <label class="field-label" style="margin-top:22px;">The offer</label>
+          <input class="input-text" id="promoOffer" type="text" placeholder="e.g., 25% off everything · Buy 2 get 1 free"
+            oninput="onPromoField('promoOffer', this)">
+          <label class="field-label" style="margin-top:22px;">vs category / competitors</label>
+          <div class="radio-grid cols-4" id="strengthGrid" style="margin-top:8px;">
+            <div class="radio-card" data-strength="below"   onclick="selectStrength('below')">
+              <div class="rc-head"><div class="rc-radio"></div><div class="rc-title">Below norm</div></div>
+            </div>
+            <div class="radio-card" data-strength="at"      onclick="selectStrength('at')">
+              <div class="rc-head"><div class="rc-radio"></div><div class="rc-title">At the norm</div></div>
+            </div>
+            <div class="radio-card" data-strength="above"   onclick="selectStrength('above')">
+              <div class="rc-head"><div class="rc-radio"></div><div class="rc-title">Above norm</div></div>
+            </div>
+            <div class="radio-card" data-strength="unknown" onclick="selectStrength('unknown')">
+              <div class="rc-head"><div class="rc-radio"></div><div class="rc-title">Don't know</div></div>
+            </div>
+          </div>
+          <div class="field-hint" id="promoHint">
+            <span class="fh-check">✓</span>
+            <span class="fh-text">Add the offer and pick a strength</span>
+          </div>
+        </div>
+
+        <div class="q-card delay-2">
+          <div class="q-number">02</div>
+          <h3 class="q-title">When does the promotion run?</h3>
+          <p class="q-hint">We model a pacing curve: heavier spend on Day 1 (launch buzz) and the final 48 hours (last-chance urgency).</p>
+          <div class="two-col">
+            <div>
+              <label class="field-label">Start date</label>
+              <input class="input-text" id="promoStart" type="date" oninput="onPromoField('promoStart', this)">
+            </div>
+            <div>
+              <label class="field-label">End date</label>
+              <input class="input-text" id="promoEnd" type="date" oninput="onPromoField('promoEnd', this)">
+            </div>
+          </div>
+        </div>
+
+        <div class="q-card delay-3">
+          <div class="q-number">03</div>
+          <h3 class="q-title">Is the urgency visible in your creative?</h3>
+          <p class="q-hint">"Ends Sunday at midnight" beats "Limited time only" every time. Implicit deadlines don't move people.</p>
+          <div class="radio-grid cols-2" id="urgencyGrid">
+            <div class="radio-card" data-urgency="yes" onclick="selectUrgency('yes')">
+              <div class="rc-head"><div class="rc-radio"></div><div class="rc-title">Yes — explicit deadline in the creative</div></div>
+              <div class="rc-sub">Specific end date / countdown / final-day callout.</div>
+            </div>
+            <div class="radio-card" data-urgency="no" onclick="selectUrgency('no')">
+              <div class="rc-head"><div class="rc-radio"></div><div class="rc-title">No — we'll need to add it</div></div>
+              <div class="rc-sub">Launch plan will flag this for revision.</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============ Bottom Bar ============ -->
+  <footer class="bottombar">
+    <button class="bb-back" id="bbBack" onclick="handleBack()">← Back</button>
+    <div class="bb-step" id="bbStep">Step 2 of 8</div>
+    <button class="bb-next" id="bbNext" onclick="handleContinue()" disabled>Continue →</button>
+  </footer>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const state = {
+      screen: 'purpose-selection',
+      selectedPurpose: null,
+      answers: {
+        // 2A Direct Purchase
+        productName: '',
+        pricePoint: null,
+        targetType: null,      // 'roas' | 'cpa' | 'unknown'
+        targetValue: null,
+        offerTypes: [],
+        // 2B Sign-up / Trial / Install
+        signupType: null,      // 'app' | 'free-account' | 'paid-trial' | 'waitlist'
+        paymentRequired: null, // 'no' | 'optional' | 'yes'
+        currentCpiBaseline: null,
+        // 2C Promotional / Flash Sale
+        promoOffer: '',
+        promoStrength: null,   // 'below' | 'at' | 'above' | 'unknown'
+        promoStart: '',
+        promoEnd: '',
+        urgencyVisible: null   // 'yes' | 'no'
+      }
+    };
+
+    const continueBtn = document.getElementById('bbNext');
+    const subProgress = document.getElementById('subProgress');
+    const step2node   = document.getElementById('step2node');
+
+    // ============ Purpose selection ============
+    function selectPurpose(purpose) {
+      state.selectedPurpose = purpose;
+      document.querySelectorAll('.purpose-card').forEach(c => c.classList.remove('selected'));
+      document.querySelector('[data-purpose="' + purpose + '"]').classList.add('selected');
+      const hint = document.getElementById('cardsHint');
+      if (hint) hint.classList.add('dismissed');
+      setContinueEnabled(true, true);
+    }
+
+    function setContinueEnabled(enabled, pulse) {
+      const wasEnabled = continueBtn.classList.contains('enabled');
+      continueBtn.disabled = !enabled;
+      continueBtn.classList.toggle('enabled', enabled);
+      if (enabled && !wasEnabled && pulse) {
+        continueBtn.classList.add('just-enabled');
+        setTimeout(() => continueBtn.classList.remove('just-enabled'), 600);
+      }
+    }
+
+    // ============ Screen transitions ============
+    function showScreen(screenId, isBranch) {
+      const current = document.querySelector('.screen.active');
+      if (current && current.id === screenId) return;
+      current.classList.add('exiting');
+      setTimeout(() => {
+        current.classList.remove('active', 'exiting');
+        const next = document.getElementById(screenId);
+        next.classList.add('active', 'entering');
+        setTimeout(() => next.classList.remove('entering'), 450);
+        step2node.classList.toggle('has-sub', !!isBranch);
+        if (!isBranch) updateSubProgress(0, 1);
+        document.querySelector('.main').scrollTop = 0;
+      }, 350);
+    }
+
+    function returnToPurpose() {
+      state.screen = 'purpose-selection';
+      showScreen('screen-purpose-selection', false);
+      setContinueEnabled(!!state.selectedPurpose, false);
+    }
+
+    // ============ Continue / Back ============
+    function handleContinue() {
+      if (continueBtn.disabled) return;
+      if (state.screen === 'purpose-selection') {
+        state.screen = state.selectedPurpose;
+        showScreen('screen-' + state.selectedPurpose, true);
+        setTimeout(updateContinueValidation, 360);
+      } else {
+        try {
+          sessionStorage.setItem('brandaid:conversion', JSON.stringify({
+            goal: 'conversion',
+            purpose: state.selectedPurpose,
+            answers: state.answers,
+            ts: Date.now()
+          }));
+        } catch (e) {}
+        showToast('Saved · continuing to Channels');
+        setTimeout(() => { window.location.href = 'new-campaign.html?from=conversion'; }, 600);
+      }
+    }
+
+    function handleBack() {
+      if (state.screen === 'purpose-selection') {
+        window.location.href = 'new-campaign.html';
+      } else {
+        returnToPurpose();
+      }
+    }
+
+    // ============ Validation + sub-progress ring ============
+    function updateContinueValidation() {
+      let valid = false, filled = 0, total = 1;
+      const a = state.answers;
+
+      if (state.screen === 'direct-purchase') {
+        const p = a.productName.trim().length >= 2 && a.pricePoint && a.pricePoint > 0;
+        const t = a.targetType !== null && (a.targetType === 'unknown' || (a.targetValue && a.targetValue > 0));
+        const o = a.offerTypes.length >= 1;
+        valid = p && t && o;
+        total = 3;
+        filled = (p ? 1 : 0) + (t ? 1 : 0) + (o ? 1 : 0);
+      } else if (state.screen === 'signup-trial') {
+        const s = a.signupType !== null;
+        const p = a.paymentRequired !== null;
+        valid = s && p;
+        total = 2;
+        filled = (s ? 1 : 0) + (p ? 1 : 0);
+      } else if (state.screen === 'flash-sale') {
+        const o = a.promoOffer.trim().length >= 3;
+        const s = a.promoStrength !== null;
+        const d = !!a.promoStart && !!a.promoEnd && a.promoEnd >= a.promoStart;
+        const u = a.urgencyVisible !== null;
+        valid = o && s && d && u;
+        total = 4;
+        filled = (o ? 1 : 0) + (s ? 1 : 0) + (d ? 1 : 0) + (u ? 1 : 0);
+      } else if (state.screen === 'purpose-selection') {
+        valid = !!state.selectedPurpose;
+      }
+
+      setContinueEnabled(valid, true);
+      if (state.screen !== 'purpose-selection') updateSubProgress(filled, total);
+    }
+    function updateSubProgress(filled, total) {
+      const pct = total === 0 ? 0 : Math.round((filled / total) * 100);
+      subProgress.style.setProperty('--sub-progress', pct + '%');
+    }
+
+    // ============ 2A handlers ============
+    function onDpField(field, el) {
+      if (field === 'pricePoint' || field === 'targetValue') {
+        const v = parseFloat(el.value);
+        state.answers[field] = isNaN(v) ? null : v;
+      } else {
+        state.answers[field] = el.value;
+      }
+      const a = state.answers;
+      const hint = document.getElementById('productHint');
+      const ok = a.productName.trim().length >= 2 && a.pricePoint && a.pricePoint > 0;
+      hint.classList.toggle('met', ok);
+      hint.querySelector('.fh-text').textContent =
+        ok ? 'Looks good · ' + a.productName + ' @ ৳' + a.pricePoint
+           : 'Enter the product name and a price';
+      updateContinueValidation();
+    }
+    function selectTargetType(type) {
+      state.answers.targetType = type;
+      // If user switches to 'unknown', clear any prior value
+      if (type === 'unknown') state.answers.targetValue = null;
+      document.querySelectorAll('#targetGrid .radio-card').forEach(c => c.classList.remove('selected'));
+      document.querySelector('[data-target="' + type + '"]').classList.add('selected');
+
+      const slot = document.getElementById('targetValueSlot');
+      const valueInput = document.getElementById('targetValue');
+      const prefix = document.getElementById('targetPrefix');
+      const suffix = document.getElementById('targetSuffix');
+      if (type === 'unknown') {
+        slot.classList.remove('shown');
+      } else {
+        slot.classList.add('shown');
+        if (type === 'roas') {
+          prefix.textContent = '×';
+          suffix.textContent = 'ROAS';
+          valueInput.placeholder = '3.5';
+          valueInput.step = '0.1';
+        } else {
+          prefix.textContent = '৳';
+          suffix.textContent = 'max CPA';
+          valueInput.placeholder = '450';
+          valueInput.step = '1';
+        }
+      }
+      updateContinueValidation();
+    }
+    function toggleOffer(offer, btn) {
+      const i = state.answers.offerTypes.indexOf(offer);
+      if (i === -1) {
+        state.answers.offerTypes.push(offer);
+        btn.classList.add('selected');
+      } else {
+        state.answers.offerTypes.splice(i, 1);
+        btn.classList.remove('selected');
+      }
+      const hint = document.getElementById('offerHint');
+      const n = state.answers.offerTypes.length;
+      hint.classList.toggle('met', n >= 1);
+      hint.querySelector('.fh-text').textContent =
+        n >= 1 ? n + ' offer' + (n === 1 ? '' : 's') + ' selected' : 'Pick at least 1 offer';
+      updateContinueValidation();
+    }
+
+    // ============ 2B handlers ============
+    function selectSignup(type) {
+      state.answers.signupType = type;
+      document.querySelectorAll('#signupGrid .radio-card').forEach(c => c.classList.remove('selected'));
+      document.querySelector('[data-signup="' + type + '"]').classList.add('selected');
+      updateContinueValidation();
+    }
+    function selectPayment(p) {
+      state.answers.paymentRequired = p;
+      document.querySelectorAll('#paymentGrid .radio-card').forEach(c => c.classList.remove('selected'));
+      document.querySelector('[data-payment="' + p + '"]').classList.add('selected');
+      updateContinueValidation();
+    }
+    function onCpiInput(input) {
+      const v = parseInt(input.value, 10);
+      state.answers.currentCpiBaseline = isNaN(v) ? null : v;
+      // optional, no gating
+    }
+
+    // ============ 2C handlers ============
+    function onPromoField(field, el) {
+      state.answers[field] = el.value;
+      const a = state.answers;
+      const hint = document.getElementById('promoHint');
+      const offerOk = a.promoOffer.trim().length >= 3;
+      const strengthOk = a.promoStrength !== null;
+      hint.classList.toggle('met', offerOk && strengthOk);
+      hint.querySelector('.fh-text').textContent =
+        offerOk && strengthOk ? 'Offer captured · strength noted'
+                              : 'Add the offer and pick a strength';
+      updateContinueValidation();
+    }
+    function selectStrength(s) {
+      state.answers.promoStrength = s;
+      document.querySelectorAll('#strengthGrid .radio-card').forEach(c => c.classList.remove('selected'));
+      document.querySelector('[data-strength="' + s + '"]').classList.add('selected');
+      // Re-evaluate the offer hint too
+      onPromoField('promoOffer', document.getElementById('promoOffer'));
+    }
+    function selectUrgency(u) {
+      state.answers.urgencyVisible = u;
+      document.querySelectorAll('#urgencyGrid .radio-card').forEach(c => c.classList.remove('selected'));
+      document.querySelector('[data-urgency="' + u + '"]').classList.add('selected');
+      updateContinueValidation();
+    }
+
+    // ============ Toast ============
+    let toastTimer;
+    function showToast(text) {
+      const t = document.getElementById('toast');
+      t.textContent = text;
+      t.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+    }
+
+    // ============ Restore prior state on return-navigation ============
+    (function restorePriorState() {
+      try {
+        const raw = sessionStorage.getItem('brandaid:conversion');
+        if (!raw) return;
+        const data = JSON.parse(raw);
+        if (!data.purpose) return;
+        state.selectedPurpose = data.purpose;
+        if (data.answers) Object.assign(state.answers, data.answers);
+
+        const card = document.querySelector('[data-purpose="' + data.purpose + '"]');
+        if (card) card.classList.add('selected');
+        const hint = document.getElementById('cardsHint');
+        if (hint) hint.classList.add('dismissed');
+
+        const a = state.answers;
+        if (data.purpose === 'direct-purchase') {
+          const pn = document.getElementById('productName');
+          if (pn) pn.value = a.productName || '';
+          const pp = document.getElementById('pricePoint');
+          if (pp && a.pricePoint != null) pp.value = a.pricePoint;
+          if (pn) onDpField('productName', pn);
+          if (a.targetType) selectTargetType(a.targetType);
+          if (a.targetValue != null) {
+            const tv = document.getElementById('targetValue');
+            if (tv) { tv.value = a.targetValue; onDpField('targetValue', tv); }
+          }
+          (a.offerTypes || []).forEach(o => {
+            const btn = document.querySelector('[data-offer="' + o + '"]');
+            if (btn) btn.classList.add('selected');
+          });
+          // refresh offer hint
+          const oh = document.getElementById('offerHint');
+          const n = (a.offerTypes || []).length;
+          if (oh) {
+            oh.classList.toggle('met', n >= 1);
+            oh.querySelector('.fh-text').textContent =
+              n >= 1 ? n + ' offer' + (n === 1 ? '' : 's') + ' selected' : 'Pick at least 1 offer';
+          }
+        } else if (data.purpose === 'signup-trial') {
+          if (a.signupType) selectSignup(a.signupType);
+          if (a.paymentRequired) selectPayment(a.paymentRequired);
+          if (a.currentCpiBaseline != null) document.getElementById('currentCpi').value = a.currentCpiBaseline;
+        } else if (data.purpose === 'flash-sale') {
+          const po = document.getElementById('promoOffer');
+          if (po) { po.value = a.promoOffer || ''; }
+          if (a.promoStrength) selectStrength(a.promoStrength);
+          if (a.promoStart) document.getElementById('promoStart').value = a.promoStart;
+          if (a.promoEnd)   document.getElementById('promoEnd').value = a.promoEnd;
+          if (a.urgencyVisible) selectUrgency(a.urgencyVisible);
+          if (po) onPromoField('promoOffer', po);
+        }
+
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('return') === '1') {
+          state.screen = data.purpose;
+          document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+          document.getElementById('screen-' + data.purpose).classList.add('active');
+          step2node.classList.add('has-sub');
+          updateContinueValidation();
+        } else {
+          setContinueEnabled(true, false);
+        }
+      } catch (e) { /* malformed — start fresh */ }
+    })();
+  </script>
+</body>
+</html>

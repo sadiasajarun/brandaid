@@ -1,0 +1,1475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Awareness Purpose — BrandAid</title>
+  <style>
+    :root {
+      --indigo:        #4338CA;
+      --indigo-dark:   #3730A3;
+      --indigo-bright: #6366F1;
+      --indigo-light:  #A5B4FC;
+      --indigo-mist:   #E0E7FF;
+      --indigo-wash:   #EEF2FF;
+      --cyan:          #06B6D4;
+      --cyan-bright:   #22D3EE;
+      --cyan-light:    #67E8F9;
+      --cyan-wash:     #ECFEFF;
+      --midnight:      #0F172A;
+      --slate:         #334155;
+      --neutral:       #64748B;
+      --neutral-light: #94A3B8;
+      --border:        #E2E8F0;
+      --border-soft:   #F1F5F9;
+      --white:         #FFFFFF;
+      --page-bg:       #FAFAFE;
+      --danger:        #EF4444;
+      --warning:       #F59E0B;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--midnight);
+      background-color: var(--page-bg);
+      background-image: radial-gradient(circle, rgba(67,56,202,0.04) 1px, transparent 1px);
+      background-size: 32px 32px;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    button, input, textarea { font-family: inherit; }
+    button { cursor: pointer; border: none; background: transparent; }
+    a { color: inherit; text-decoration: none; }
+
+    /* ============ Top Bar ============ */
+    .topbar {
+      height: 60px;
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .topbar-left { display: flex; align-items: center; gap: 12px; }
+    .logo { display: inline-flex; align-items: center; gap: 10px; }
+    .logo-icon {
+      width: 28px; height: 28px;
+      background: var(--indigo);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--white);
+      font-size: 18px; font-weight: 700; line-height: 1;
+    }
+    .logo-text {
+      font-size: 17px; font-weight: 700;
+      color: var(--midnight); letter-spacing: -0.01em;
+    }
+    .topbar-crumb { display: inline-flex; align-items: center; gap: 8px; }
+    .crumb-chevron { color: #CBD5E1; font-size: 12px; }
+    .crumb-text { font-size: 14px; color: var(--neutral); }
+
+    .topbar-right { display: flex; align-items: center; gap: 16px; }
+    .save-exit {
+      font-size: 13px; color: var(--neutral);
+      transition: color 0.2s ease;
+    }
+    .save-exit:hover { color: var(--midnight); }
+    .close-btn {
+      width: 36px; height: 36px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--neutral); font-size: 18px; line-height: 1;
+      transition: all 0.2s ease;
+    }
+    .close-btn:hover { background: #FEE2E2; border-color: #FCA5A5; color: var(--danger); }
+
+    /* ============ Constellation Navigator ============ */
+    .navigator {
+      background: var(--page-bg);
+      padding: 24px 32px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .nav-inner { max-width: 1100px; margin: 0 auto; position: relative; }
+    .nav-line-bg, .nav-line-fg {
+      position: absolute;
+      left: 18px; right: 18px; top: 18px;
+      height: 2px;
+      pointer-events: none;
+    }
+    .nav-line-bg {
+      background-image: linear-gradient(to right, #E2E8F0 50%, transparent 50%);
+      background-size: 8px 2px;
+      background-repeat: repeat-x;
+    }
+    .nav-line-fg {
+      background: var(--indigo);
+      width: 0%;
+      transition: width 0.6s ease;
+    }
+    .nav-nodes {
+      position: relative; z-index: 1;
+      display: flex; justify-content: space-between; align-items: flex-start;
+    }
+    .nav-node {
+      display: flex; flex-direction: column;
+      align-items: center; gap: 10px;
+      user-select: none;
+    }
+    .node-circle {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: var(--white);
+      border: 2px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--neutral-light);
+      font-size: 13px; font-weight: 700;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+    .nav-node.active .node-circle {
+      background: var(--indigo);
+      border: 4px solid var(--indigo-mist);
+      color: var(--white);
+      animation: node-pulse 1.8s ease-in-out infinite;
+    }
+    @keyframes node-pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(67,56,202,0.0); }
+      50%      { box-shadow: 0 0 0 8px rgba(67,56,202,0.12); }
+    }
+    .nav-node.done .node-circle {
+      background: var(--indigo);
+      border: 2px solid var(--indigo);
+      color: var(--white);
+    }
+    .nav-node.done .node-circle .num { display: none; }
+    .nav-node .check-icon { width: 14px; height: 14px; display: none; }
+    .nav-node.done .check-icon { display: block; }
+    .node-label {
+      font-size: 11px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      text-align: center;
+      color: var(--neutral-light);
+      transition: color 0.3s ease;
+    }
+    .nav-node.active .node-label { color: var(--midnight); }
+    .nav-node.done .node-label { color: var(--indigo); }
+
+    /* Sub-progress ring on the active node (lights up once a branch is reached) */
+    .sub-progress {
+      position: absolute;
+      inset: -8px;
+      border-radius: 50%;
+      background: conic-gradient(var(--cyan) var(--sub-progress, 0%), transparent 0);
+      mask: radial-gradient(circle, transparent 18px, black 19px, black 23px, transparent 24px);
+      -webkit-mask: radial-gradient(circle, transparent 18px, black 19px, black 23px, transparent 24px);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .nav-node.active.has-sub .sub-progress { opacity: 1; }
+
+    /* ============ Main / Screens ============ */
+    .main { flex: 1; overflow-y: auto; }
+    .screen {
+      display: none;
+      padding: 56px 32px 48px;
+      max-width: 1080px;
+      margin: 0 auto;
+    }
+    .screen.active { display: block; }
+    .screen.exiting { animation: screen-out 0.35s ease-in forwards; }
+    .screen.entering { animation: screen-in 0.45s ease-out both; }
+    @keyframes screen-out {
+      from { opacity: 1; transform: translateY(0); }
+      to   { opacity: 0; transform: translateY(-12px); }
+    }
+    @keyframes screen-in {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ============ Screen 1: Editorial framing ============ */
+    .framing { max-width: 720px; margin: 0 auto; text-align: center; }
+    .step-pill {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--white);
+      border: 1px solid var(--border);
+      color: var(--indigo);
+      padding: 6px 14px;
+      border-radius: 24px;
+      font-size: 11px; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      margin-bottom: 28px;
+    }
+    .pill-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--indigo);
+      animation: pill-dot 2s ease-in-out infinite;
+    }
+    @keyframes pill-dot {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50%      { transform: scale(1.35); opacity: 0.45; }
+    }
+
+    .ambient-radar {
+      position: relative;
+      width: 100px; height: 100px;
+      margin: 0 auto 32px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .radar-pulse {
+      position: absolute; top: 50%; left: 50%;
+      width: 100%; height: 100%;
+      border-radius: 50%;
+      border: 1.5px solid var(--indigo);
+      transform: translate(-50%, -50%) scale(0.4);
+      opacity: 0;
+      animation: radar-expand 4s ease-out infinite;
+    }
+    .pulse-1 { animation-delay: 0s; }
+    .pulse-2 { animation-delay: 1.3s; }
+    .pulse-3 { animation-delay: 2.6s; }
+    @keyframes radar-expand {
+      0%   { transform: translate(-50%,-50%) scale(0.4); opacity: 0.6; }
+      100% { transform: translate(-50%,-50%) scale(1.4); opacity: 0; }
+    }
+    .radar-core {
+      width: 44px; height: 44px;
+      background: var(--white);
+      border: 1.5px solid var(--indigo-mist);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      position: relative; z-index: 2;
+      box-shadow: 0 4px 16px -4px rgba(67,56,202,0.2);
+    }
+
+    .framing-headline {
+      font-size: 36px;
+      font-weight: 700;
+      color: var(--midnight);
+      line-height: 1.15;
+      letter-spacing: -0.025em;
+      margin-top: 12px;
+    }
+    .framing-headline .line { display: block; }
+    .framing-desc {
+      font-size: 16px;
+      color: #475569;
+      line-height: 1.7;
+      max-width: 560px;
+      margin: 18px auto 0;
+    }
+    .framing-desc .accent { color: var(--indigo); font-weight: 600; }
+
+    .soft-divider {
+      display: flex; align-items: center;
+      gap: 16px; justify-content: center;
+      max-width: 400px;
+      margin: 56px auto;
+    }
+    .soft-divider .line {
+      flex: 1; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
+    }
+    .soft-divider .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--cyan);
+    }
+
+    .purpose-question {
+      text-align: center;
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--midnight);
+      letter-spacing: -0.015em;
+      margin-bottom: 16px;
+    }
+    .purpose-sub {
+      text-align: center;
+      font-size: 14px;
+      color: var(--neutral);
+      max-width: 480px;
+      margin: 0 auto 40px;
+    }
+
+    .purpose-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+      max-width: 980px;
+      margin: 0 auto;
+    }
+    .cards-hint {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin: 28px auto 0;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--neutral-light);
+      letter-spacing: 0.04em;
+      transition: opacity 0.35s ease, transform 0.35s ease;
+    }
+    .cards-hint.dismissed {
+      opacity: 0;
+      transform: translateY(-4px);
+      pointer-events: none;
+    }
+
+    .purpose-card {
+      background: var(--white);
+      border: 1.5px solid var(--border);
+      border-radius: 16px;
+      padding: 32px 24px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      text-align: left;
+      min-height: 330px;
+      display: flex;
+      flex-direction: column;
+    }
+    .purpose-card:hover {
+      border-color: var(--indigo-light);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px -8px rgba(67,56,202,0.15);
+    }
+    .purpose-card.selected {
+      border-color: var(--indigo);
+      border-width: 2px;
+      box-shadow:
+        0 0 0 6px rgba(67,56,202,0.06),
+        0 12px 32px -8px rgba(67,56,202,0.25);
+    }
+    .purpose-card .select-mark {
+      position: absolute;
+      top: 16px; right: 16px;
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      background: var(--cyan);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--white);
+      font-size: 11px; font-weight: 800;
+      opacity: 0; transform: scale(0.6);
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+    .purpose-card.selected .select-mark { opacity: 1; transform: scale(1); }
+
+    .purpose-illu {
+      width: 100%;
+      display: flex; justify-content: center;
+      margin-bottom: 4px;
+    }
+    .pc-title {
+      font-size: 19px; font-weight: 700;
+      color: var(--midnight);
+      letter-spacing: -0.015em;
+      margin-top: 24px;
+    }
+    .pc-desc {
+      font-size: 14px;
+      color: var(--neutral);
+      line-height: 1.55;
+      margin-top: 8px;
+    }
+    .pc-context {
+      margin-top: auto;
+      padding-top: 24px;
+      border-top: 1px solid var(--border-soft);
+    }
+    .pc-context-label {
+      font-size: 10px; font-weight: 700;
+      color: var(--neutral-light);
+      letter-spacing: 0.1em; text-transform: uppercase;
+    }
+    .pc-context-text {
+      font-size: 12px;
+      color: #475569;
+      line-height: 1.5;
+      margin-top: 6px;
+    }
+
+    /* SVG illustration animations */
+    .sprout-dot { animation: sprout-pulse 2.5s ease-in-out infinite; transform-origin: center; transform-box: fill-box; }
+    @keyframes sprout-pulse {
+      0%, 100% { transform: scale(1); }
+      50%      { transform: scale(1.18); }
+    }
+    .shift-arrow { stroke-dasharray: 3 3; animation: shift-flow 1.4s linear infinite; }
+    @keyframes shift-flow { to { stroke-dashoffset: -12; } }
+    .launch-glow { animation: launch-pulse 2s ease-in-out infinite; transform-origin: center; transform-box: fill-box; }
+    @keyframes launch-pulse {
+      0%, 100% { transform: scale(1);    opacity: 1; }
+      50%      { transform: scale(1.12); opacity: 0.85; }
+    }
+
+    /* ============ Branch shared bits: selection strip + section header ============ */
+    .branch-wrap { max-width: 720px; margin: 0 auto; }
+    .selection-strip {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 18px;
+      display: flex; align-items: center; gap: 16px;
+      margin-bottom: 40px;
+    }
+    .strip-label {
+      font-size: 10px; font-weight: 700;
+      color: var(--neutral-light);
+      letter-spacing: 0.1em; text-transform: uppercase;
+    }
+    .strip-value {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 14px; font-weight: 600;
+      color: var(--midnight);
+      margin-right: auto;
+    }
+    .strip-change {
+      font-size: 13px; font-weight: 600;
+      color: var(--indigo);
+      padding: 6px 0;
+    }
+    .strip-change:hover { text-decoration: underline; }
+
+    .section-header { text-align: center; margin-bottom: 32px; }
+    .section-header .h-label {
+      font-size: 11px; font-weight: 700;
+      color: var(--indigo);
+      letter-spacing: 0.1em; text-transform: uppercase;
+    }
+    .section-header h2 {
+      margin-top: 10px;
+      font-size: 24px; font-weight: 700;
+      color: var(--midnight);
+      letter-spacing: -0.015em;
+    }
+    .section-header .h-sub {
+      margin-top: 8px;
+      font-size: 14px;
+      color: var(--neutral);
+    }
+
+    /* ============ Question card ============ */
+    .q-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      margin-top: 20px;
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    .q-card:first-of-type { margin-top: 0; }
+    .screen.active .q-card { animation: card-rise 0.5s ease-out forwards; }
+    .screen.active .q-card.delay-1 { animation-delay: 0.18s; }
+    .screen.active .q-card.delay-2 { animation-delay: 0.32s; }
+    .screen.active .q-card.delay-3 { animation-delay: 0.46s; }
+    @keyframes card-rise {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .q-number {
+      font-size: 32px; font-weight: 800;
+      color: var(--indigo-mist);
+      letter-spacing: -0.02em;
+      line-height: 1;
+    }
+    .q-title {
+      margin-top: 4px;
+      font-size: 18px; font-weight: 700;
+      color: var(--midnight);
+      letter-spacing: -0.01em;
+      line-height: 1.4;
+    }
+    .q-hint {
+      margin-top: 8px;
+      font-size: 13px;
+      color: var(--neutral);
+      line-height: 1.5;
+    }
+
+    /* ============ Inputs / textareas ============ */
+    .personality-row {
+      display: flex; gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 24px;
+    }
+    .personality-input {
+      flex: 1; min-width: 140px;
+      height: 56px;
+      background: var(--page-bg);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 0 18px;
+      font-size: 16px; font-weight: 500;
+      color: var(--midnight);
+      outline: none;
+      transition: all 0.25s ease;
+    }
+    .personality-input::placeholder { color: var(--neutral-light); }
+    .personality-input:focus {
+      border-color: var(--indigo);
+      background: var(--white);
+      box-shadow: 0 0 0 4px rgba(67,56,202,0.08);
+    }
+
+    .chip-row {
+      display: flex; flex-wrap: wrap;
+      gap: 8px; align-items: center;
+      margin-top: 16px;
+    }
+    .chip-label {
+      font-size: 12px;
+      color: var(--neutral);
+      margin-right: 4px;
+    }
+    .chip {
+      background: var(--border-soft);
+      color: #475569;
+      font-size: 12px; font-weight: 500;
+      padding: 4px 10px;
+      border-radius: 12px;
+      transition: all 0.2s ease;
+    }
+    .chip:hover { background: var(--indigo-mist); color: var(--indigo); }
+
+    .ta-message {
+      width: 100%;
+      min-height: 100px;
+      background: var(--page-bg);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 18px;
+      font-size: 16px; font-weight: 400;
+      line-height: 1.6;
+      color: var(--midnight);
+      resize: vertical;
+      outline: none;
+      transition: all 0.25s ease;
+      margin-top: 20px;
+    }
+    .ta-message::placeholder { color: var(--neutral-light); }
+    .ta-message:focus {
+      border-color: var(--indigo);
+      background: var(--white);
+      box-shadow: 0 0 0 4px rgba(67,56,202,0.08);
+    }
+    .char-counter {
+      margin-top: 8px;
+      text-align: right;
+      font-size: 12px;
+      color: var(--neutral-light);
+    }
+    /* Per-field validation hint: "X / Y min" → turns indigo with ✓ when satisfied */
+    .field-hint {
+      margin-top: 8px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--neutral-light);
+      letter-spacing: 0.04em;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: color 0.25s ease;
+    }
+    .field-hint.met { color: var(--indigo); }
+    .field-hint .fh-check {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      background: var(--border);
+      color: var(--white);
+      font-size: 9px;
+      font-weight: 800;
+      transition: background 0.25s ease;
+    }
+    .field-hint.met .fh-check { background: var(--indigo); }
+    /* Segment hint — fades when a segment card is selected */
+    .seg-hint {
+      margin-top: 14px;
+      text-align: center;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--neutral-light);
+      letter-spacing: 0.04em;
+      transition: opacity 0.3s ease;
+    }
+    .seg-hint.dismissed { opacity: 0; pointer-events: none; }
+
+    /* ============ 2B before/after ============ */
+    .perception-grid {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 16px;
+      align-items: stretch;
+      margin-bottom: 20px;
+    }
+    .perception-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    .screen.active .perception-card { animation: card-rise 0.5s ease-out forwards; animation-delay: 0.18s; }
+    .screen.active .perception-card.right { animation-delay: 0.32s; }
+    .time-pill {
+      display: inline-block;
+      font-size: 10px; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 12px;
+      margin-bottom: 16px;
+    }
+    .time-pill.today    { background: #FEF3C7; color: #92400E; }
+    .time-pill.tomorrow { background: #D1FAE5; color: #047857; }
+    .perception-q {
+      font-size: 16px; font-weight: 700;
+      color: var(--midnight);
+    }
+    .perception-hint {
+      font-size: 12px;
+      color: var(--neutral);
+      margin-top: 6px;
+      margin-bottom: 16px;
+    }
+    .ta-perception {
+      width: 100%;
+      min-height: 120px;
+      background: var(--page-bg);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-size: 15px; line-height: 1.55;
+      color: var(--midnight);
+      resize: vertical;
+      outline: none;
+      transition: all 0.25s ease;
+    }
+    .ta-perception::placeholder { color: var(--neutral-light); }
+    .ta-perception:focus {
+      border-color: var(--indigo);
+      background: var(--white);
+      box-shadow: 0 0 0 4px rgba(67,56,202,0.08);
+    }
+    .transform-arrow {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 0 4px;
+    }
+
+    /* ============ 2C segment radio cards ============ */
+    .segment-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+      margin-top: 24px;
+    }
+    .seg-card {
+      background: var(--page-bg);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 20px 18px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .seg-card:hover { border-color: var(--indigo-light); background: var(--white); }
+    .seg-card.selected {
+      border-color: var(--indigo);
+      border-width: 2px;
+      background: var(--indigo-wash);
+      box-shadow: 0 0 0 4px rgba(67,56,202,0.06);
+    }
+    .seg-head { display: flex; align-items: center; gap: 10px; }
+    .seg-radio {
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      border: 2px solid #CBD5E1;
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s ease;
+    }
+    .seg-card.selected .seg-radio {
+      background: var(--indigo);
+      border-color: var(--indigo);
+    }
+    .seg-radio::after {
+      content: '';
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--white);
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+    .seg-card.selected .seg-radio::after { opacity: 1; }
+    .seg-title { font-size: 14px; font-weight: 600; color: var(--midnight); }
+    .seg-sub { font-size: 12px; color: var(--neutral); line-height: 1.5; }
+
+    /* ============ Bottom nav ============ */
+    .bottombar {
+      position: sticky; bottom: 0;
+      height: 72px;
+      background: var(--white);
+      border-top: 1px solid var(--border);
+      padding: 0 32px;
+      display: flex; align-items: center; justify-content: space-between;
+      z-index: 50;
+      flex-shrink: 0;
+    }
+    .bb-back {
+      background: transparent;
+      border: 1px solid var(--border);
+      padding: 12px 24px;
+      border-radius: 10px;
+      font-size: 14px; font-weight: 600;
+      color: var(--neutral);
+      transition: all 0.2s ease;
+    }
+    .bb-back:hover { background: var(--page-bg); color: var(--midnight); }
+    .bb-step { font-size: 13px; font-weight: 600; color: var(--neutral); }
+    .bb-next {
+      background: var(--border-soft);
+      color: var(--neutral-light);
+      padding: 12px 28px;
+      border-radius: 10px;
+      font-size: 14px; font-weight: 700;
+      cursor: not-allowed;
+      transition: all 0.3s ease;
+    }
+    .bb-next.enabled {
+      background: linear-gradient(135deg, var(--indigo) 0%, var(--indigo-dark) 100%);
+      color: var(--white);
+      cursor: pointer;
+      box-shadow: 0 4px 16px -4px rgba(67,56,202,0.4);
+    }
+    .bb-next.enabled:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 22px -4px rgba(67,56,202,0.55);
+    }
+    .bb-next.just-enabled { animation: bb-pulse 0.6s ease-out; }
+    @keyframes bb-pulse {
+      0%   { transform: scale(1); }
+      40%  { transform: scale(1.025); }
+      100% { transform: scale(1); }
+    }
+
+    /* ============ Toast ============ */
+    .toast {
+      position: fixed;
+      bottom: 92px; left: 50%;
+      transform: translateX(-50%) translateY(10px);
+      background: var(--midnight);
+      color: var(--white);
+      font-size: 12px;
+      padding: 10px 16px;
+      border-radius: 10px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      z-index: 100;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* ============ Responsive ============ */
+    @media (max-width: 980px) {
+      .purpose-cards { grid-template-columns: 1fr; max-width: 520px; }
+      .perception-grid { grid-template-columns: 1fr; }
+      .transform-arrow { transform: rotate(90deg); padding: 8px 0; }
+      .segment-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 768px) {
+      .framing-headline { font-size: 28px; }
+      .nav-nodes { gap: 4px; }
+      .node-label { font-size: 9px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ============ Top Bar ============ -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <a href="dashboard.html" class="logo">
+        <div class="logo-icon">+</div>
+        <div class="logo-text">BrandAid</div>
+      </a>
+      <div class="topbar-crumb">
+        <span class="crumb-chevron">›</span>
+        <a class="crumb-text" href="new-campaign.html" style="color:var(--neutral);">New Campaign</a>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <button class="save-exit" onclick="alert('Draft saved.');">Save &amp; exit</button>
+      <button class="close-btn" aria-label="Close"
+        onclick="if(confirm('Close without saving?')) window.location.href='dashboard.html';">×</button>
+    </div>
+  </header>
+
+  <!-- ============ Constellation Navigator ============ -->
+  <div class="navigator">
+    <div class="nav-inner">
+      <div class="nav-line-bg"></div>
+      <div class="nav-line-fg" id="navLineFg" style="width:21.43%"></div>
+      <div class="nav-nodes">
+        <div class="nav-node done" data-step="1">
+          <div class="node-circle">
+            <span class="num">1</span>
+            <svg class="check-icon" viewBox="0 0 16 16" fill="none">
+              <path d="M3 8 L7 12 L13 4" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="node-label">Goal</div>
+        </div>
+        <div class="nav-node active" id="step2node" data-step="2">
+          <div class="node-circle">
+            <span class="num">2</span>
+            <svg class="check-icon" viewBox="0 0 16 16" fill="none">
+              <path d="M3 8 L7 12 L13 4" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <div class="sub-progress" id="subProgress"></div>
+          </div>
+          <div class="node-label">Purpose</div>
+        </div>
+        <div class="nav-node" data-step="3"><div class="node-circle"><span class="num">3</span></div><div class="node-label">Channels</div></div>
+        <div class="nav-node" data-step="4"><div class="node-circle"><span class="num">4</span></div><div class="node-label">Creative</div></div>
+        <div class="nav-node" data-step="5"><div class="node-circle"><span class="num">5</span></div><div class="node-label">Audience</div></div>
+        <div class="nav-node" data-step="6"><div class="node-circle"><span class="num">6</span></div><div class="node-label">Budget</div></div>
+        <div class="nav-node" data-step="7"><div class="node-circle"><span class="num">7</span></div><div class="node-label">Timing</div></div>
+        <div class="nav-node" data-step="8"><div class="node-circle"><span class="num">8</span></div><div class="node-label">Review</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ Main ============ -->
+  <main class="main">
+
+    <!-- ===== Screen 1: Purpose Selection ===== -->
+    <section class="screen active" id="screen-purpose-selection">
+      <div class="framing">
+        <span class="step-pill"><span class="pill-dot"></span>Step 2 · Awareness</span>
+
+        <div class="ambient-radar">
+          <div class="radar-pulse pulse-1"></div>
+          <div class="radar-pulse pulse-2"></div>
+          <div class="radar-pulse pulse-3"></div>
+          <div class="radar-core">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <ellipse cx="12" cy="12" rx="10" ry="6" stroke="#4338CA" stroke-width="2"/>
+              <circle cx="12" cy="12" r="3" fill="#4338CA"/>
+            </svg>
+          </div>
+        </div>
+
+        <h1 class="framing-headline">
+          <span class="line">Awareness is a long game.</span>
+          <span class="line">Let's plan it carefully.</span>
+        </h1>
+        <p class="framing-desc">
+          Today, your brand's concern is <span class="accent">visibility</span> — getting the right people to know you exist and remember you when it matters. The wrong setup can quietly waste your budget without you noticing. So let's set the foundation first.
+        </p>
+      </div>
+
+      <div class="soft-divider">
+        <div class="line"></div>
+        <div class="dot"></div>
+        <div class="line"></div>
+      </div>
+
+      <h2 class="purpose-question">What's driving this campaign?</h2>
+      <p class="purpose-sub">Knowing this lets me set the right benchmarks and predict the right outcomes.</p>
+
+      <div class="purpose-cards">
+
+        <!-- Card 1: New Brand -->
+        <div class="purpose-card" data-purpose="new-brand" onclick="selectPurpose('new-brand')">
+          <div class="select-mark">✓</div>
+          <div class="purpose-illu">
+            <svg width="96" height="96" viewBox="0 0 96 96" fill="none">
+              <line x1="20" y1="76" x2="76" y2="76" stroke="#E2E8F0" stroke-width="1.5" stroke-dasharray="2 3"/>
+              <path d="M 36 72 L 60 72 L 56 80 L 40 80 Z" fill="#EEF2FF" stroke="#A5B4FC" stroke-width="1.5"/>
+              <line x1="48" y1="72" x2="48" y2="38" stroke="#4338CA" stroke-width="2.5" stroke-linecap="round"/>
+              <path d="M 48 56 Q 36 52, 32 44 Q 38 48, 48 50" fill="#A5B4FC" stroke="#4338CA" stroke-width="1.5" stroke-linejoin="round"/>
+              <path d="M 48 50 Q 60 46, 64 38 Q 58 42, 48 44" fill="#A5B4FC" stroke="#4338CA" stroke-width="1.5" stroke-linejoin="round"/>
+              <circle class="sprout-dot" cx="48" cy="34" r="4" fill="#06B6D4"/>
+              <circle cx="22" cy="32" r="2" fill="#06B6D4" opacity="0.6"/>
+              <circle cx="74" cy="24" r="1.5" fill="#06B6D4" opacity="0.4"/>
+              <circle cx="78" cy="56" r="1.5" fill="#06B6D4" opacity="0.5"/>
+            </svg>
+          </div>
+          <div class="pc-title">New brand</div>
+          <div class="pc-desc">We're new — most people haven't heard of us yet.</div>
+          <div class="pc-context">
+            <div class="pc-context-label">When this applies</div>
+            <div class="pc-context-text">First major campaign, startup launch, or breaking out of obscurity</div>
+          </div>
+        </div>
+
+        <!-- Card 2: Repositioning -->
+        <div class="purpose-card" data-purpose="repositioning" onclick="selectPurpose('repositioning')">
+          <div class="select-mark">✓</div>
+          <div class="purpose-illu">
+            <svg width="96" height="96" viewBox="0 0 96 96" fill="none">
+              <rect x="20" y="32" width="32" height="32" rx="4" fill="#F1F5F9" stroke="#CBD5E1" stroke-width="1.5" transform="rotate(-12 36 48)"/>
+              <path class="shift-arrow" d="M 36 24 Q 56 16, 70 28" stroke="#A5B4FC" stroke-width="1.5" fill="none"/>
+              <path d="M 68 24 L 72 28 L 67 31" stroke="#A5B4FC" stroke-width="1.5" fill="none" stroke-linejoin="round"/>
+              <rect x="48" y="34" width="32" height="32" rx="4" fill="#EEF2FF" stroke="#4338CA" stroke-width="2" transform="rotate(8 64 50)"/>
+              <circle cx="64" cy="50" r="6" fill="#06B6D4" transform="rotate(8 64 50)"/>
+              <line x1="14" y1="72" x2="22" y2="70" stroke="#06B6D4" stroke-width="1.5" stroke-linecap="round"/>
+              <line x1="14" y1="78" x2="24" y2="76" stroke="#06B6D4" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="pc-title">Repositioning</div>
+          <div class="pc-desc">People know us, but we want them to see us differently.</div>
+          <div class="pc-context">
+            <div class="pc-context-label">When this applies</div>
+            <div class="pc-context-text">Brand refresh, audience shift, evolved offering, or reputation reset</div>
+          </div>
+        </div>
+
+        <!-- Card 3: Product Launch -->
+        <div class="purpose-card" data-purpose="product-launch" onclick="selectPurpose('product-launch')">
+          <div class="select-mark">✓</div>
+          <div class="purpose-illu">
+            <svg width="96" height="96" viewBox="0 0 96 96" fill="none">
+              <path d="M 24 56 L 72 56 L 72 80 L 24 80 Z" fill="#EEF2FF" stroke="#4338CA" stroke-width="1.5" stroke-linejoin="round"/>
+              <path d="M 24 56 L 48 64 L 72 56" stroke="#4338CA" stroke-width="1.5" fill="none" stroke-linejoin="round"/>
+              <path d="M 24 56 L 32 40 L 48 48 L 48 64 Z" fill="#A5B4FC" opacity="0.6" stroke="#4338CA" stroke-width="1.5" stroke-linejoin="round"/>
+              <path d="M 72 56 L 64 40 L 48 48 L 48 64 Z" fill="#A5B4FC" opacity="0.6" stroke="#4338CA" stroke-width="1.5" stroke-linejoin="round"/>
+              <circle class="launch-glow" cx="48" cy="36" r="10" fill="#06B6D4" opacity="0.25"/>
+              <circle class="launch-glow" cx="48" cy="36" r="6" fill="#06B6D4"/>
+              <line x1="48" y1="20" x2="48" y2="14" stroke="#06B6D4" stroke-width="2" stroke-linecap="round"/>
+              <line x1="34" y1="28" x2="28" y2="22" stroke="#06B6D4" stroke-width="2" stroke-linecap="round"/>
+              <line x1="62" y1="28" x2="68" y2="22" stroke="#06B6D4" stroke-width="2" stroke-linecap="round"/>
+              <line x1="32" y1="40" x2="24" y2="40" stroke="#06B6D4" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+              <line x1="64" y1="40" x2="72" y2="40" stroke="#06B6D4" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+            </svg>
+          </div>
+          <div class="pc-title">Product launch</div>
+          <div class="pc-desc">Our brand is known — we have a new product to introduce.</div>
+          <div class="pc-context">
+            <div class="pc-context-label">When this applies</div>
+            <div class="pc-context-text">New product, feature drop, or collection within an established brand</div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="cards-hint" id="cardsHint">
+        Pick the one that fits — Continue activates once you choose
+      </div>
+    </section>
+
+    <!-- ===== Screen 2A: New Brand ===== -->
+    <section class="screen" id="screen-new-brand">
+      <div class="branch-wrap">
+
+        <div class="selection-strip">
+          <span class="strip-label">Selected purpose</span>
+          <div class="strip-value">
+            <svg width="22" height="22" viewBox="0 0 96 96" fill="none">
+              <path d="M 36 72 L 60 72 L 56 80 L 40 80 Z" fill="#EEF2FF" stroke="#A5B4FC" stroke-width="2"/>
+              <line x1="48" y1="72" x2="48" y2="38" stroke="#4338CA" stroke-width="3" stroke-linecap="round"/>
+              <path d="M 48 56 Q 36 52, 32 44 Q 38 48, 48 50" fill="#A5B4FC" stroke="#4338CA" stroke-width="2"/>
+              <path d="M 48 50 Q 60 46, 64 38 Q 58 42, 48 44" fill="#A5B4FC" stroke="#4338CA" stroke-width="2"/>
+              <circle cx="48" cy="34" r="5" fill="#06B6D4"/>
+            </svg>
+            New brand
+          </div>
+          <button class="strip-change" onclick="returnToPurpose()">Change</button>
+        </div>
+
+        <div class="section-header">
+          <div class="h-label">Brand Foundation</div>
+          <h2>Help me understand your brand's personality.</h2>
+          <p class="h-sub">Two quick questions to set the foundation.</p>
+        </div>
+
+        <div class="q-card delay-1">
+          <div class="q-number">01</div>
+          <h3 class="q-title">How would you describe your brand's personality in 3 words?</h3>
+          <p class="q-hint">Think emotional, not descriptive. We use this to score your creative for tonal fit.</p>
+
+          <div class="personality-row">
+            <input class="personality-input" data-index="0" type="text" placeholder="warm" maxlength="20" oninput="onPersonalityInput(this)">
+            <input class="personality-input" data-index="1" type="text" placeholder="premium" maxlength="20" oninput="onPersonalityInput(this)">
+            <input class="personality-input" data-index="2" type="text" placeholder="ethical" maxlength="20" oninput="onPersonalityInput(this)">
+          </div>
+
+          <div class="chip-row">
+            <span class="chip-label">Need inspiration?</span>
+            <button class="chip" onclick="applyChip('bold')">bold</button>
+            <button class="chip" onclick="applyChip('minimal')">minimal</button>
+            <button class="chip" onclick="applyChip('authentic')">authentic</button>
+            <button class="chip" onclick="applyChip('playful')">playful</button>
+            <button class="chip" onclick="applyChip('trustworthy')">trustworthy</button>
+            <button class="chip" onclick="applyChip('innovative')">innovative</button>
+            <button class="chip" onclick="applyChip('approachable')">approachable</button>
+            <button class="chip" onclick="applyChip('luxurious')">luxurious</button>
+            <button class="chip" onclick="applyChip('grounded')">grounded</button>
+          </div>
+        </div>
+
+        <div class="q-card delay-2">
+          <div class="q-number">02</div>
+          <h3 class="q-title">What's the one thing you most want people to remember after seeing your campaign?</h3>
+          <p class="q-hint">One sentence. The anchor that everything else supports.</p>
+
+          <textarea id="coreMessage" class="ta-message"
+            placeholder="e.g., We make luxury skincare feel like everyday self-care."
+            oninput="onCoreMessage(this)"></textarea>
+          <div id="coreMessageCounter" class="char-counter">0 / 140</div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ===== Screen 2B: Repositioning ===== -->
+    <section class="screen" id="screen-repositioning">
+      <div class="branch-wrap">
+
+        <div class="selection-strip">
+          <span class="strip-label">Selected purpose</span>
+          <div class="strip-value">
+            <svg width="22" height="22" viewBox="0 0 96 96" fill="none">
+              <rect x="20" y="32" width="32" height="32" rx="4" fill="#F1F5F9" stroke="#CBD5E1" stroke-width="2" transform="rotate(-12 36 48)"/>
+              <rect x="48" y="34" width="32" height="32" rx="4" fill="#EEF2FF" stroke="#4338CA" stroke-width="2.5" transform="rotate(8 64 50)"/>
+              <circle cx="64" cy="50" r="6" fill="#06B6D4" transform="rotate(8 64 50)"/>
+            </svg>
+            Repositioning
+          </div>
+          <button class="strip-change" onclick="returnToPurpose()">Change</button>
+        </div>
+
+        <div class="section-header">
+          <div class="h-label">Perception Shift</div>
+          <h2>Let's map the perception shift.</h2>
+          <p class="h-sub">We need to understand what you're moving from and toward.</p>
+        </div>
+
+        <div class="perception-grid">
+          <div class="perception-card left">
+            <span class="time-pill today">Today</span>
+            <div class="perception-q">How do people see your brand now?</div>
+            <div class="perception-hint">Be honest. This is the perception you're trying to shift.</div>
+            <textarea id="currentPerception" class="ta-perception"
+              placeholder="e.g., We're seen as the cheap, basic option in the category."
+              oninput="onRepoField('currentPerception', this)"></textarea>
+          </div>
+
+          <div class="transform-arrow">
+            <svg width="40" height="100" viewBox="0 0 40 100" fill="none">
+              <path d="M 20 8 L 20 70" stroke="#A5B4FC" stroke-width="2" stroke-dasharray="4 4"/>
+              <path d="M 14 66 L 20 74 L 26 66" stroke="#4338CA" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+              <text x="20" y="94" text-anchor="middle" font-family="Arial" font-size="9" font-weight="700" fill="#4338CA" letter-spacing="0.15em">SHIFT</text>
+            </svg>
+          </div>
+
+          <div class="perception-card right">
+            <span class="time-pill tomorrow">Tomorrow</span>
+            <div class="perception-q">How do you want them to see you?</div>
+            <div class="perception-hint">The destination of your repositioning.</div>
+            <textarea id="desiredPerception" class="ta-perception"
+              placeholder="e.g., We're the premium, ethically-made choice for design-conscious people."
+              oninput="onRepoField('desiredPerception', this)"></textarea>
+          </div>
+        </div>
+
+        <div class="q-card delay-3">
+          <div class="q-number">03</div>
+          <h3 class="q-title">Why now? What's changed about your business that warrants this shift?</h3>
+          <p class="q-hint">Repositioning without a real reason feels hollow. This affects how believable the shift will land.</p>
+          <textarea id="repositionReason" class="ta-perception"
+            placeholder="e.g., We've invested in ethical sourcing and our product quality has significantly improved. Now we need to communicate that change."
+            style="min-height:120px; margin-top:20px;"
+            oninput="onRepoField('repositionReason', this)"></textarea>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ===== Screen 2C: Product Launch ===== -->
+    <section class="screen" id="screen-product-launch">
+      <div class="branch-wrap">
+
+        <div class="selection-strip">
+          <span class="strip-label">Selected purpose</span>
+          <div class="strip-value">
+            <svg width="22" height="22" viewBox="0 0 96 96" fill="none">
+              <path d="M 24 56 L 72 56 L 72 80 L 24 80 Z" fill="#EEF2FF" stroke="#4338CA" stroke-width="2"/>
+              <path d="M 24 56 L 32 40 L 48 48 L 48 64 Z" fill="#A5B4FC" opacity="0.6" stroke="#4338CA" stroke-width="2"/>
+              <path d="M 72 56 L 64 40 L 48 48 L 48 64 Z" fill="#A5B4FC" opacity="0.6" stroke="#4338CA" stroke-width="2"/>
+              <circle cx="48" cy="36" r="6" fill="#06B6D4"/>
+            </svg>
+            Product launch
+          </div>
+          <button class="strip-change" onclick="returnToPurpose()">Change</button>
+        </div>
+
+        <div class="section-header">
+          <div class="h-label">Product Introduction</div>
+          <h2>Tell me about the new product.</h2>
+          <p class="h-sub">Three questions to position the launch right.</p>
+        </div>
+
+        <div class="q-card delay-1">
+          <div class="q-number">01</div>
+          <h3 class="q-title">What's the new product, and how is it different from what you already offer?</h3>
+          <p class="q-hint">Both halves matter. The difference is the story we tell.</p>
+          <textarea id="productDescription" class="ta-perception"
+            placeholder="e.g., Our first wireless earbuds. Same audio quality as our wired line, but with 18-hour battery and active noise cancellation."
+            style="min-height:110px; margin-top:20px;"
+            oninput="onLaunchField('productDescription', this)"></textarea>
+          <div class="field-hint" id="descHint">
+            <span class="fh-check">✓</span>
+            <span class="fh-text">0 / 20 characters minimum</span>
+          </div>
+        </div>
+
+        <div class="q-card delay-2">
+          <div class="q-number">02</div>
+          <h3 class="q-title">Who is this product for?</h3>
+          <p class="q-hint">This affects the messaging strategy.</p>
+
+          <div class="segment-grid">
+            <div class="seg-card" data-segment="existing" onclick="selectSegment('existing')">
+              <div class="seg-head"><div class="seg-radio"></div><div class="seg-title">Existing customers</div></div>
+              <div class="seg-sub">Building on the relationship we have. Loyalty plays.</div>
+            </div>
+            <div class="seg-card" data-segment="new" onclick="selectSegment('new')">
+              <div class="seg-head"><div class="seg-radio"></div><div class="seg-title">New segment</div></div>
+              <div class="seg-sub">Expanding into a new audience. Different messaging needed.</div>
+            </div>
+            <div class="seg-card" data-segment="both" onclick="selectSegment('both')">
+              <div class="seg-head"><div class="seg-radio"></div><div class="seg-title">Both</div></div>
+              <div class="seg-sub">Bridging existing and new. Most complex, most opportunity.</div>
+            </div>
+          </div>
+          <div class="seg-hint" id="segHint">Pick one of the three above</div>
+        </div>
+
+        <div class="q-card delay-3">
+          <div class="q-number">03</div>
+          <h3 class="q-title">What's the one thing about this product that's most likely to surprise or excite people?</h3>
+          <p class="q-hint">This is the hook your creative will be built around.</p>
+          <textarea id="productHook" class="ta-perception"
+            placeholder="e.g., It's the first earbud in this price range with studio-grade audio. People always expect 'cheaper' to mean 'compromise.'"
+            style="min-height:110px; margin-top:20px;"
+            oninput="onLaunchField('productHook', this)"></textarea>
+          <div class="field-hint" id="hookHint">
+            <span class="fh-check">✓</span>
+            <span class="fh-text">0 / 10 characters minimum</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============ Bottom Bar ============ -->
+  <footer class="bottombar">
+    <button class="bb-back" id="bbBack" onclick="handleBack()">← Back</button>
+    <div class="bb-step" id="bbStep">Step 2 of 8</div>
+    <button class="bb-next" id="bbNext" onclick="handleContinue()" disabled>Continue →</button>
+  </footer>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const state = {
+      screen: 'purpose-selection',
+      selectedPurpose: null,
+      answers: {
+        brandPersonality: ['', '', ''],
+        coreMessage: '',
+        currentPerception: '',
+        desiredPerception: '',
+        repositionReason: '',
+        productDescription: '',
+        targetSegment: null,
+        productHook: ''
+      }
+    };
+
+    const continueBtn = document.getElementById('bbNext');
+    const subProgress = document.getElementById('subProgress');
+    const step2node   = document.getElementById('step2node');
+
+    // ============ Purpose selection ============
+    function selectPurpose(purpose) {
+      state.selectedPurpose = purpose;
+      document.querySelectorAll('.purpose-card').forEach(c => c.classList.remove('selected'));
+      document.querySelector('[data-purpose="' + purpose + '"]').classList.add('selected');
+      document.getElementById('cardsHint').classList.add('dismissed');
+      setContinueEnabled(true, true);
+    }
+
+    function setContinueEnabled(enabled, pulse) {
+      const wasEnabled = continueBtn.classList.contains('enabled');
+      continueBtn.disabled = !enabled;
+      continueBtn.classList.toggle('enabled', enabled);
+      if (enabled && !wasEnabled && pulse) {
+        continueBtn.classList.add('just-enabled');
+        setTimeout(() => continueBtn.classList.remove('just-enabled'), 600);
+      }
+    }
+
+    // ============ Screen transitions ============
+    function showScreen(screenId, isBranch) {
+      const current = document.querySelector('.screen.active');
+      if (current && current.id === screenId) return;
+      current.classList.add('exiting');
+      setTimeout(() => {
+        current.classList.remove('active', 'exiting');
+        const next = document.getElementById(screenId);
+        next.classList.add('active', 'entering');
+        setTimeout(() => next.classList.remove('entering'), 450);
+
+        // Update navigator sub-progress visibility
+        step2node.classList.toggle('has-sub', !!isBranch);
+        if (!isBranch) updateSubProgress(0, 1);
+
+        // Reset scroll
+        document.querySelector('.main').scrollTop = 0;
+      }, 350);
+    }
+
+    function returnToPurpose() {
+      state.screen = 'purpose-selection';
+      showScreen('screen-purpose-selection', false);
+      setContinueEnabled(!!state.selectedPurpose, false);
+    }
+
+    function handleContinue() {
+      if (continueBtn.disabled) return;
+
+      if (state.screen === 'purpose-selection') {
+        state.screen = state.selectedPurpose;
+        showScreen('screen-' + state.selectedPurpose, true);
+        // After transition, validate against current branch values
+        setTimeout(updateContinueValidation, 360);
+      } else {
+        // Hand off to the wizard at Stage 3 (Channels), preserving goal + purpose + answers
+        try {
+          sessionStorage.setItem('brandaid:awareness', JSON.stringify({
+            goal: 'awareness',
+            purpose: state.selectedPurpose,
+            answers: state.answers,
+            ts: Date.now()
+          }));
+        } catch (e) { /* sessionStorage may be unavailable */ }
+        showToast('Saved · continuing to Channels');
+        setTimeout(() => { window.location.href = 'new-campaign.html?from=awareness'; }, 600);
+      }
+    }
+
+    function handleBack() {
+      if (state.screen === 'purpose-selection') {
+        window.location.href = 'new-campaign.html';
+      } else {
+        returnToPurpose();
+      }
+    }
+
+    // ============ Validation per branch + sub-progress ring ============
+    function updateContinueValidation() {
+      let valid = false;
+      let filled = 0, total = 1;
+
+      if (state.screen === 'new-brand') {
+        const words = state.answers.brandPersonality.filter(w => w.trim().length > 0).length;
+        const msgOk = state.answers.coreMessage.trim().length >= 10;
+        valid = words >= 2 && msgOk;
+        total = 2;
+        filled = (words >= 2 ? 1 : 0) + (msgOk ? 1 : 0);
+      } else if (state.screen === 'repositioning') {
+        const a = state.answers.currentPerception.trim().length >= 15;
+        const b = state.answers.desiredPerception.trim().length >= 15;
+        const c = state.answers.repositionReason.trim().length >= 10;
+        valid = a && b && c;
+        total = 3;
+        filled = (a ? 1 : 0) + (b ? 1 : 0) + (c ? 1 : 0);
+      } else if (state.screen === 'product-launch') {
+        const d = state.answers.productDescription.trim().length >= 20;
+        const s = state.answers.targetSegment !== null;
+        const h = state.answers.productHook.trim().length >= 10;
+        valid = d && s && h;
+        total = 3;
+        filled = (d ? 1 : 0) + (s ? 1 : 0) + (h ? 1 : 0);
+      } else if (state.screen === 'purpose-selection') {
+        valid = !!state.selectedPurpose;
+      }
+
+      setContinueEnabled(valid, true);
+      if (state.screen !== 'purpose-selection') updateSubProgress(filled, total);
+    }
+
+    function updateSubProgress(filled, total) {
+      const pct = total === 0 ? 0 : Math.round((filled / total) * 100);
+      subProgress.style.setProperty('--sub-progress', pct + '%');
+    }
+
+    // ============ Field handlers ============
+    function onPersonalityInput(input) {
+      const i = parseInt(input.dataset.index, 10);
+      state.answers.brandPersonality[i] = input.value;
+      updateContinueValidation();
+    }
+
+    function applyChip(word) {
+      const inputs = document.querySelectorAll('.personality-input');
+      let placed = false;
+      inputs.forEach(input => {
+        if (!placed && input.value.trim() === '') {
+          input.value = word;
+          state.answers.brandPersonality[parseInt(input.dataset.index, 10)] = word;
+          placed = true;
+        }
+      });
+      if (!placed) {
+        // All full: replace the last one
+        const last = inputs[inputs.length - 1];
+        const old = last.value;
+        last.value = word;
+        state.answers.brandPersonality[parseInt(last.dataset.index, 10)] = word;
+        showToast('Replaced "' + old + '" with "' + word + '"');
+      }
+      updateContinueValidation();
+    }
+
+    function onCoreMessage(ta) {
+      state.answers.coreMessage = ta.value;
+      const counter = document.getElementById('coreMessageCounter');
+      const len = ta.value.length;
+      counter.textContent = len + ' / 140';
+      counter.style.color = len > 140 ? 'var(--danger)' : len > 120 ? 'var(--warning)' : 'var(--neutral-light)';
+      updateContinueValidation();
+    }
+
+    function onRepoField(field, ta) {
+      state.answers[field] = ta.value;
+      updateContinueValidation();
+    }
+
+    function onLaunchField(field, ta) {
+      state.answers[field] = ta.value;
+      updateLaunchHints();
+      updateContinueValidation();
+    }
+
+    function selectSegment(segment) {
+      state.answers.targetSegment = segment;
+      document.querySelectorAll('.seg-card').forEach(c => c.classList.remove('selected'));
+      document.querySelector('[data-segment="' + segment + '"]').classList.add('selected');
+      const segHint = document.getElementById('segHint');
+      if (segHint) segHint.classList.add('dismissed');
+      updateContinueValidation();
+    }
+
+    function updateLaunchHints() {
+      const a = state.answers;
+      const descLen = (a.productDescription || '').trim().length;
+      const hookLen = (a.productHook || '').trim().length;
+      const descHint = document.getElementById('descHint');
+      const hookHint = document.getElementById('hookHint');
+      if (descHint) {
+        descHint.classList.toggle('met', descLen >= 20);
+        descHint.querySelector('.fh-text').textContent =
+          descLen >= 20 ? 'Looks good · ' + descLen + ' characters' : descLen + ' / 20 characters minimum';
+      }
+      if (hookHint) {
+        hookHint.classList.toggle('met', hookLen >= 10);
+        hookHint.querySelector('.fh-text').textContent =
+          hookLen >= 10 ? 'Looks good · ' + hookLen + ' characters' : hookLen + ' / 10 characters minimum';
+      }
+    }
+
+    // ============ Toast ============
+    let toastTimer;
+    function showToast(text) {
+      const t = document.getElementById('toast');
+      t.textContent = text;
+      t.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+    }
+
+    // ============ Restore prior state on return-navigation ============
+    (function restorePriorState() {
+      try {
+        const raw = sessionStorage.getItem('brandaid:awareness');
+        if (!raw) return;
+        const data = JSON.parse(raw);
+        if (!data.purpose) return;
+        // Restore state object
+        state.selectedPurpose = data.purpose;
+        if (data.answers) Object.assign(state.answers, data.answers);
+
+        // Visually mark the purpose card
+        const card = document.querySelector('[data-purpose="' + data.purpose + '"]');
+        if (card) card.classList.add('selected');
+        document.getElementById('cardsHint').classList.add('dismissed');
+
+        // Populate branch inputs from saved answers
+        const a = state.answers;
+        if (data.purpose === 'new-brand') {
+          document.querySelectorAll('.personality-input').forEach((input, i) => {
+            input.value = (a.brandPersonality && a.brandPersonality[i]) || '';
+          });
+          const cm = document.getElementById('coreMessage');
+          if (cm) {
+            cm.value = a.coreMessage || '';
+            onCoreMessage(cm);
+          }
+        } else if (data.purpose === 'repositioning') {
+          ['currentPerception', 'desiredPerception', 'repositionReason'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.value = a[id] || '';
+          });
+        } else if (data.purpose === 'product-launch') {
+          ['productDescription', 'productHook'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.value = a[id] || '';
+          });
+          if (a.targetSegment) {
+            const seg = document.querySelector('[data-segment="' + a.targetSegment + '"]');
+            if (seg) seg.classList.add('selected');
+          }
+        }
+
+        // If returning from the wizard (?return=1), jump straight to the branch screen
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('return') === '1') {
+          state.screen = data.purpose;
+          document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+          document.getElementById('screen-' + data.purpose).classList.add('active');
+          step2node.classList.add('has-sub');
+          updateContinueValidation();
+        } else {
+          // Plain reload on purpose-selection — just keep Continue enabled if a purpose is set
+          setContinueEnabled(true, false);
+        }
+      } catch (e) { /* malformed state — start fresh */ }
+    })();
+  </script>
+</body>
+</html>
