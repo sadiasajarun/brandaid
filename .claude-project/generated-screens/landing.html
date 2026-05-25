@@ -1277,370 +1277,321 @@
     /* ============ SECTION 6: Funnel ============ */
     .section-funnel {
       background: var(--midnight);
-      padding: 100px 0;
+      padding: 100px 0 80px;
       position: relative;
       overflow: hidden;
     }
-    .funnel-dot-decor {
+    .funnel-blob-indigo {
       position: absolute;
-      width: 6px; height: 6px;
+      top: -200px; left: -200px;
+      width: 700px; height: 700px;
+      background: radial-gradient(circle, rgba(67,56,202,0.18) 0%, transparent 65%);
       border-radius: 50%;
-      background: var(--indigo-bright);
-      opacity: 0.15;
-      animation: dot-float 6s ease-in-out infinite;
+      filter: blur(60px);
+      pointer-events: none;
+      z-index: 0;
     }
-    @keyframes dot-float {
-      0%, 100% { transform: translateY(0); }
-      50%      { transform: translateY(-12px); }
+    .funnel-blob-cyan {
+      position: absolute;
+      bottom: -100px; right: -100px;
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(6,182,212,0.12) 0%, transparent 60%);
+      border-radius: 50%;
+      filter: blur(40px);
+      pointer-events: none;
+      z-index: 0;
     }
+    .funnel-starfield {
+      position: absolute; inset: 0;
+      background-image:
+        radial-gradient(circle, rgba(255,255,255,0.04) 1px, transparent 1px),
+        radial-gradient(circle, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 90px 90px, 140px 140px;
+      background-position: 0 0, 30px 50px;
+      opacity: 0.7;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .section-funnel .section-head { position: relative; z-index: 2; }
 
-    .accent-word {
-      color: var(--indigo-bright);
+    /* Section heading — supports the SVG word-underline */
+    .funnel-heading {
+      font-size: 52px;
+      font-weight: 800;
+      color: var(--white);
+      line-height: 1.12;
+      letter-spacing: -0.025em;
+    }
+    .underline-word {
+      color: var(--cyan);
       position: relative;
       display: inline-block;
     }
-
-    .funnel-wrap {
-      max-width: 1100px;
-      margin: 0 auto;
-      position: relative;
-      min-height: 380px;
-    }
-    .funnel-svg {
+    .word-underline {
       position: absolute;
-      top: 0; left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 0;
+      bottom: -4px; left: 0;
+      width: 100%; height: 14px;
       pointer-events: none;
     }
-    .funnel-stages {
+
+    /* The funnel frame */
+    .funnel-wrap {
+      max-width: 1200px;
+      margin: 60px auto 0;
       position: relative;
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      z-index: 1;
-      gap: 12px;
-      padding-top: 60px;
+      z-index: 2;
     }
-    .stage {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px 8px;
+    .funnel-frame {
       position: relative;
-    }
-    .stage.featured {
-      box-shadow: 0 0 60px -10px rgba(99,102,241,0.4);
+      background: rgba(30,41,59,0.5);
+      border: 1.5px solid rgba(99,102,241,0.2);
       border-radius: 20px;
+      padding: 36px 32px;
+      backdrop-filter: blur(8px);
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 0;
+      overflow: visible;
     }
-    .stage-num {
-      font-size: 14px;
-      font-weight: 700;
-      color: rgba(255,255,255,0.3);
-      letter-spacing: 0.05em;
+    .funnel-bg-shape {
+      position: absolute;
+      inset: 0;
+      width: 100%; height: 100%;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.15;
+      border-radius: 18px;
     }
-    .stage-title {
-      font-size: 18px;
+    .flow-particles {
+      position: absolute;
+      inset: 0;
+      width: 100%; height: 100%;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    /* Panel base */
+    .funnel-panel {
+      position: relative;
+      padding: 28px 24px;
+      min-height: 300px;
+      z-index: 2;
+      transition: background 0.25s ease;
+      border-radius: 12px;
+    }
+    .funnel-panel:hover { background: rgba(99,102,241,0.06); }
+    .panel-num {
+      font-size: 12px;
       font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    .panel-num.aw { color: var(--indigo-bright); }
+    .panel-num.co { color: var(--indigo-light); }
+    .panel-num.cv { color: var(--cyan-bright); }
+    .panel-title {
+      font-size: 24px;
+      font-weight: 800;
       color: var(--white);
+      letter-spacing: -0.02em;
+      margin-top: 10px;
+    }
+    .panel-sub {
+      font-size: 13px;
+      color: var(--light-neutral);
       margin-top: 6px;
     }
-    .stage-sub {
-      font-size: 12px;
-      color: var(--light-neutral);
-      margin-top: 2px;
-    }
-    .stage-chips {
+    .panel-chips {
       display: flex;
       flex-direction: column;
       gap: 8px;
-      margin-top: 16px;
-      align-items: center;
+      margin-top: 24px;
+      align-items: flex-start;
     }
-    .stage-chip {
-      background: rgba(67,56,202,0.15);
-      border: 1px solid rgba(99,102,241,0.4);
-      color: var(--indigo-bright);
-      font-size: 11px;
+    .campaign-chip {
+      display: inline-flex;
+      padding: 7px 14px;
+      border-radius: 20px;
+      font-size: 12px;
       font-weight: 600;
-      padding: 6px 12px;
-      border-radius: 16px;
-      animation: chip-float 4s ease-in-out infinite;
+      width: fit-content;
+      transition: all 0.2s ease;
+      cursor: default;
+      opacity: 0;
+      transform: translateY(8px);
     }
-    .stage-chips .stage-chip:nth-child(1) { animation-delay: 0s; }
-    .stage-chips .stage-chip:nth-child(2) { animation-delay: 0.6s; }
-    .stage-chips .stage-chip:nth-child(3) { animation-delay: 1.2s; }
-    @keyframes chip-float {
-      0%, 100% { transform: translateY(0); }
-      50%      { transform: translateY(-4px); }
+    .section-funnel.in-view .campaign-chip {
+      opacity: 1;
+      transform: translateY(0);
+      transition: opacity 0.4s ease, transform 0.4s ease;
     }
+    /* Stagger chip reveals per panel */
+    .section-funnel.in-view .funnel-panel:nth-child(1) .campaign-chip:nth-child(1) { transition-delay: 0.28s; }
+    .section-funnel.in-view .funnel-panel:nth-child(1) .campaign-chip:nth-child(2) { transition-delay: 0.34s; }
+    .section-funnel.in-view .funnel-panel:nth-child(1) .campaign-chip:nth-child(3) { transition-delay: 0.40s; }
+    .section-funnel.in-view .funnel-panel:nth-child(1) .campaign-chip:nth-child(4) { transition-delay: 0.46s; }
+    .section-funnel.in-view .funnel-panel:nth-child(1) .campaign-chip:nth-child(5) { transition-delay: 0.52s; }
+    .section-funnel.in-view .funnel-panel:nth-child(2) .campaign-chip:nth-child(1) { transition-delay: 0.38s; }
+    .section-funnel.in-view .funnel-panel:nth-child(2) .campaign-chip:nth-child(2) { transition-delay: 0.44s; }
+    .section-funnel.in-view .funnel-panel:nth-child(2) .campaign-chip:nth-child(3) { transition-delay: 0.50s; }
+    .section-funnel.in-view .funnel-panel:nth-child(2) .campaign-chip:nth-child(4) { transition-delay: 0.56s; }
+    .section-funnel.in-view .funnel-panel:nth-child(2) .campaign-chip:nth-child(5) { transition-delay: 0.62s; }
+    .section-funnel.in-view .funnel-panel:nth-child(3) .campaign-chip:nth-child(1) { transition-delay: 0.48s; }
+    .section-funnel.in-view .funnel-panel:nth-child(3) .campaign-chip:nth-child(2) { transition-delay: 0.54s; }
+    .section-funnel.in-view .funnel-panel:nth-child(3) .campaign-chip:nth-child(3) { transition-delay: 0.60s; }
+    .section-funnel.in-view .funnel-panel:nth-child(3) .campaign-chip:nth-child(4) { transition-delay: 0.66s; }
+    .section-funnel.in-view .funnel-panel:nth-child(3) .campaign-chip:nth-child(5) { transition-delay: 0.72s; }
 
-    .floating-cards {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      z-index: 2;
+    .chip-aw {
+      background: rgba(99,102,241,0.15);
+      border: 1px solid rgba(99,102,241,0.35);
+      color: var(--indigo-light);
     }
+    .chip-aw:hover { background: rgba(99,102,241,0.3); border-color: rgba(165,180,252,0.6); }
+    .chip-co {
+      background: rgba(67,56,202,0.2);
+      border: 1px solid rgba(99,102,241,0.4);
+      color: #C7D2FE;
+    }
+    .chip-co:hover { background: rgba(67,56,202,0.35); border-color: rgba(165,180,252,0.7); }
+    .chip-cv {
+      background: rgba(6,182,212,0.15);
+      border: 1px solid rgba(6,182,212,0.35);
+      color: var(--cyan-light);
+    }
+    .chip-cv:hover { background: rgba(6,182,212,0.3); border-color: rgba(103,232,249,0.6); }
+
+    /* Vertical dividers between panels */
+    .panel-divider {
+      position: absolute;
+      top: 7.5%;
+      height: 85%;
+      width: 1px;
+      background: rgba(99,102,241,0.25);
+      z-index: 3;
+      pointer-events: none;
+    }
+    .panel-divider.d1 { left: 33.33%; }
+    .panel-divider.d2 { left: 66.66%; }
+    .panel-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 5;
+      pointer-events: none;
+    }
+    .panel-arrow.a1 { left: 33.33%; }
+    .panel-arrow.a2 { left: 66.66%; }
+
+    /* Floating campaign cards (positioned absolutely on funnel-wrap) */
     .float-card {
       position: absolute;
-      width: 120px;
-      background: rgba(30,41,59,0.85);
-      border: 1px solid rgba(99,102,241,0.3);
-      border-radius: 8px;
-      padding: 8px 10px;
-      animation: card-bob 5s ease-in-out infinite;
+      background: var(--white);
+      border-radius: 12px;
+      padding: 10px 14px;
+      box-shadow: 0 8px 28px -6px rgba(0,0,0,0.55);
+      min-width: 150px;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      opacity: 0;
+      animation: bobCard 5s ease-in-out infinite;
     }
-    .float-card .fc-title {
-      font-size: 10px;
-      color: var(--white);
-      font-weight: 600;
-      line-height: 1.3;
+    .section-funnel.in-view .float-card {
+      opacity: 1;
+      transition: opacity 0.5s ease;
     }
-    .float-card .fc-sub {
-      font-size: 9px;
-      color: var(--indigo-bright);
-      margin-top: 2px;
+    .section-funnel.in-view .float-card.c1 { transition-delay: 0.5s; }
+    .section-funnel.in-view .float-card.c2 { transition-delay: 0.6s; }
+    .section-funnel.in-view .float-card.c3 { transition-delay: 0.7s; }
+    .section-funnel.in-view .float-card.c4 { transition-delay: 0.8s; }
+    .section-funnel.in-view .float-card.c5 { transition-delay: 0.9s; }
+    .float-card .fc-row { display: flex; align-items: center; gap: 8px; }
+    .float-card-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
     }
-    @keyframes card-bob {
-      0%, 100% { transform: translateY(0)   rotate(-2deg); }
-      50%      { transform: translateY(-8px) rotate(2deg); }
+    .float-card-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--midnight);
     }
-    .fc1 { top: -10px;  left: 4%;   animation-delay: 0s;   }
-    .fc2 { top: 6px;    right: 8%;  animation-delay: 0.7s; }
-    .fc3 { top: 130px;  left: 3%;   animation-delay: 1.4s; }
-    .fc4 { top: 138px;  right: 4%;  animation-delay: 2.1s; }
-    .fc5 { bottom: -8px; left: 22%; animation-delay: 2.8s; }
-    .fc6 { bottom: -6px; right: 28%; animation-delay: 3.5s; }
+    .float-card-sub {
+      font-size: 11px;
+      color: var(--neutral);
+    }
+    .float-card.c1 { top: -28px;    left: -16px;   animation-delay: 0s;   animation-duration: 5s;   }
+    .float-card.c2 { top: -28px;    right: 24%;    animation-delay: 0.8s; animation-duration: 5.5s; }
+    .float-card.c3 { bottom: -28px; left: 4%;      animation-delay: 1.6s; animation-duration: 4.8s; }
+    .float-card.c4 { bottom: -28px; left: 38%;     animation-delay: 2.4s; animation-duration: 5.2s; }
+    .float-card.c5 { top: -28px;    right: -8px;   animation-delay: 3.2s; animation-duration: 4.6s; }
+    @keyframes bobCard {
+      0%, 100% { transform: translateY(0); }
+      50%      { transform: translateY(-8px); }
+    }
 
-    .funnel-stats {
-      margin-top: 60px;
+    /* Stats bar */
+    .funnel-stats-bar {
+      max-width: 900px;
+      margin: 72px auto 0;
       display: flex;
       justify-content: center;
-      gap: 0;
-      flex-wrap: wrap;
+      align-items: center;
+      position: relative;
+      z-index: 2;
     }
-    .funnel-stat {
-      flex: 0 0 auto;
-      padding: 0 32px;
-      text-align: center;
-      border-right: 1px solid var(--slate-mid);
+    .stat-block {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 0 40px;
     }
-    .funnel-stat:last-child { border-right: none; }
-    .funnel-stat-val {
-      font-size: 28px;
+    .stat-number {
+      font-size: 36px;
       font-weight: 800;
-      color: var(--white);
-      line-height: 1.2;
+      letter-spacing: -0.02em;
+      line-height: 1;
     }
-    .funnel-stat-val.em { color: var(--indigo-bright); }
-    .funnel-stat-label {
-      font-size: 12px;
-      color: var(--light-neutral);
-      margin-top: 4px;
+    .stat-number.indigo { color: var(--indigo); }
+    .stat-number.cyan   { color: var(--cyan); }
+    .stat-number.white  { color: var(--white); }
+    .stat-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--white);
+      margin-top: 8px;
+    }
+    .stat-sub {
+      font-size: 11px;
+      color: var(--neutral);
+      letter-spacing: 0.03em;
+    }
+    .stat-divider {
+      width: 1px;
+      height: 48px;
+      background: rgba(99,102,241,0.3);
+      align-self: center;
     }
 
     .funnel-cta {
       text-align: center;
-      margin-top: 40px;
+      margin-top: 44px;
+      position: relative;
+      z-index: 2;
     }
     .funnel-cta a {
-      color: var(--indigo-bright);
+      color: var(--indigo-light);
       font-size: 15px;
       font-weight: 600;
       transition: color 0.2s ease;
     }
-    .funnel-cta a:hover { text-decoration: underline; }
+    .funnel-cta a:hover { color: var(--cyan-bright); }
 
-    /* ============ SECTION 7: Live Demo ============ */
-    .section-livedemo {
-      background: var(--white);
-      padding: 100px 0;
-    }
-    .livedemo-panels {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 24px;
-    }
-    .demo-panel {
-      background: var(--white);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 24px;
-      position: relative;
-      transition: all 0.25s ease;
-    }
-    .demo-panel:hover {
-      border-color: var(--indigo);
-      transform: translateY(-3px);
-    }
-    .demo-step-label {
-      font-size: 11px;
-      font-weight: 700;
-      color: var(--indigo);
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-    }
-    .demo-panel-title {
-      font-size: 18px;
-      font-weight: 700;
-      color: var(--midnight);
-      margin-top: 10px;
-    }
-    .demo-panel-sub {
-      font-size: 13px;
-      color: var(--neutral);
-      margin-top: 4px;
-    }
-    .demo-viz {
-      height: 200px;
-      margin-top: 16px;
-      padding: 12px;
-      background: var(--page-bg);
-      border-radius: 10px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      overflow: hidden;
-    }
-    .demo-bottom {
-      font-size: 12px;
-      color: var(--light-neutral);
-      margin-top: 12px;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .demo-bottom.ready {
-      color: var(--indigo);
-      font-weight: 700;
-    }
-
-    /* Panel 1 chat fragments */
-    .demo-chat-fragment {
-      background: var(--white);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      border-top-left-radius: 4px;
-      padding: 6px 10px;
-      font-size: 11px;
-      color: var(--midnight);
-      align-self: flex-start;
-      max-width: 80%;
-    }
-    .demo-chip-row {
-      display: flex;
-      gap: 4px;
-      flex-wrap: wrap;
-    }
-    .demo-chip {
-      background: var(--white);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 3px 8px;
-      font-size: 10px;
-      color: var(--midnight);
-      font-weight: 600;
-    }
-    .demo-chip.sel {
-      background: var(--indigo-wash);
-      border-color: var(--indigo);
-      color: var(--indigo-dark);
-    }
-    .demo-slider-wrap {
-      margin-top: 6px;
-    }
-    .demo-slider-track {
-      height: 4px;
-      background: var(--border);
-      border-radius: 2px;
-      position: relative;
-    }
-    .demo-slider-fill {
-      position: absolute;
-      left: 0; top: 0;
-      width: 70%;
-      height: 100%;
-      background: var(--indigo);
-      border-radius: 2px;
-    }
-    .demo-slider-handle {
-      position: absolute;
-      left: 70%;
-      top: 50%;
-      transform: translate(-50%, -50%);
-      width: 14px; height: 14px;
-      background: var(--indigo);
-      border: 2px solid var(--white);
-      border-radius: 50%;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.15);
-    }
-    .demo-slider-label {
-      margin-top: 6px;
-      font-size: 10px;
-      color: var(--neutral);
-    }
-
-    /* Panel 2 pipeline */
-    .demo-pipeline-step {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 11px;
-      color: var(--midnight);
-    }
-    .demo-pipeline-step .dot {
-      width: 14px;
-      height: 14px;
-      border-radius: 50%;
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 8px;
-      color: var(--white);
-      font-weight: 700;
-    }
-    .demo-pipeline-step .dot.done    { background: var(--indigo); }
-    .demo-pipeline-step .dot.active  { background: var(--indigo); animation: pulse-dot 1.2s ease-in-out infinite; }
-    .demo-pipeline-step .dot.pending { background: var(--border); }
-    .demo-pipeline-step.pending { color: var(--light-neutral); }
-
-    /* Panel 3 predict */
-    .predict-roas {
-      font-size: 36px;
-      font-weight: 800;
-      color: var(--indigo);
-      text-align: center;
-      line-height: 1;
-      letter-spacing: -0.02em;
-    }
-    .predict-roas-label {
-      text-align: center;
-      font-size: 11px;
-      color: var(--neutral);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-top: 4px;
-    }
-    .predict-stats {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 14px;
-      gap: 6px;
-    }
-    .predict-stat {
-      flex: 1;
-      text-align: center;
-      background: var(--white);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 6px 4px;
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--midnight);
-    }
-
-    /* ============ SECTION 8: Pricing ============ */
+    /* ============ SECTION 7: Pricing ============ */
     .section-pricing {
       background: var(--page-bg);
       padding: 100px 0;
@@ -1775,7 +1726,7 @@
       box-shadow: 0 8px 22px -4px rgba(6,182,212,0.65);
     }
 
-    /* ============ SECTION 9: Final CTA ============ */
+    /* ============ SECTION 8: Final CTA ============ */
     .section-final-cta {
       background: var(--white);
       padding: 120px 0;
@@ -1880,7 +1831,7 @@
       margin-top: 24px;
     }
 
-    /* ============ SECTION 10: Footer ============ */
+    /* ============ SECTION 9: Footer ============ */
     .footer {
       background: var(--midnight);
       color: var(--white);
@@ -2094,13 +2045,12 @@
       .section-how,
       .section-features,
       .section-funnel,
-      .section-livedemo,
       .section-pricing,
       .section-final-cta { padding: 64px 0; }
       .features-grid { grid-template-columns: 1fr; }
-      .funnel-stages { grid-template-columns: repeat(2, 1fr); }
-      .funnel-stat { padding: 0 16px; }
-      .funnel-stat-val { font-size: 22px; }
+      .funnel-panels { grid-template-columns: 1fr; }
+      .stat-block { padding: 0 16px; }
+      .stat-number { font-size: 28px; }
       .floating-cards { display: none; }
       .footer-grid { grid-template-columns: 1fr; }
       .footer-bottom { flex-direction: column; align-items: flex-start; }
@@ -2127,7 +2077,7 @@
         <a href="#about">About</a>
       </div>
       <div class="nav-right">
-        <button class="nav-signin" data-modal-open>Sign in</button>
+        <a class="nav-signin" href="dashboard.html">Sign in</a>
         <div class="nav-divider"></div>
         <button class="nav-cta" data-modal-open>Get Started Free</button>
         <button class="hamburger" id="hamburger" aria-label="Open menu">
@@ -2803,26 +2753,23 @@
   </section>
 
   <!-- ============ SECTION 6: Funnel ============ -->
-  <section class="section-funnel animate-on-scroll">
-    <!-- decorative dots -->
-    <div class="funnel-dot-decor" style="top: 12%;  left: 8%;  animation-delay: 0s;"></div>
-    <div class="funnel-dot-decor" style="top: 30%;  right: 6%; animation-delay: 0.8s;"></div>
-    <div class="funnel-dot-decor" style="top: 60%;  left: 14%; animation-delay: 1.6s;"></div>
-    <div class="funnel-dot-decor" style="bottom: 14%; right: 20%; animation-delay: 2.4s;"></div>
-    <div class="funnel-dot-decor" style="bottom: 22%; left: 40%; animation-delay: 3.2s;"></div>
-    <div class="funnel-dot-decor" style="top: 8%; right: 30%; animation-delay: 4s;"></div>
+  <section class="section-funnel animate-on-scroll" id="funnel-section">
+    <div class="funnel-blob-indigo" aria-hidden="true"></div>
+    <div class="funnel-blob-cyan" aria-hidden="true"></div>
+    <div class="funnel-starfield" aria-hidden="true"></div>
 
     <div class="container">
       <div class="section-head">
         <span class="pill dark-em">Full Funnel Coverage</span>
-        <h2 class="white">
+        <h2 class="funnel-heading">
           Any campaign type. Any funnel stage.<br>
           We've got you
-          <span class="squig-wrap">
-            <span class="accent-word">covered.</span>
-            <svg class="squig" viewBox="0 0 200 14" preserveAspectRatio="none">
-              <path d="M 2 8 Q 50 2, 100 8 T 198 8"
-                stroke="#6366F1" stroke-width="4" fill="none" stroke-linecap="round"/>
+          <span class="underline-word">
+            covered.
+            <svg class="word-underline" viewBox="0 0 240 16" preserveAspectRatio="none">
+              <path d="M 4 10 Q 60 4, 120 10 T 236 9"
+                stroke="#06B6D4" stroke-width="5" fill="none"
+                stroke-linecap="round" opacity="0.75"/>
             </svg>
           </span>
         </h2>
@@ -2830,116 +2777,158 @@
       </div>
 
       <div class="funnel-wrap">
-        <svg class="funnel-svg" viewBox="0 0 1100 380" preserveAspectRatio="none">
-          <defs>
-            <linearGradient id="funnelGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%"   stop-color="#6366F1" stop-opacity="0.15"/>
-              <stop offset="50%"  stop-color="#4338CA" stop-opacity="0.25"/>
-              <stop offset="100%" stop-color="#10B981" stop-opacity="0.35"/>
-            </linearGradient>
-          </defs>
-          <path d="M 50 60 L 1050 130 L 1050 250 L 50 320 Z"
-            fill="url(#funnelGrad)"
-            stroke="#6366F1"
-            stroke-width="1.5"
-            stroke-dasharray="6 4"
-            opacity="0.6"/>
-        </svg>
 
-        <!-- Floating cards above funnel -->
-        <div class="floating-cards">
-          <div class="float-card fc1">
-            <div class="fc-title">📱 Eid Push</div>
-            <div class="fc-sub">Meta · 3.2× ROAS</div>
+        <!-- Floating campaign cards (5) — positioned around the frame -->
+        <div class="float-card c1" role="presentation">
+          <div class="fc-row">
+            <span class="float-card-dot" style="background:#1877F2;"></span>
+            <span class="float-card-title">Eid Push</span>
           </div>
-          <div class="float-card fc2">
-            <div class="fc-title">📧 Newsletter</div>
-            <div class="fc-sub">Email · 28% open</div>
+          <div class="float-card-sub">Meta · 3.2× ROAS</div>
+        </div>
+        <div class="float-card c2" role="presentation">
+          <div class="fc-row">
+            <span class="float-card-dot" style="background:#4285F4;"></span>
+            <span class="float-card-title">Lead Gen</span>
           </div>
-          <div class="float-card fc3">
-            <div class="fc-title">💬 Flash WA</div>
-            <div class="fc-sub">WhatsApp · 14% CVR</div>
+          <div class="float-card-sub">Google · 4.1% CTR</div>
+        </div>
+        <div class="float-card c3" role="presentation">
+          <div class="fc-row">
+            <span class="float-card-dot" style="background:#25D366;"></span>
+            <span class="float-card-title">Flash WA</span>
           </div>
-          <div class="float-card fc4">
-            <div class="fc-title">🎬 Brand Video</div>
-            <div class="fc-sub">YouTube · 245K reach</div>
+          <div class="float-card-sub">WhatsApp · 14% CVR</div>
+        </div>
+        <div class="float-card c4" role="presentation">
+          <div class="fc-row">
+            <span class="float-card-dot" style="background:#059669;"></span>
+            <span class="float-card-title">Cart Recovery</span>
           </div>
-          <div class="float-card fc5">
-            <div class="fc-title">🛒 Cart Recovery</div>
-            <div class="fc-sub">Email · 12% recover</div>
+          <div class="float-card-sub">Email · 12% recover</div>
+        </div>
+        <div class="float-card c5" role="presentation">
+          <div class="fc-row">
+            <span class="float-card-dot" style="background:#FF0000;"></span>
+            <span class="float-card-title">Brand Video</span>
           </div>
-          <div class="float-card fc6">
-            <div class="fc-title">🔍 Brand Search</div>
-            <div class="fc-sub">Google · 4.1% CTR</div>
-          </div>
+          <div class="float-card-sub">YouTube · 245K reach</div>
         </div>
 
-        <div class="funnel-stages">
-          <div class="stage">
-            <div class="stage-num">01</div>
-            <div class="stage-title">Awareness</div>
-            <div class="stage-sub">Get noticed</div>
-            <div class="stage-chips">
-              <span class="stage-chip">Social Paid</span>
-              <span class="stage-chip">Influencer</span>
-              <span class="stage-chip">Video Ads</span>
+        <div class="funnel-frame funnel-panels">
+
+          <!-- Tapering background shape -->
+          <svg class="funnel-bg-shape" viewBox="0 0 1200 300" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="funnelBg" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%"   stop-color="#6366F1" stop-opacity="0.3"/>
+                <stop offset="50%"  stop-color="#4338CA" stop-opacity="0.4"/>
+                <stop offset="100%" stop-color="#06B6D4" stop-opacity="0.3"/>
+              </linearGradient>
+            </defs>
+            <path d="M 0 0 L 1200 60 L 1200 240 L 0 300 Z" fill="url(#funnelBg)"/>
+          </svg>
+
+          <!-- Animated flowing particles -->
+          <svg class="flow-particles" preserveAspectRatio="none" viewBox="0 0 1200 300">
+            <circle r="4" fill="#6366F1" opacity="0.6">
+              <animateMotion dur="6s" repeatCount="indefinite" begin="0s"
+                path="M 50 150 L 1150 150"/>
+            </circle>
+            <circle r="3" fill="#06B6D4" opacity="0.5">
+              <animateMotion dur="6s" repeatCount="indefinite" begin="1.5s"
+                path="M 50 100 L 1150 130"/>
+            </circle>
+            <circle r="3" fill="#A5B4FC" opacity="0.45">
+              <animateMotion dur="6s" repeatCount="indefinite" begin="3s"
+                path="M 50 200 L 1150 170"/>
+            </circle>
+            <circle r="2.5" fill="#22D3EE" opacity="0.35">
+              <animateMotion dur="6s" repeatCount="indefinite" begin="4.5s"
+                path="M 50 170 L 1150 145"/>
+            </circle>
+          </svg>
+
+          <!-- Vertical dividers + arrow connectors -->
+          <div class="panel-divider d1" aria-hidden="true"></div>
+          <div class="panel-divider d2" aria-hidden="true"></div>
+          <div class="panel-arrow a1" aria-hidden="true">
+            <svg width="28" height="28" viewBox="0 0 28 28">
+              <circle cx="14" cy="14" r="13" fill="#1E293B" stroke="rgba(99,102,241,0.4)" stroke-width="1"/>
+              <path d="M 9 14 L 20 14 M 15 10 L 20 14 L 15 18"
+                stroke="#6366F1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="panel-arrow a2" aria-hidden="true">
+            <svg width="28" height="28" viewBox="0 0 28 28">
+              <circle cx="14" cy="14" r="13" fill="#1E293B" stroke="rgba(6,182,212,0.4)" stroke-width="1"/>
+              <path d="M 9 14 L 20 14 M 15 10 L 20 14 L 15 18"
+                stroke="#06B6D4" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+
+          <!-- Panel 1: Awareness -->
+          <div class="funnel-panel">
+            <div class="panel-num aw">01</div>
+            <div class="panel-title">Awareness</div>
+            <div class="panel-sub">Get noticed</div>
+            <div class="panel-chips">
+              <span class="campaign-chip chip-aw">Social Paid</span>
+              <span class="campaign-chip chip-aw">Influencer</span>
+              <span class="campaign-chip chip-aw">Video Ads</span>
+              <span class="campaign-chip chip-aw">Google Display</span>
+              <span class="campaign-chip chip-aw">Content / SEO</span>
             </div>
           </div>
-          <div class="stage">
-            <div class="stage-num">02</div>
-            <div class="stage-title">Consideration</div>
-            <div class="stage-sub">Build trust</div>
-            <div class="stage-chips">
-              <span class="stage-chip">Search Ads</span>
-              <span class="stage-chip">Content</span>
-              <span class="stage-chip">Email</span>
+
+          <!-- Panel 2: Consideration -->
+          <div class="funnel-panel">
+            <div class="panel-num co">02</div>
+            <div class="panel-title">Consideration</div>
+            <div class="panel-sub">Build trust</div>
+            <div class="panel-chips">
+              <span class="campaign-chip chip-co">Search Ads</span>
+              <span class="campaign-chip chip-co">Content</span>
+              <span class="campaign-chip chip-co">Email</span>
+              <span class="campaign-chip chip-co">Retargeting</span>
+              <span class="campaign-chip chip-co">WhatsApp</span>
             </div>
           </div>
-          <div class="stage featured">
-            <div class="stage-num">03</div>
-            <div class="stage-title">Conversion</div>
-            <div class="stage-sub">Close the deal</div>
-            <div class="stage-chips">
-              <span class="stage-chip">Google Shopping</span>
-              <span class="stage-chip">WhatsApp</span>
-              <span class="stage-chip">Retargeting</span>
+
+          <!-- Panel 3: Conversion -->
+          <div class="funnel-panel">
+            <div class="panel-num cv">03</div>
+            <div class="panel-title">Conversion</div>
+            <div class="panel-sub">Close the deal</div>
+            <div class="panel-chips">
+              <span class="campaign-chip chip-cv">Google Shopping</span>
+              <span class="campaign-chip chip-cv">WhatsApp</span>
+              <span class="campaign-chip chip-cv">Retargeting</span>
+              <span class="campaign-chip chip-cv">Email</span>
+              <span class="campaign-chip chip-cv">Flash Sale</span>
             </div>
           </div>
-          <div class="stage">
-            <div class="stage-num">04</div>
-            <div class="stage-title">Retention</div>
-            <div class="stage-sub">Keep them coming back</div>
-            <div class="stage-chips">
-              <span class="stage-chip">Email Series</span>
-              <span class="stage-chip">Loyalty</span>
-              <span class="stage-chip">Win-back</span>
-            </div>
-          </div>
-          <div class="stage">
-            <div class="stage-num">05</div>
-            <div class="stage-title">Advocacy</div>
-            <div class="stage-sub">Turn into promoters</div>
-            <div class="stage-chips">
-              <span class="stage-chip">Referrals</span>
-              <span class="stage-chip">UGC</span>
-              <span class="stage-chip">Reviews</span>
-            </div>
-          </div>
+
         </div>
       </div>
 
-      <div class="funnel-stats">
-        <div class="funnel-stat">
-          <div class="funnel-stat-val em">12+ Campaign Types</div>
-          <div class="funnel-stat-label">Supported</div>
+      <div class="funnel-stats-bar">
+        <div class="stat-block">
+          <div class="stat-number indigo" id="stat-campaigns">12+</div>
+          <div class="stat-label">Campaign Types</div>
+          <div class="stat-sub">Supported</div>
         </div>
-        <div class="funnel-stat">
-          <div class="funnel-stat-val">5 Funnel Stages</div>
-          <div class="funnel-stat-label">Covered</div>
+        <div class="stat-divider" aria-hidden="true"></div>
+        <div class="stat-block">
+          <div class="stat-number white" id="stat-stages">3</div>
+          <div class="stat-label">Funnel Stages</div>
+          <div class="stat-sub">Covered</div>
         </div>
-        <div class="funnel-stat">
-          <div class="funnel-stat-val em">20+ Channels</div>
-          <div class="funnel-stat-label">Predicted</div>
+        <div class="stat-divider" aria-hidden="true"></div>
+        <div class="stat-block">
+          <div class="stat-number cyan" id="stat-channels">20+</div>
+          <div class="stat-label">Channels</div>
+          <div class="stat-sub">Predicted</div>
         </div>
       </div>
 
@@ -2949,95 +2938,7 @@
     </div>
   </section>
 
-  <!-- ============ SECTION 7: Live Demo ============ -->
-  <section class="section-livedemo animate-on-scroll">
-    <div class="container">
-      <div class="section-head">
-        <span class="pill lightning">⚡ Live Demo</span>
-        <h2>Watch the simulation in motion.</h2>
-        <p class="sub">Three minutes from campaign brief to confident launch plan.</p>
-      </div>
-
-      <div class="livedemo-panels">
-        <!-- Panel 1: Brief -->
-        <div class="demo-panel">
-          <div class="demo-step-label">Step 1 of 3</div>
-          <div class="demo-panel-title">Brief</div>
-          <div class="demo-panel-sub">Tell BrandAid your campaign</div>
-          <div class="demo-viz">
-            <div class="demo-chat-fragment">What's your campaign goal?</div>
-            <div class="demo-chip-row">
-              <span class="demo-chip">Awareness</span>
-              <span class="demo-chip sel">Conversion</span>
-              <span class="demo-chip">Retention</span>
-            </div>
-            <div class="demo-chat-fragment">Got it. What's your budget?</div>
-            <div class="demo-slider-wrap">
-              <div class="demo-slider-track">
-                <div class="demo-slider-fill"></div>
-                <div class="demo-slider-handle"></div>
-              </div>
-              <div class="demo-slider-label">150K BDT</div>
-            </div>
-          </div>
-          <div class="demo-bottom">🕐 ~90 seconds</div>
-        </div>
-
-        <!-- Panel 2: Analyze -->
-        <div class="demo-panel">
-          <div class="demo-step-label">Step 2 of 3</div>
-          <div class="demo-panel-title">Analyze</div>
-          <div class="demo-panel-sub">AI runs 6-layer simulation</div>
-          <div class="demo-viz">
-            <div class="demo-pipeline-step">
-              <span class="dot done">✓</span>
-              <span>Creative scoring</span>
-            </div>
-            <div class="demo-pipeline-step">
-              <span class="dot done">✓</span>
-              <span>Audience simulation</span>
-            </div>
-            <div class="demo-pipeline-step">
-              <span class="dot done">✓</span>
-              <span>Channel forecasting</span>
-            </div>
-            <div class="demo-pipeline-step">
-              <span class="dot active"></span>
-              <span>Budget analysis</span>
-            </div>
-            <div class="demo-pipeline-step pending">
-              <span class="dot pending"></span>
-              <span>Recommendation gen</span>
-            </div>
-            <div class="demo-pipeline-step pending">
-              <span class="dot pending"></span>
-              <span>Confidence score</span>
-            </div>
-          </div>
-          <div class="demo-bottom">🕐 ~30 seconds</div>
-        </div>
-
-        <!-- Panel 3: Predict -->
-        <div class="demo-panel">
-          <div class="demo-step-label">Step 3 of 3</div>
-          <div class="demo-panel-title">Predict</div>
-          <div class="demo-panel-sub">Get your campaign forecast</div>
-          <div class="demo-viz">
-            <div class="predict-roas">3.6×</div>
-            <div class="predict-roas-label">Predicted ROAS</div>
-            <div class="predict-stats">
-              <div class="predict-stat">215K reach</div>
-              <div class="predict-stat">188 orders</div>
-              <div class="predict-stat">89% conf.</div>
-            </div>
-          </div>
-          <div class="demo-bottom ready">Ready to launch →</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ============ SECTION 8: Pricing ============ -->
+  <!-- ============ SECTION 7: Pricing ============ -->
   <section class="section-pricing animate-on-scroll" id="pricing">
     <div class="container">
       <div class="section-head">
@@ -3109,7 +3010,7 @@
     </div>
   </section>
 
-  <!-- ============ SECTION 9: Final CTA ============ -->
+  <!-- ============ SECTION 8: Final CTA ============ -->
   <section class="section-final-cta animate-on-scroll">
     <div class="cta-blob-1"></div>
     <div class="cta-blob-2"></div>
@@ -3143,7 +3044,7 @@
     </div>
   </section>
 
-  <!-- ============ SECTION 10: Footer ============ -->
+  <!-- ============ SECTION 9: Footer ============ -->
   <footer class="footer">
     <div class="container">
       <div class="footer-grid">
@@ -3212,7 +3113,7 @@
         <input type="password" placeholder="Create a password" required>
         <button type="submit" class="modal-submit">Create Free Account →</button>
       </form>
-      <div class="modal-signin">Already have an account? <a>Sign in</a></div>
+      <div class="modal-signin">Already have an account? <a href="dashboard.html">Sign in</a></div>
     </div>
   </div>
 
@@ -3266,6 +3167,59 @@
         setTimeout(() => { path.style.strokeDashoffset = 0; }, 100);
       }
     });
+
+    // ============ Funnel section: underline draw + stats count-up on scroll ============
+    (function funnelSectionAnimations() {
+      const section = document.getElementById('funnel-section');
+      if (!section) return;
+
+      function drawUnderline() {
+        const p = section.querySelector('.word-underline path');
+        if (!p) return;
+        const len = p.getTotalLength();
+        p.style.strokeDasharray = len;
+        p.style.strokeDashoffset = len;
+        setTimeout(() => {
+          p.style.transition = 'stroke-dashoffset 1.1s ease-out';
+          p.style.strokeDashoffset = '0';
+        }, 350);
+      }
+
+      function countUp(el, target, suffix) {
+        if (!el) return;
+        const duration = 1200;
+        const t0 = performance.now();
+        function step(now) {
+          const p = Math.min((now - t0) / duration, 1);
+          const eased = 1 - Math.pow(1 - p, 3);
+          el.textContent = Math.floor(target * eased) + suffix;
+          if (p < 1) requestAnimationFrame(step);
+          else el.textContent = target + suffix;
+        }
+        requestAnimationFrame(step);
+      }
+
+      function popStat3() {
+        const el = document.getElementById('stat-stages');
+        if (!el) return;
+        el.style.transition = 'transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
+        el.style.transform = 'scale(0.7)';
+        setTimeout(() => { el.style.transform = 'scale(1)'; }, 80);
+      }
+
+      const io = new IntersectionObserver((entries, obs) => {
+        entries.forEach(entry => {
+          if (!entry.isIntersecting) return;
+          section.classList.add('in-view');
+          drawUnderline();
+          countUp(document.getElementById('stat-campaigns'), 12, '+');
+          countUp(document.getElementById('stat-channels'),  20, '+');
+          popStat3();
+          obs.disconnect();
+        });
+      }, { threshold: 0.2 });
+      io.observe(section);
+    })();
 
     // ============ Hero: cycle "Analyzing." → "Analyzing.." → "Analyzing..." ============
     const statusEl = document.getElementById('engineStatus');
