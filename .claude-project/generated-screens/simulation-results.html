@@ -4,110 +4,69 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Simulation Results — Eid Collection 2026 — BrandAid</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
   <style>
     :root {
-      --emerald:        #059669;
-      --emerald-dark:   #047857;
-      --emerald-bright: #34D399;
-      --emerald-light:  #6EE7B7;
-      --emerald-wash:   #ECFDF5;
-      --emerald-mint:   #D1FAE5;
-      --midnight:       #0F172A;
-      --slate:          #1E293B;
-      --slate-mid:      #334155;
-      --neutral:        #64748B;
-      --light-neutral:  #94A3B8;
-      --border:         #E2E8F0;
-      --page-bg:        #F8FAFC;
-      --white:          #FFFFFF;
-      --warning:        #F59E0B;
-      --warning-soft:   #FEF3C7;
-      --danger:         #EF4444;
-      --danger-soft:    #FEE2E2;
-      --purple:         #8B5CF6;
-      --blue:           #3B82F6;
-      --easing:         cubic-bezier(0.4, 0, 0.2, 1);
+      --indigo:        #4338CA;
+      --indigo-dark:   #3730A3;
+      --indigo-bright: #6366F1;
+      --indigo-light:  #A5B4FC;
+      --indigo-mist:   #E0E7FF;
+      --indigo-wash:   #EEF2FF;
+      --cyan:          #06B6D4;
+      --cyan-bright:   #22D3EE;
+      --cyan-light:    #67E8F9;
+      --cyan-deep:     #0E7490;
+      --cyan-wash:     #ECFEFF;
+      --cyan-border:   #A5F3FC;
+      --midnight:      #0F172A;
+      --slate:         #1E293B;
+      --slate-mid:     #334155;
+      --neutral:       #64748B;
+      --neutral-light: #94A3B8;
+      --border:        #E2E8F0;
+      --border-soft:   #F1F5F9;
+      --white:         #FFFFFF;
+      --page-bg:       #FAFAFE;
+      --success:       #10B981;
+      --success-soft:  #D1FAE5;
+      --success-dark:  #047857;
+      --warning:       #F59E0B;
+      --warning-soft:  #FEF3C7;
+      --warning-dark:  #92400E;
+      --warning-mid:   #D97706;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
     body {
       font-family: Arial, Helvetica, sans-serif;
       font-size: 14px;
       line-height: 1.6;
       color: var(--midnight);
       background: var(--page-bg);
-      padding-bottom: 96px; /* room for sticky action bar */
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
     }
     button, input { font-family: inherit; }
     button { cursor: pointer; border: none; background: transparent; }
     a { color: inherit; text-decoration: none; }
 
-    /* ============ Curtain reveal overlay ============ */
-    .reveal-overlay {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100vw; height: 100vh;
+    /* ============ Reveal curtain ============ */
+    .reveal-curtain {
+      position: fixed; inset: 0;
       background: var(--midnight);
       z-index: 1000;
-      animation: liftCurtain 0.8s ease-out 0.3s forwards;
-      pointer-events: none;
+      animation: liftCurtain 0.7s ease-out 0.2s forwards;
     }
-    @keyframes liftCurtain {
-      0%   { opacity: 1; }
-      100% { opacity: 0; }
-    }
+    @keyframes liftCurtain { to { opacity: 0; pointer-events: none; } }
 
-    /* ============ Common animations ============ */
     @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(20px); }
+      from { opacity: 0; transform: translateY(16px); }
       to   { opacity: 1; transform: translateY(0); }
     }
-    @keyframes cardReveal {
-      from { opacity: 0; transform: translateY(30px) scale(0.96); }
-      to   { opacity: 1; transform: translateY(0) scale(1); }
-    }
-    @keyframes pulse-dot {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50%      { opacity: 0.5; transform: scale(0.7); }
-    }
-    @keyframes flash-card {
-      0%   { background: rgba(5,150,105,0); }
-      30%  { background: rgba(5,150,105,0.12); }
-      100% { background: rgba(5,150,105,0); }
-    }
-    @keyframes shimmer-sweep {
-      0%   { transform: translateX(-150%) rotate(20deg); opacity: 0; }
-      20%  { opacity: 1; }
-      100% { transform: translateX(250%) rotate(20deg); opacity: 0; }
-    }
-    @keyframes float-up {
-      0%   { transform: translateY(20px); opacity: 0; }
-      20%  { opacity: 1; }
-      80%  { opacity: 1; }
-      100% { transform: translateY(-40px); opacity: 0; }
-    }
-
-    /* ============ Logo ============ */
-    .logo { display: inline-flex; align-items: center; gap: 10px; }
-    .logo-icon {
-      width: 28px; height: 28px;
-      background: var(--emerald);
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--white);
-      font-size: 18px;
-      font-weight: 700;
-      line-height: 1;
-    }
-    .logo-text {
-      font-size: 16px;
-      font-weight: 700;
-      color: var(--midnight);
-      letter-spacing: -0.01em;
+    @keyframes scaleUp {
+      from { opacity: 0; transform: scale(0.85); }
+      to   { opacity: 1; transform: scale(1); }
     }
 
     /* ============ Top Bar ============ */
@@ -116,1142 +75,626 @@
       background: var(--white);
       border-bottom: 1px solid var(--border);
       padding: 0 32px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: sticky;
-      top: 0;
-      z-index: 50;
-      animation: fadeUp 0.5s ease 0.8s both;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-shrink: 0;
+      animation: fadeUp 0.4s ease 0.6s both;
     }
-    .top-left { display: flex; align-items: center; gap: 12px; }
-    .crumb-sep { color: #CBD5E1; font-size: 12px; }
-    .crumb-name {
-      font-size: 14px;
-      color: var(--neutral);
-      font-weight: 600;
-      cursor: pointer;
-      transition: color 0.2s ease;
-    }
-    .crumb-name:hover { color: var(--midnight); }
-
-    .top-actions { display: flex; gap: 10px; align-items: center; }
-    .btn-outline {
-      border: 1px solid var(--border);
-      color: var(--neutral);
-      padding: 8px 16px;
+    .tb-left { display: flex; align-items: center; gap: 12px; }
+    .logo { display: inline-flex; align-items: center; gap: 10px; }
+    .logo-icon {
+      width: 28px; height: 28px;
+      background: var(--indigo);
       border-radius: 8px;
-      font-size: 13px;
-      font-weight: 600;
-      background: var(--white);
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: all 0.2s var(--easing);
-    }
-    .btn-outline:hover {
-      border-color: var(--emerald);
-      color: var(--emerald);
-    }
-    .btn-solid {
-      background: var(--emerald);
+      display: flex; align-items: center; justify-content: center;
       color: var(--white);
-      padding: 8px 16px;
+      font-size: 18px; font-weight: 700; line-height: 1;
+    }
+    .logo-text { font-size: 17px; font-weight: 700; color: var(--midnight); letter-spacing: -0.01em; }
+    .crumb-sep { color: #CBD5E1; font-size: 12px; }
+    .crumb-name { font-size: 14px; font-weight: 600; color: var(--neutral); }
+
+    .tb-right { display: flex; align-items: center; gap: 10px; }
+    .tb-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 14px;
       border-radius: 8px;
-      font-size: 13px;
+      font-size: 13px; font-weight: 600;
+      color: var(--neutral);
+      transition: all 0.2s ease;
+    }
+    .tb-btn.text { padding: 6px 8px; }
+    .tb-btn.text:hover { color: var(--indigo); }
+    .tb-btn.outline { border: 1px solid var(--border); }
+    .tb-btn.outline:hover { border-color: var(--indigo-light); color: var(--indigo); }
+    .tb-btn.primary {
+      background: linear-gradient(135deg, var(--indigo) 0%, var(--indigo-dark) 100%);
+      color: var(--white);
       font-weight: 700;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: all 0.2s var(--easing);
+      box-shadow: 0 4px 12px -3px rgba(67,56,202,0.4);
     }
-    .btn-solid:hover {
-      background: var(--emerald-dark);
-      transform: translateY(-1px);
-    }
+    .tb-btn.primary:hover { transform: translateY(-1px); box-shadow: 0 6px 18px -3px rgba(67,56,202,0.5); }
 
     /* ============ Hero ============ */
     .hero {
       background: var(--midnight);
-      padding: 48px 32px 60px;
-      color: var(--white);
+      padding: 56px 32px 64px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-blob-indigo {
+      position: absolute;
+      top: -200px; right: -150px;
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(99,102,241,0.25) 0%, transparent 60%);
+      border-radius: 50%;
+      filter: blur(40px);
+      pointer-events: none;
+    }
+    .hero-blob-cyan {
+      position: absolute;
+      bottom: -150px; left: -100px;
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(6,182,212,0.18) 0%, transparent 65%);
+      border-radius: 50%;
+      filter: blur(30px);
+      pointer-events: none;
+    }
+    .hero-dots {
+      position: absolute; inset: 0;
+      background-image: radial-gradient(circle, rgba(255,255,255,0.04) 1px, transparent 1px);
+      background-size: 32px 32px;
+      opacity: 0.5;
+      pointer-events: none;
     }
     .hero-inner {
-      max-width: 1200px;
+      max-width: 920px;
       margin: 0 auto;
+      position: relative;
+      z-index: 2;
+      text-align: center;
     }
 
-    /* Row 1: Status header */
     .hero-status {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      flex-wrap: wrap;
-      animation: fadeUp 0.5s ease 1.0s both;
-    }
-    .sim-id {
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.1em;
-      color: #4B5563;
-      text-transform: uppercase;
-    }
-    .status-sep {
-      width: 1px;
-      height: 16px;
-      background: var(--slate);
+      display: flex; gap: 14px;
+      justify-content: center; align-items: center;
+      margin-bottom: 16px;
+      animation: fadeUp 0.5s ease 0.8s both;
     }
     .status-badge {
-      background: rgba(5,150,105,0.2);
-      border: 1px solid rgba(52,211,153,0.5);
-      color: var(--emerald-bright);
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(6,182,212,0.15);
+      border: 1px solid rgba(34,211,238,0.4);
+      color: var(--cyan-bright);
       padding: 5px 12px;
       border-radius: 20px;
-      font-size: 11px;
-      font-weight: 700;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
+      font-size: 11px; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase;
     }
-    .status-badge .live-dot {
-      width: 6px; height: 6px;
-      border-radius: 50%;
-      background: var(--emerald-bright);
-      animation: pulse-dot 1.5s ease-in-out infinite;
-    }
-    .conf-block {
-      margin-left: auto;
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .conf-label {
-      font-size: 10px;
-      color: #4B5563;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-    }
-    .conf-val {
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--emerald-bright);
-    }
-    .conf-dots { display: inline-flex; gap: 4px; }
-    .conf-dot {
+    .status-badge .pulse-dot {
       width: 8px; height: 8px;
       border-radius: 50%;
-      background: var(--emerald);
+      background: var(--cyan-bright);
+      animation: pulseDot 2s ease-in-out infinite;
     }
-    .conf-dot.empty {
-      background: transparent;
-      border: 1.5px solid var(--slate-mid);
+    @keyframes pulseDot {
+      0%, 100% { transform: scale(1); opacity: 1; box-shadow: 0 0 0 0 rgba(34,211,238,0.5); }
+      50%      { transform: scale(1.25); opacity: 0.7; box-shadow: 0 0 0 6px rgba(34,211,238,0); }
     }
-
-    /* Row 2: Campaign name + tags */
-    .hero-title-row {
-      margin-top: 18px;
-    }
-    .hero-title {
-      font-size: 40px;
-      font-weight: 800;
-      letter-spacing: -0.02em;
-      color: var(--white);
-      animation: fadeUp 0.6s ease 1.1s both;
-      line-height: 1.1;
-    }
-    .hero-tags {
-      margin-top: 12px;
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      animation: fadeUp 0.5s ease 1.2s both;
-    }
-    .hero-tag {
-      background: rgba(52,211,153,0.15);
-      color: var(--emerald-bright);
-      font-size: 11px;
-      font-weight: 600;
-      padding: 5px 11px;
-      border-radius: 14px;
-    }
-
-    /* Row 3: Metric cards */
-    .metric-cards {
-      margin-top: 36px;
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
-    }
-    .metric-card {
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 16px;
-      padding: 24px 20px;
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      position: relative;
-      overflow: hidden;
-      opacity: 0;
-      transition: background 0.2s, border-color 0.2s;
-    }
-    .metric-card:hover {
-      background: rgba(255,255,255,0.10);
-      border-color: rgba(52,211,153,0.4);
-    }
-    .metric-card:nth-child(1) { animation: cardReveal 0.6s ease 1.3s both;  }
-    .metric-card:nth-child(2) { animation: cardReveal 0.6s ease 1.45s both; }
-    .metric-card:nth-child(3) { animation: cardReveal 0.6s ease 1.6s both;  }
-    .metric-card:nth-child(4) { animation: cardReveal 0.6s ease 1.75s both; }
-
-    .metric-card.roas-card {
-      box-shadow: 0 4px 30px -8px rgba(52,211,153,0.5);
-      border-color: rgba(52,211,153,0.4);
-    }
-    .metric-top {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 8px;
-    }
-    .metric-label {
-      font-size: 11px;
-      font-weight: 600;
+    .hero-vsep { width: 1px; height: 16px; background: rgba(255,255,255,0.15); }
+    .sim-id {
+      font-size: 11px; font-weight: 600;
       color: var(--neutral);
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
+      letter-spacing: 0.1em;
     }
-    .spark-wrap {
-      width: 70px;
-      height: 30px;
-      flex-shrink: 0;
-    }
-    .metric-value {
-      font-size: 44px;
-      font-weight: 800;
+
+    .hero-title {
+      margin-top: 12px;
+      font-size: 36px; font-weight: 800;
       color: var(--white);
-      line-height: 1.1;
       letter-spacing: -0.02em;
-      margin-top: 14px;
-    }
-    .metric-value.em {
-      font-size: 48px;
-      color: var(--emerald-bright);
-    }
-    .metric-bottom {
-      margin-top: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-    }
-    .metric-range {
-      font-size: 12px;
-      color: var(--light-neutral);
-    }
-    .trend-badge {
-      background: rgba(52,211,153,0.2);
-      color: var(--emerald-bright);
-      font-size: 10px;
-      font-weight: 700;
-      padding: 3px 8px;
-      border-radius: 6px;
-      white-space: nowrap;
+      animation: fadeUp 0.5s ease 0.95s both;
     }
 
-    /* Delta badge that floats up on apply */
-    .delta-floater {
+    /* Score wheel */
+    .score-wheel-wrap {
+      margin: 36px auto 0;
+      width: 220px; height: 220px;
+      position: relative;
+      animation: scaleUp 0.6s ease 1.1s both;
+    }
+    .score-wheel { width: 100%; height: 100%; display: block; }
+    .score-center {
       position: absolute;
-      top: 24px;
-      right: 24px;
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--emerald-bright);
-      pointer-events: none;
-      opacity: 0;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      width: 100%;
     }
-    .delta-floater.show {
-      animation: float-up 1.6s ease-out forwards;
+    .score-number {
+      font-size: 68px; font-weight: 800;
+      color: var(--white);
+      line-height: 1;
+      letter-spacing: -0.04em;
     }
-    .delta-floater.large { font-size: 16px; }
-
-    /* Shimmer sweep across ROAS card on apply */
-    .roas-card .shimmer {
-      position: absolute;
-      top: 0; left: 0;
-      width: 50%;
-      height: 200%;
-      background: linear-gradient(90deg, transparent, rgba(52,211,153,0.35), transparent);
-      transform: translateX(-150%) rotate(20deg);
-      pointer-events: none;
+    .score-divider {
+      width: 40px; height: 1px;
+      background: rgba(255,255,255,0.2);
+      margin: 12px auto;
     }
-    .roas-card.shimmering .shimmer {
-      animation: shimmer-sweep 1.2s ease-out forwards;
-    }
-
-    /* Row 4: Confidence breakdown */
-    .conf-breakdown {
-      margin-top: 28px;
-      padding-top: 20px;
-      border-top: 1px solid rgba(255,255,255,0.08);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 24px;
-      flex-wrap: wrap;
-      animation: fadeUp 0.5s ease 2.0s both;
-    }
-    .cb-label {
-      font-size: 10px;
-      font-weight: 600;
-      color: #4B5563;
+    .score-label {
+      font-size: 11px; font-weight: 700;
+      color: var(--neutral-light);
       letter-spacing: 0.1em;
       text-transform: uppercase;
     }
-    .cb-factors {
-      display: flex;
-      gap: 24px;
-      flex: 1;
-      justify-content: center;
+
+    .hero-subinfo {
+      margin-top: 32px;
+      display: flex; gap: 32px;
+      justify-content: center; align-items: center;
       flex-wrap: wrap;
+      animation: fadeUp 0.5s ease 1.6s both;
     }
-    .cb-factor {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
+    .confidence-display { display: flex; align-items: center; gap: 10px; }
+    .conf-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--cyan-bright);
+      animation: pulseDot 2s ease-in-out infinite;
     }
-    .cb-factor-lbl {
-      font-size: 10px;
-      color: var(--neutral);
+    .conf-label { font-size: 12px; font-weight: 500; color: var(--neutral-light); }
+    .conf-value { font-size: 14px; font-weight: 700; color: var(--white); }
+    .conf-dots { display: flex; gap: 4px; margin-left: 4px; }
+    .conf-dots .d {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
     }
-    .cb-bar {
-      width: 100px;
-      height: 4px;
-      background: rgba(255,255,255,0.1);
-      border-radius: 2px;
-      overflow: hidden;
-    }
-    .cb-bar-fill {
-      height: 100%;
-      background: var(--emerald);
-      border-radius: 2px;
-    }
-    .cb-overall {
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--emerald-bright);
+    .conf-dots .d.filled { background: var(--cyan-bright); }
+    .subinfo-vsep { width: 1px; height: 20px; background: rgba(255,255,255,0.15); }
+    .strategist-take {
+      font-size: 14px; font-style: italic;
+      color: #CBD5E1;
+      transition: color 0.4s ease;
     }
 
-    /* ============ Body 2-column ============ */
-    .body-section {
+    /* ============ Body ============ */
+    .body {
       background: var(--page-bg);
-      padding: 48px 32px;
-      animation: fadeUp 0.6s ease 2.0s both;
+      padding: 56px 32px 48px;
     }
-    .body-inner {
+    .body-grid {
       max-width: 1200px;
       margin: 0 auto;
       display: grid;
-      grid-template-columns: 1fr 0.8fr;
-      gap: 28px;
-      align-items: start;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 36px;
+      animation: fadeUp 0.5s ease 1.8s both;
     }
+    .col-left, .col-right { display: flex; flex-direction: column; gap: 20px; }
 
-    .body-card {
+    .card {
       background: var(--white);
       border: 1px solid var(--border);
-      border-radius: 14px;
+      border-radius: 16px;
       padding: 28px;
     }
-    .body-card + .body-card { margin-top: 20px; }
-
-    .card-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 22px;
-    }
-    .card-title {
-      font-size: 18px;
-      font-weight: 700;
-      color: var(--midnight);
-    }
-    .card-sub {
-      font-size: 12px;
-      color: var(--neutral);
-    }
-    .card-sm-title {
-      font-size: 16px;
-      font-weight: 700;
-      color: var(--midnight);
-    }
-
-    /* Working / Holding back */
-    .analysis-sub {
-      margin-top: 8px;
-    }
-    .pill {
-      display: inline-block;
+    .label-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 11px; font-weight: 700;
+      letter-spacing: 0.08em;
       padding: 4px 10px;
-      border-radius: 6px;
-      font-size: 11px;
-      font-weight: 700;
+      border-radius: 12px;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
     }
-    .pill.green { background: var(--emerald-wash); color: var(--emerald-dark); }
-    .pill.amber { background: var(--warning-soft); color: #92400E; }
-
-    .item-list {
-      margin-top: 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-    .analysis-item {
-      display: grid;
-      grid-template-columns: 24px 1fr;
-      gap: 12px;
-      align-items: flex-start;
-    }
-    .ai-icon {
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 13px;
-      font-weight: 700;
-      flex-shrink: 0;
-    }
-    .ai-icon.green { background: var(--emerald-mint); color: var(--emerald); }
-    .ai-icon.amber { background: var(--warning-soft); color: #D97706; }
-    .ai-title {
-      font-size: 14px;
-      font-weight: 600;
+    .label-pill.green  { color: var(--success-dark); background: var(--success-soft); }
+    .label-pill.amber  { color: var(--warning-dark); background: var(--warning-soft); }
+    .label-pill.indigo { color: var(--indigo);       background: var(--indigo-wash); }
+    .label-pill.slate  { color: var(--neutral);      background: var(--border-soft); }
+    .card-title {
+      margin-top: 12px;
+      font-size: 16px; font-weight: 600;
       color: var(--midnight);
-      line-height: 1.4;
+      letter-spacing: -0.01em;
     }
-    .ai-sub {
-      font-size: 12px;
-      color: var(--neutral);
-      margin-top: 2px;
-      line-height: 1.5;
-    }
+    .card-sub { margin-top: 4px; font-size: 12px; color: var(--neutral); }
 
-    .analysis-split {
-      margin-top: 20px;
-      padding-top: 24px;
-      border-top: 1px dashed var(--border);
+    /* Insight rows */
+    .insight-list { margin-top: 20px; }
+    .insight-row {
+      display: flex; align-items: flex-start; gap: 14px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border-soft);
+      transition: opacity 0.3s ease;
     }
-
-    /* Recommendations card */
-    .selectall-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 12px;
-      color: var(--neutral);
-      font-weight: 600;
-      margin-bottom: 14px;
-    }
-
-    /* Custom checkbox */
-    .cb {
-      position: relative;
-      display: inline-block;
-      width: 18px;
-      height: 18px;
+    .insight-row:last-child { border-bottom: none; }
+    .insight-icon {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
+      transition: background 0.3s ease;
     }
-    .cb input {
-      position: absolute;
-      opacity: 0;
-      cursor: pointer;
-      width: 0; height: 0;
+    .insight-icon.green { background: var(--success-soft); }
+    .insight-icon.amber { background: var(--warning-soft); }
+    .insight-text { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+    .insight-title {
+      font-size: 14px; font-weight: 600;
+      color: var(--midnight);
+      transition: color 0.3s ease, text-decoration-color 0.3s ease;
     }
-    .cb .box {
-      position: absolute;
-      inset: 0;
-      width: 18px;
-      height: 18px;
-      background: var(--white);
-      border: 2px solid var(--border);
-      border-radius: 4px;
-      transition: all 0.2s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    .insight-sub {
+      font-size: 13px;
+      color: var(--neutral);
+      line-height: 1.55;
     }
-    .cb .box::after {
-      content: '';
-      width: 4px;
-      height: 8px;
-      border: solid var(--white);
-      border-width: 0 2px 2px 0;
-      transform: rotate(45deg) scale(0);
-      transition: transform 0.2s ease;
-      margin-bottom: 2px;
+    .insight-row.addressed { opacity: 0.55; }
+    .insight-row.addressed .insight-title {
+      text-decoration: line-through;
+      text-decoration-color: var(--neutral-light);
     }
-    .cb input:checked + .box {
-      background: var(--emerald);
-      border-color: var(--emerald);
-    }
-    .cb input:checked + .box::after {
-      transform: rotate(45deg) scale(1);
-    }
-    .cb input:focus-visible + .box {
-      outline: 2px solid var(--emerald-light);
-      outline-offset: 2px;
-    }
+    .insight-row.addressed .insight-icon.amber { background: var(--success-soft); }
+    .insight-row.addressed .icon-warn { display: none; }
+    .insight-row.addressed .icon-check-replacement { display: inline-block; }
+    .icon-check-replacement { display: none; }
 
-    .rec-list {
-      display: flex;
-      flex-direction: column;
+    /* Recommendation cards */
+    .rec-header {
+      display: flex; align-items: flex-start; justify-content: space-between;
       gap: 12px;
     }
+    .select-all {
+      font-size: 12px; font-weight: 600;
+      color: var(--indigo);
+      padding: 4px 0;
+      transition: color 0.2s ease;
+    }
+    .select-all:hover { text-decoration: underline; }
+    .rec-list { margin-top: 20px; display: flex; flex-direction: column; gap: 12px; }
     .rec-card {
       background: var(--page-bg);
-      border: 1px solid var(--border);
+      border: 1.5px solid var(--border);
       border-radius: 12px;
-      padding: 18px 20px;
+      padding: 16px 18px;
       display: grid;
       grid-template-columns: auto 1fr auto;
-      gap: 16px;
       align-items: flex-start;
-      transition: all 0.2s var(--easing);
+      gap: 14px;
+      transition: all 0.2s ease;
+      cursor: pointer;
     }
-    .rec-card:has(input:checked) {
-      border-color: var(--emerald);
-      background: var(--emerald-wash);
+    .rec-card:hover { border-color: var(--indigo-light); background: var(--white); }
+    .rec-card.selected {
+      border-color: var(--indigo);
+      background: var(--indigo-wash);
     }
+    .rec-checkbox {
+      width: 20px; height: 20px;
+      border: 2px solid #CBD5E1;
+      border-radius: 5px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.2s ease;
+      background: var(--white);
+    }
+    .rec-card.selected .rec-checkbox {
+      background: var(--indigo);
+      border-color: var(--indigo);
+    }
+    .rec-checkbox svg {
+      width: 12px; height: 12px;
+      stroke: var(--white);
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none;
+      stroke-dasharray: 16;
+      stroke-dashoffset: 16;
+      transition: stroke-dashoffset 0.35s ease;
+    }
+    .rec-card.selected .rec-checkbox svg { stroke-dashoffset: 0; }
     .rec-rank {
-      font-size: 10px;
-      font-weight: 700;
-      color: var(--light-neutral);
+      font-size: 10px; font-weight: 700;
+      color: var(--neutral-light);
       letter-spacing: 0.1em;
       text-transform: uppercase;
     }
     .rec-title {
-      font-size: 14px;
-      font-weight: 700;
-      color: var(--midnight);
       margin-top: 4px;
-      line-height: 1.4;
-    }
-    .rec-desc {
-      font-size: 13px;
-      color: var(--neutral);
-      line-height: 1.5;
-      margin-top: 4px;
-    }
-    .rec-impacts {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-top: 10px;
-    }
-    .impact-pill {
-      background: var(--emerald-mint);
-      color: var(--emerald);
-      font-size: 11px;
-      font-weight: 700;
-      padding: 3px 8px;
-      border-radius: 12px;
-    }
-    .rec-arrow {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      color: var(--emerald);
-      font-size: 12px;
-      font-weight: 700;
-      gap: 2px;
-    }
-    .rec-arrow svg { width: 20px; height: 20px; }
-
-    .apply-btn {
-      margin-top: 22px;
-      width: 100%;
-      padding: 16px;
-      border-radius: 12px;
-      font-size: 15px;
-      font-weight: 700;
-      background: linear-gradient(135deg, var(--emerald) 0%, var(--emerald-dark) 100%);
-      color: var(--white);
-      box-shadow: 0 6px 20px -6px rgba(5,150,105,0.5);
-      transition: all 0.25s var(--easing);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
-    .apply-btn:hover:not(:disabled) {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 28px -6px rgba(5,150,105,0.65);
-    }
-    .apply-btn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-      transform: none;
-    }
-    .apply-btn.loading {
-      pointer-events: none;
-      transform: scale(0.97);
-    }
-    .apply-btn.loading::after {
-      content: '';
-      width: 18px;
-      height: 18px;
-      border: 2.5px solid rgba(255,255,255,0.3);
-      border-top-color: var(--white);
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      margin-left: 6px;
-    }
-    .apply-btn.applied {
-      background: var(--slate);
-      color: var(--emerald-bright);
-      box-shadow: none;
-      pointer-events: none;
-    }
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    /* Right column: Radar */
-    .radar-wrap {
-      width: 100%;
-      max-width: 320px;
-      margin: 0 auto;
-      aspect-ratio: 1 / 1;
-      position: relative;
-    }
-    .radar-score {
-      text-align: center;
-      margin-top: 18px;
-    }
-    .radar-score-big {
-      font-size: 36px;
-      font-weight: 800;
-      color: var(--emerald);
-      letter-spacing: -0.01em;
-      line-height: 1;
-    }
-    .radar-score-label {
-      font-size: 12px;
-      color: var(--neutral);
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      margin-top: 4px;
-    }
-    .radar-verdict {
-      margin: 12px auto 0;
-      display: inline-block;
-      background: var(--emerald-mint);
-      color: var(--emerald-dark);
-      font-size: 13px;
-      font-weight: 600;
-      padding: 6px 14px;
-      border-radius: 20px;
-    }
-
-    /* Channel table */
-    .ch-table-wrap {
-      width: 100%;
-      overflow-x: auto;
-    }
-    .ch-table {
-      width: 100%;
-      border-collapse: separate;
-      border-spacing: 0 6px;
-    }
-    .ch-table thead th {
-      background: var(--page-bg);
-      font-size: 11px;
-      font-weight: 700;
-      color: var(--light-neutral);
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      padding: 10px 12px;
-      text-align: left;
-    }
-    .ch-table thead th.r { text-align: right; }
-    .ch-table tbody tr {
-      background: var(--white);
-      transition: background 0.15s ease;
-    }
-    .ch-table tbody tr.highlight { background: var(--emerald-wash); }
-    .ch-table tbody tr:hover { background: #FAFCFB; }
-    .ch-table tbody td {
-      padding: 12px;
-      font-size: 13px;
-      color: var(--midnight);
-      border-top: 1px solid #F1F5F9;
-      border-bottom: 1px solid #F1F5F9;
-    }
-    .ch-table tbody td:first-child { border-left: 1px solid #F1F5F9; border-top-left-radius: 8px; border-bottom-left-radius: 8px; }
-    .ch-table tbody td:last-child  { border-right: 1px solid #F1F5F9; border-top-right-radius: 8px; border-bottom-right-radius: 8px; text-align: right; }
-    .ch-table tbody td.r { text-align: right; }
-    .ch-square {
-      display: inline-block;
-      width: 12px; height: 12px;
-      border-radius: 3px;
-      margin-right: 8px;
-      vertical-align: middle;
-    }
-    .ch-name { font-weight: 600; }
-    .ch-budget { color: var(--neutral); }
-    .ch-reach  { font-weight: 600; }
-    .ch-roas   { font-weight: 700; color: var(--emerald); }
-    .ch-orders { font-weight: 600; }
-    .best-badge {
-      background: var(--warning-soft);
-      color: #92400E;
-      font-size: 9px;
-      font-weight: 700;
-      padding: 2px 6px;
-      border-radius: 8px;
-      margin-left: 6px;
-      vertical-align: middle;
-    }
-    .ch-total-row {
-      background: var(--emerald-wash) !important;
-    }
-    .ch-total-row td {
-      color: var(--emerald-dark) !important;
-      font-weight: 700;
-    }
-
-    /* Market signals */
-    .signal-row {
-      display: grid;
-      grid-template-columns: 36px 1fr auto;
-      gap: 12px;
-      align-items: center;
-      padding: 12px 0;
-      border-bottom: 1px solid #F1F5F9;
-    }
-    .signal-row:last-child { border-bottom: none; padding-bottom: 0; }
-    .signal-row:first-child { padding-top: 0; }
-    .signal-icon {
-      width: 36px; height: 36px;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-    }
-    .signal-icon.amber { background: var(--warning-soft); }
-    .signal-icon.red   { background: var(--danger-soft); }
-    .signal-icon.blue  { background: #EFF6FF; }
-    .signal-title {
-      font-size: 13px;
-      font-weight: 600;
+      font-size: 14px; font-weight: 600;
       color: var(--midnight);
     }
-    .signal-sub {
-      font-size: 12px;
+    .rec-sub {
+      margin-top: 6px;
+      font-size: 13px;
       color: var(--neutral);
-      margin-top: 2px;
+      line-height: 1.55;
     }
-    .impact-badge {
-      font-size: 10px;
-      font-weight: 700;
+    .rec-impact {
+      display: inline-flex; align-items: center; gap: 4px;
+      background: var(--cyan-wash);
+      border: 1px solid var(--cyan-light);
+      color: var(--cyan-deep);
       padding: 4px 10px;
       border-radius: 12px;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
+      font-size: 11px; font-weight: 700;
       white-space: nowrap;
     }
-    .impact-badge.high     { background: var(--emerald-mint); color: var(--emerald); }
-    .impact-badge.med-risk { background: var(--warning-soft); color: #92400E; }
-    .impact-badge.positive { background: var(--emerald-mint); color: var(--emerald); }
 
-    /* ============ Before / After section ============ */
-    .ba-section {
-      background: var(--white);
-      border-top: 2px solid var(--emerald-wash);
-      padding: 48px 32px;
-      overflow: hidden;
-      max-height: 0;
-      opacity: 0;
-      transition: max-height 0.6s var(--easing), opacity 0.4s ease, padding 0.6s var(--easing);
+    /* Apply button */
+    .apply-btn {
+      width: 100%;
+      margin-top: 24px;
+      padding: 16px;
+      border-radius: 12px;
+      font-size: 15px; font-weight: 700;
+      background: var(--border-soft);
+      color: var(--neutral-light);
+      cursor: not-allowed;
+      display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+      transition: all 0.3s ease;
     }
-    .ba-section.show {
-      max-height: 1400px;
-      opacity: 1;
-    }
-    .ba-inner {
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-    .ba-header {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 16px;
-      margin-bottom: 36px;
-      flex-wrap: wrap;
-    }
-    .ba-pill {
-      font-size: 11px;
-      font-weight: 700;
-      padding: 5px 14px;
-      border-radius: 20px;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-    }
-    .ba-pill.before { background: #F1F5F9; color: var(--neutral); }
-    .ba-pill.after  { background: var(--emerald-mint); color: var(--emerald-dark); }
-    .ba-arrows {
-      font-size: 22px;
-      color: var(--emerald);
-      letter-spacing: -4px;
-    }
-
-    .ba-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 24px;
-    }
-    .ba-card {
-      border-radius: 16px;
-      padding: 28px;
-      position: relative;
-    }
-    .ba-card.before {
-      background: var(--white);
-      border: 1.5px solid var(--border);
-    }
-    .ba-card.after {
-      background: linear-gradient(135deg, var(--emerald-wash) 0%, var(--white) 60%);
-      border: 2px solid var(--emerald);
-    }
-    .ba-card-label {
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-    }
-    .ba-card.before .ba-card-label { color: var(--light-neutral); }
-    .ba-card.after .ba-card-label  { color: var(--emerald-dark); }
-    .ba-card-title {
-      font-size: 16px;
-      font-weight: 600;
-      margin-top: 4px;
-    }
-    .ba-card.before .ba-card-title { color: var(--neutral); }
-    .ba-card.after .ba-card-title  { color: var(--midnight); font-weight: 700; }
-    .improved-badge {
-      position: absolute;
-      top: 0;
-      right: 0;
-      background: var(--emerald);
+    .apply-btn.enabled {
+      background: linear-gradient(135deg, var(--indigo) 0%, var(--indigo-dark) 100%);
       color: var(--white);
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: 0.05em;
-      padding: 4px 10px;
-      border-radius: 0 14px 0 10px;
+      cursor: pointer;
+      box-shadow: 0 8px 24px -6px rgba(67,56,202,0.5);
     }
-    .ba-metrics {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
-      margin-top: 18px;
-    }
-    .ba-metric { }
-    .ba-metric-lbl {
-      font-size: 10px;
-      color: var(--light-neutral);
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      font-weight: 700;
-    }
-    .ba-metric-val {
-      font-size: 22px;
-      font-weight: 700;
-      margin-top: 4px;
-    }
-    .ba-card.before .ba-metric-val { color: var(--light-neutral); }
-    .ba-card.after .ba-metric-val  { color: var(--emerald); font-weight: 800; }
-    .ba-metric.roas .ba-metric-val { font-size: 28px; }
-    .ba-metric-delta {
-      font-size: 11px;
-      font-weight: 700;
-      color: var(--emerald-bright);
-      margin-top: 2px;
-    }
-    .ba-metric-delta.up { color: var(--emerald); }
-    .ba-metric-delta.down { color: var(--emerald); }
-
-    .ba-flags {
-      margin-top: 18px;
-      padding-top: 16px;
-      border-top: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    .ba-card.after .ba-flags { border-top-color: rgba(5,150,105,0.2); }
-    .ba-flag {
-      font-size: 13px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .ba-card.before .ba-flag {
-      color: var(--light-neutral);
-      text-decoration: line-through;
-      text-decoration-color: rgba(148,163,184,0.6);
-    }
-    .ba-flag .dot {
-      width: 7px; height: 7px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-    .ba-card.before .ba-flag .dot { background: var(--danger); }
-    .ba-card.after  .ba-flag .dot { background: var(--emerald); }
-    .ba-card.after .ba-flag .check {
-      width: 18px; height: 18px;
-      border-radius: 50%;
-      background: var(--emerald);
-      color: var(--white);
-      font-size: 10px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      flex-shrink: 0;
-    }
-    .ba-card.after .ba-flag {
-      color: var(--midnight);
-    }
-
-    /* ROAS flip visual */
-    .roas-flip-display {
-      margin-top: 36px;
-      display: flex;
-      align-items: center;
-      gap: 20px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-    .roas-flip-display .before-number {
-      font-size: 40px;
-      font-weight: 800;
-      color: var(--light-neutral);
-      letter-spacing: -0.02em;
-    }
-    .roas-flip-display .before-number span,
-    .roas-flip-display .after-number span {
-      font-size: 0.6em;
-      margin-left: 2px;
-    }
-    .roas-flip-display .after-number {
-      font-size: 56px;
-      font-weight: 800;
-      color: var(--emerald);
-      letter-spacing: -0.02em;
-    }
-    .roas-arrow {
-      width: 140px;
-      height: 40px;
-    }
-    .flip-foot {
-      margin-top: 12px;
-      font-size: 15px;
-      font-weight: 600;
-      color: var(--emerald-dark);
-      text-align: center;
-    }
-
-    /* Confetti */
-    .confetti-piece {
-      position: absolute;
-      border-radius: 50%;
-      pointer-events: none;
-    }
-
-    /* ============ Bottom action bar ============ */
-    .action-bar {
-      position: fixed;
-      bottom: 0; left: 0; right: 0;
-      background: var(--white);
-      border-top: 1px solid var(--border);
-      padding: 16px 32px;
-      z-index: 60;
-      transition: box-shadow 0.3s ease;
-    }
-    .action-bar.shadow {
-      box-shadow: 0 -4px 20px -4px rgba(0,0,0,0.08);
-    }
-    .action-bar-inner {
-      max-width: 1200px;
-      margin: 0 auto;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 16px;
-      flex-wrap: wrap;
-    }
-    .camp-chip {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .camp-icon {
-      width: 32px; height: 32px;
-      border-radius: 50%;
-      background: var(--emerald-wash);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .camp-icon .dot {
-      width: 10px; height: 10px;
-      border-radius: 50%;
-      background: var(--emerald);
-    }
-    .camp-info-name {
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--midnight);
-    }
-    .camp-info-sub {
-      font-size: 13px;
-      color: var(--neutral);
-    }
-    .ab-hint {
-      font-size: 13px;
-      color: var(--light-neutral);
-      text-align: center;
-      flex: 1;
-      min-width: 200px;
-    }
-    .ab-actions { display: flex; gap: 12px; flex-wrap: wrap; }
-    .ab-btn-outline {
-      border: 1px solid var(--border);
-      color: var(--neutral);
-      background: var(--white);
-      padding: 12px 20px;
-      border-radius: 10px;
-      font-size: 13px;
-      font-weight: 600;
-      transition: all 0.2s ease;
-    }
-    .ab-btn-outline:hover {
-      border-color: var(--emerald);
-      color: var(--emerald);
-    }
-    .ab-btn-primary {
-      background: linear-gradient(135deg, var(--emerald), var(--emerald-dark));
-      color: var(--white);
-      padding: 12px 28px;
-      border-radius: 10px;
-      font-size: 14px;
-      font-weight: 700;
-      box-shadow: 0 6px 16px -4px rgba(5,150,105,0.5);
-      transition: all 0.25s var(--easing);
-    }
-    .ab-btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 24px -4px rgba(5,150,105,0.6);
-    }
-    .ab-btn-primary.pulse-once {
-      animation: pulse-button 0.5s ease;
-    }
-    @keyframes pulse-button {
-      0%, 100% { transform: scale(1); }
-      50%      { transform: scale(1.05); }
-    }
-
-    /* Toast */
-    .toast {
-      position: fixed;
-      bottom: 100px;
-      right: 24px;
+    .apply-btn.enabled:hover { transform: translateY(-2px); box-shadow: 0 14px 32px -6px rgba(67,56,202,0.6); }
+    .apply-btn.loading {
       background: var(--slate);
       color: var(--white);
-      padding: 12px 20px;
-      border-radius: 10px;
-      font-size: 13px;
-      box-shadow: 0 8px 24px -4px rgba(0,0,0,0.3);
-      display: none;
-      z-index: 70;
+      cursor: progress;
+    }
+    .apply-btn.success {
+      background: var(--success);
+      color: var(--white);
+      cursor: default;
+      box-shadow: 0 6px 20px -6px rgba(16,185,129,0.5);
+    }
+    .spinner {
+      width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,0.25);
+      border-top-color: var(--white);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Quality bars + factor bars */
+    .bar-list { margin-top: 24px; display: flex; flex-direction: column; gap: 16px; }
+    .bar-row { display: flex; flex-direction: column; gap: 6px; }
+    .bar-top { display: flex; justify-content: space-between; align-items: baseline; }
+    .bar-name { font-size: 13px; font-weight: 600; color: var(--midnight); }
+    .bar-score {
+      font-size: 13px; font-weight: 700;
+      color: var(--indigo);
+      transition: color 0.4s ease;
+    }
+    .bar-track {
+      width: 100%;
+      height: 6px;
+      background: var(--border-soft);
+      border-radius: 3px;
       overflow: hidden;
     }
-    .toast.show { display: block; animation: fadeUp 0.3s ease; }
-    .toast-bar {
-      position: absolute;
-      bottom: 0; left: 0;
-      height: 2px;
-      width: 100%;
-      background: var(--emerald-bright);
-      transform-origin: left;
-      animation: toast-bar 2s linear forwards;
+    .bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--indigo) 0%, var(--cyan) 100%);
+      border-radius: 3px;
+      transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    @keyframes toast-bar {
-      from { transform: scaleX(0); }
-      to   { transform: scaleX(1); }
+    .bar-row.bumped .bar-score { color: var(--cyan-deep); }
+
+    .scoring-caption {
+      margin-top: 16px;
+      font-size: 12px; font-style: italic;
+      color: var(--neutral);
+      line-height: 1.55;
     }
 
+    /* ============ Before / After ============ */
+    .ba-section {
+      background: linear-gradient(135deg, var(--page-bg) 0%, var(--indigo-wash) 100%);
+      border-top: 1px solid var(--indigo-mist);
+      padding: 64px 32px;
+      display: none;
+      opacity: 0;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.6s ease, opacity 0.4s ease;
+      position: relative;
+    }
+    .ba-section.revealed {
+      opacity: 1;
+      max-height: 760px;
+    }
+    .ba-inner {
+      max-width: 720px;
+      margin: 0 auto;
+      text-align: center;
+      position: relative;
+    }
+    .ba-header {
+      display: inline-flex; align-items: center; gap: 14px;
+      margin-bottom: 28px;
+    }
+    .ba-pill {
+      font-size: 11px; font-weight: 700;
+      padding: 5px 14px;
+      border-radius: 16px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .ba-before { background: var(--border-soft); color: var(--neutral); }
+    .ba-after  { background: var(--indigo);      color: var(--white); }
+    .score-jump {
+      display: flex; align-items: center; justify-content: center;
+      gap: 16px;
+      margin-top: 8px;
+      position: relative;
+    }
+    .jump-num {
+      font-size: 64px; font-weight: 800;
+      line-height: 1;
+      letter-spacing: -0.03em;
+    }
+    .jump-before { color: var(--neutral-light); }
+    .jump-after  { color: var(--indigo); font-size: 84px; }
+    .jump-arrow svg { display: block; }
+    .ba-delta {
+      margin-top: 20px;
+      font-size: 15px; font-weight: 600;
+      color: var(--success-dark);
+    }
+    .ba-applied {
+      margin-top: 36px;
+      display: flex; justify-content: center; gap: 16px;
+      flex-wrap: wrap;
+    }
+    .applied-label {
+      font-size: 11px; font-weight: 700;
+      color: var(--neutral-light);
+      letter-spacing: 0.1em;
+    }
+    .applied-item {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 12px; font-weight: 600;
+      color: var(--success-dark);
+    }
+    .ba-cta {
+      margin-top: 28px;
+      display: inline-flex; align-items: center; gap: 8px;
+      background: linear-gradient(135deg, var(--indigo) 0%, var(--indigo-dark) 100%);
+      color: var(--white);
+      padding: 16px 36px;
+      border-radius: 12px;
+      font-size: 16px; font-weight: 700;
+      letter-spacing: -0.01em;
+      box-shadow: 0 8px 28px -6px rgba(67,56,202,0.5);
+      transition: all 0.25s ease;
+    }
+    .ba-cta:hover { transform: translateY(-2px); box-shadow: 0 14px 36px -6px rgba(67,56,202,0.6); }
+
+    #confetti-container {
+      position: absolute;
+      top: 28%; left: 50%;
+      pointer-events: none;
+    }
+    .confetti-dot {
+      position: absolute;
+      top: 0; left: 0;
+      border-radius: 50%;
+      animation: confettiBurst 1.5s ease-out forwards;
+      pointer-events: none;
+    }
+    @keyframes confettiBurst {
+      0%   { transform: translate(-50%, -50%) scale(0); opacity: 1; }
+      20%  { transform: translate(calc(-50% + var(--dx)*0.4), calc(-50% + var(--dy)*0.4)) scale(1); opacity: 1; }
+      100% { transform: translate(calc(-50% + var(--dx)),     calc(-50% + var(--dy)))     scale(0.4); opacity: 0; }
+    }
+
+    /* ============ Bottom Bar ============ */
+    .bottom-bar {
+      position: sticky; bottom: 0;
+      height: 72px;
+      background: var(--white);
+      border-top: 1px solid var(--border);
+      padding: 0 32px;
+      display: flex; align-items: center;
+      z-index: 50;
+      flex-shrink: 0;
+    }
+    .bb-inner {
+      max-width: 1200px; width: 100%;
+      margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .bb-left { display: flex; align-items: center; gap: 12px; }
+    .bb-chip-icon {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: var(--indigo-wash);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .bb-chip-icon .dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: var(--indigo);
+    }
+    .bb-camp-name { font-size: 14px; font-weight: 600; color: var(--midnight); }
+    .bb-vsep { width: 1px; height: 16px; background: var(--border); }
+    .bb-meta { font-size: 13px; color: var(--neutral); }
+    .bb-right { display: flex; gap: 12px; }
+    .bb-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 13px; font-weight: 600;
+      transition: all 0.2s ease;
+    }
+    .bb-btn.outline {
+      border: 1px solid var(--border);
+      color: var(--neutral);
+    }
+    .bb-btn.outline:hover { border-color: var(--indigo); color: var(--indigo); }
+    .bb-btn.primary {
+      padding: 12px 24px;
+      background: linear-gradient(135deg, var(--indigo) 0%, var(--indigo-dark) 100%);
+      color: var(--white);
+      font-weight: 700;
+      box-shadow: 0 6px 16px -4px rgba(67,56,202,0.4);
+    }
+    .bb-btn.primary:hover { transform: translateY(-1px); box-shadow: 0 10px 22px -4px rgba(67,56,202,0.55); }
+
     /* ============ Responsive ============ */
-    @media (max-width: 1100px) {
-      .body-inner { grid-template-columns: 1fr; }
-      .metric-cards { grid-template-columns: repeat(2, 1fr); }
+    @media (max-width: 1000px) {
+      .body-grid { grid-template-columns: 1fr; }
     }
     @media (max-width: 768px) {
-      .hero { padding: 32px 16px 40px; }
-      .body-section { padding: 32px 16px; }
-      .ba-section.show { padding: 32px 16px; }
-      .metric-cards { grid-template-columns: 1fr; }
-      .ba-grid { grid-template-columns: 1fr; }
       .hero-title { font-size: 28px; }
-      .top-actions .btn-outline span { display: none; }
-      .ab-hint { display: none; }
-      .camp-info-sub { display: none; }
-      .action-bar { padding: 12px 16px; }
+      .score-wheel-wrap { width: 180px; height: 180px; }
+      .score-number { font-size: 56px; }
+      .jump-num { font-size: 48px; }
+      .jump-after { font-size: 64px; }
+      .bb-inner { flex-direction: column; height: 100%; justify-content: center; gap: 6px; padding: 10px 0; }
+      .bb-meta { font-size: 11px; }
+      .tb-btn.text { display: none; }
     }
   </style>
 </head>
 <body>
 
-  <!-- Curtain reveal -->
-  <div class="reveal-overlay"></div>
+  <div class="reveal-curtain" aria-hidden="true"></div>
 
   <!-- ============ Top Bar ============ -->
-  <header class="top-bar" id="topBar">
-    <div class="top-left">
+  <header class="top-bar">
+    <div class="tb-left">
       <a href="dashboard.html" class="logo">
         <div class="logo-icon">+</div>
         <div class="logo-text">BrandAid</div>
       </a>
       <span class="crumb-sep">›</span>
-      <span class="crumb-name" onclick="alert('Return to campaign brief? Your simulation will be saved.');">Eid Collection 2026</span>
+      <span class="crumb-name">Eid Collection 2026</span>
     </div>
-    <div class="top-actions">
-      <button class="btn-outline" onclick="window.location.href='new-campaign.html'">
-        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-          <path d="M3 8 A5 5 0 1 1 5 13 L3 11 M3 13 L3 11 L5 11"/>
+    <div class="tb-right">
+      <a href="new-campaign.html" class="tb-btn text" aria-label="Edit brief">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+          <path d="M11 2 L14 5 L5 14 L2 14 L2 11 Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
         </svg>
-        Rerun with edits
-      </button>
-      <button class="btn-outline" onclick="showExportToast()">
-        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M8 2 L8 11 M5 8 L8 11 L11 8 M2 13 L14 13"/>
+        Edit brief
+      </a>
+      <button class="tb-btn outline" onclick="showToast('Share link copied to clipboard.')">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+          <path d="M11 11 L14 8 L11 5 M14 8 L6 8 Q3 8 3 11 L3 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
         </svg>
-        Export report
+        Share
       </button>
-      <button class="btn-solid" onclick="getLaunchPlan()">
+      <button class="tb-btn primary" onclick="goToLaunchPlan()">
         Get Launch Plan
-        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M3 8 L13 8 M9 4 L13 8 L9 12"/>
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+          <path d="M3 8 L13 8 M9 4 L13 8 L9 12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
         </svg>
       </button>
     </div>
@@ -1259,912 +702,646 @@
 
   <!-- ============ Hero ============ -->
   <section class="hero">
+    <div class="hero-blob-indigo" aria-hidden="true"></div>
+    <div class="hero-blob-cyan" aria-hidden="true"></div>
+    <div class="hero-dots" aria-hidden="true"></div>
+
     <div class="hero-inner">
-
-      <!-- Row 1: Status -->
       <div class="hero-status">
+        <span class="status-badge">
+          <span class="pulse-dot"></span>
+          Simulation Complete
+        </span>
+        <span class="hero-vsep"></span>
         <span class="sim-id">SIM-2026-0314-A8</span>
-        <span class="status-sep"></span>
-        <span class="status-badge"><span class="live-dot"></span> Simulation Complete</span>
-        <div class="conf-block">
+      </div>
+
+      <h1 class="hero-title">Eid Collection 2026</h1>
+
+      <div class="score-wheel-wrap">
+        <svg class="score-wheel" width="220" height="220" viewBox="0 0 220 220">
+          <defs>
+            <linearGradient id="scoreGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%"   stop-color="#6366F1"/>
+              <stop offset="50%"  stop-color="#4338CA"/>
+              <stop offset="100%" stop-color="#06B6D4"/>
+            </linearGradient>
+            <filter id="ringGlow" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="4"/>
+            </filter>
+          </defs>
+          <circle cx="110" cy="110" r="92" fill="none"
+            stroke="rgba(255,255,255,0.08)" stroke-width="10"/>
+          <circle id="progressRing" cx="110" cy="110" r="92" fill="none"
+            stroke="url(#scoreGrad)" stroke-width="10"
+            stroke-linecap="round"
+            stroke-dasharray="578"
+            stroke-dashoffset="578"
+            transform="rotate(-90 110 110)"
+            filter="url(#ringGlow)"/>
+          <circle cx="110" cy="110" r="78" fill="none"
+            stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+        </svg>
+        <div class="score-center">
+          <div class="score-number">0.0</div>
+          <div class="score-divider"></div>
+          <div class="score-label">Performance Score</div>
+        </div>
+      </div>
+
+      <div class="hero-subinfo">
+        <div class="confidence-display">
+          <span class="conf-dot"></span>
           <span class="conf-label">Confidence</span>
-          <span class="conf-val">Medium-High</span>
-          <span class="conf-dots">
-            <span class="conf-dot"></span>
-            <span class="conf-dot"></span>
-            <span class="conf-dot"></span>
-            <span class="conf-dot"></span>
-            <span class="conf-dot empty"></span>
-          </span>
-        </div>
-      </div>
-
-      <!-- Row 2: Title + tags -->
-      <div class="hero-title-row">
-        <h1 class="hero-title">Eid Collection 2026</h1>
-        <div class="hero-tags">
-          <span class="hero-tag">Conversion</span>
-          <span class="hero-tag">Direct Purchase</span>
-          <span class="hero-tag">Facebook · Instagram · WhatsApp</span>
-          <span class="hero-tag">৳200,000 budget</span>
-          <span class="hero-tag">Mar 15 – 28, 2026</span>
-        </div>
-      </div>
-
-      <!-- Row 3: Metric cards -->
-      <div class="metric-cards">
-        <!-- Reach -->
-        <div class="metric-card" id="card-reach">
-          <div class="delta-floater" id="delta-reach">+15%</div>
-          <div class="metric-top">
-            <span class="metric-label">Est. Reach</span>
-            <div class="spark-wrap"><canvas id="spark-reach"></canvas></div>
-          </div>
-          <div class="metric-value" data-target="215000" data-format="int" id="val-reach">0</div>
-          <div class="metric-bottom">
-            <span class="metric-range" id="range-reach">215K – 280K range</span>
-            <span class="trend-badge" id="badge-reach">↑ +18% vs industry avg</span>
+          <span class="conf-value">Medium-High</span>
+          <div class="conf-dots">
+            <span class="d filled"></span>
+            <span class="d filled"></span>
+            <span class="d filled"></span>
+            <span class="d filled"></span>
+            <span class="d"></span>
           </div>
         </div>
-
-        <!-- ROAS -->
-        <div class="metric-card roas-card" id="card-roas">
-          <div class="shimmer"></div>
-          <div class="delta-floater large" id="delta-roas">+1.2×</div>
-          <div class="metric-top">
-            <span class="metric-label">Predicted ROAS</span>
-            <div class="spark-wrap"><canvas id="spark-roas"></canvas></div>
-          </div>
-          <div class="metric-value em" data-target="3.6" data-format="x" id="val-roas">0×</div>
-          <div class="metric-bottom">
-            <span class="metric-range" id="range-roas">2.4× – 3.6× confidence range</span>
-            <span class="trend-badge" id="badge-roas">↑ Above your last campaign</span>
-          </div>
-        </div>
-
-        <!-- Orders -->
-        <div class="metric-card" id="card-orders">
-          <div class="delta-floater" id="delta-orders">+46%</div>
-          <div class="metric-top">
-            <span class="metric-label">Predicted Orders</span>
-            <div class="spark-wrap"><canvas id="spark-orders"></canvas></div>
-          </div>
-          <div class="metric-value" data-target="188" data-format="int" id="val-orders">0</div>
-          <div class="metric-bottom">
-            <span class="metric-range" id="range-orders">145 – 210 orders</span>
-            <span class="trend-badge" id="badge-orders">Avg order ৳1,850</span>
-          </div>
-        </div>
-
-        <!-- CPA -->
-        <div class="metric-card" id="card-cpa">
-          <div class="delta-floater" id="delta-cpa">-30%</div>
-          <div class="metric-top">
-            <span class="metric-label">Cost per Order</span>
-            <div class="spark-wrap"><canvas id="spark-cpa"></canvas></div>
-          </div>
-          <div class="metric-value" data-target="720" data-format="bdt" id="val-cpa">৳0</div>
-          <div class="metric-bottom">
-            <span class="metric-range" id="range-cpa">৳620 – ৳850 range</span>
-            <span class="trend-badge" id="badge-cpa">↓ Below category avg</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Row 4: Confidence breakdown -->
-      <div class="conf-breakdown">
-        <span class="cb-label">AI Confidence Breakdown</span>
-        <div class="cb-factors">
-          <div class="cb-factor">
-            <span class="cb-factor-lbl">Business data</span>
-            <div class="cb-bar"><div class="cb-bar-fill" style="width: 92%;"></div></div>
-          </div>
-          <div class="cb-factor">
-            <span class="cb-factor-lbl">Historical campaigns</span>
-            <div class="cb-bar"><div class="cb-bar-fill" style="width: 85%;"></div></div>
-          </div>
-          <div class="cb-factor">
-            <span class="cb-factor-lbl">Market benchmarks</span>
-            <div class="cb-bar"><div class="cb-bar-fill" style="width: 78%;"></div></div>
-          </div>
-        </div>
-        <span class="cb-overall">82% Overall Confidence</span>
+        <span class="subinfo-vsep"></span>
+        <span class="strategist-take">Your campaign is set up well — and has room to grow.</span>
       </div>
     </div>
   </section>
 
-  <!-- ============ Body 2-col ============ -->
-  <section class="body-section">
-    <div class="body-inner">
+  <!-- ============ Body ============ -->
+  <section class="body">
+    <div class="body-grid">
 
-      <!-- LEFT COLUMN -->
-      <div class="body-left">
+      <!-- ===== LEFT COLUMN ===== -->
+      <div class="col-left">
 
-        <!-- Working / Holding back -->
-        <div class="body-card">
-          <div class="card-head">
-            <span class="card-title">Campaign Analysis</span>
-            <span class="card-sub">10 criteria evaluated</span>
-          </div>
+        <!-- Block A: What's Working -->
+        <div class="card">
+          <span class="label-pill green">
+            <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
+              <path d="M2 6 L5 9 L10 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            What's working
+          </span>
+          <div class="card-title">Four signals are strong.</div>
 
-          <div class="analysis-sub">
-            <span class="pill green">✓ What's Working</span>
-          </div>
-          <div class="item-list">
-            <div class="analysis-item">
-              <div class="ai-icon green">✓</div>
-              <div>
-                <div class="ai-title">Audience-channel fit: 9/10</div>
-                <div class="ai-sub">Your target audience is highly active on Meta during Eid week.</div>
+          <div class="insight-list">
+            <div class="insight-row">
+              <div class="insight-icon green">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                  <path d="M2 6 L5 9 L10 3" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <div class="insight-text">
+                <div class="insight-title">Audience–channel fit is sharp</div>
+                <div class="insight-sub">Your selected channels reach exactly the audience profile we have for your brand.</div>
               </div>
             </div>
-            <div class="analysis-item">
-              <div class="ai-icon green">✓</div>
-              <div>
-                <div class="ai-title">Seasonal timing is perfect</div>
-                <div class="ai-sub">Eid week lifts purchase intent 35% in this category historically.</div>
+            <div class="insight-row">
+              <div class="insight-icon green">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                  <path d="M2 6 L5 9 L10 3" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <div class="insight-text">
+                <div class="insight-title">Seasonal timing is working in your favour</div>
+                <div class="insight-sub">Eid week typically lifts category attention by 35% — you're entering at the peak.</div>
               </div>
             </div>
-            <div class="analysis-item">
-              <div class="ai-icon green">✓</div>
-              <div>
-                <div class="ai-title">Creative quality: 8.4/10</div>
-                <div class="ai-sub">Strong hook, clear product visibility, CTA specific enough.</div>
+            <div class="insight-row">
+              <div class="insight-icon green">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                  <path d="M2 6 L5 9 L10 3" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <div class="insight-text">
+                <div class="insight-title">Creative scores high for hook and clarity</div>
+                <div class="insight-sub">The first 3 seconds are strong, the message is single-minded, the CTA is specific.</div>
               </div>
             </div>
-            <div class="analysis-item">
-              <div class="ai-icon green">✓</div>
-              <div>
-                <div class="ai-title">WhatsApp outperforms expectations</div>
-                <div class="ai-sub">Predicted 4.2× ROAS — your strongest conversion channel.</div>
+            <div class="insight-row">
+              <div class="insight-icon green">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                  <path d="M2 6 L5 9 L10 3" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
               </div>
-            </div>
-            <div class="analysis-item">
-              <div class="ai-icon green">✓</div>
-              <div>
-                <div class="ai-title">Budget adequate for all 3 channels</div>
-                <div class="ai-sub">Each channel will exit learning phase. No floor warnings.</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="analysis-split">
-            <span class="pill amber">⚠ Watch out for</span>
-          </div>
-          <div class="item-list">
-            <div class="analysis-item">
-              <div class="ai-icon amber">⚠</div>
-              <div>
-                <div class="ai-title">Competitive pressure is high</div>
-                <div class="ai-sub">Eid CPMs are 40% above baseline. Budget will deplete faster.</div>
-              </div>
-            </div>
-            <div class="analysis-item">
-              <div class="ai-icon amber">⚠</div>
-              <div>
-                <div class="ai-title">Offer below category average</div>
-                <div class="ai-sub">20% off is competitive, but 3 major competitors are running 25-30%.</div>
-              </div>
-            </div>
-            <div class="analysis-item">
-              <div class="ai-icon amber">⚠</div>
-              <div>
-                <div class="ai-title">Instagram landing page loads slowly</div>
-                <div class="ai-sub">4.2s mobile load time will cut CVR by ~15%. High priority fix.</div>
+              <div class="insight-text">
+                <div class="insight-title">Cultural alignment is well-judged</div>
+                <div class="insight-sub">Tone, visuals, and timing respect the audience moment without feeling opportunistic.</div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Recommendations -->
-        <div class="body-card">
-          <div class="card-head">
-            <span class="card-title">AI Recommendations</span>
-            <span class="card-sub">Ranked by predicted impact on ROAS</span>
-          </div>
-
-          <label class="selectall-row">
-            <span class="cb">
-              <input type="checkbox" id="selectAll">
-              <span class="box"></span>
-            </span>
-            Select all
-          </label>
-
-          <div class="rec-list" id="recList">
-            <!-- Rec 1 -->
-            <label class="rec-card">
-              <span class="cb">
-                <input type="checkbox" class="rec-check" data-rec="1">
-                <span class="box"></span>
-              </span>
-              <div>
-                <div class="rec-rank">01</div>
-                <div class="rec-title">Increase discount to 25% + free shipping over ৳2,000</div>
-                <div class="rec-desc">Your current 20% off is below the Eid category average of 25-28%. This single change has the largest impact on CVR.</div>
-                <div class="rec-impacts">
-                  <span class="impact-pill">ROAS +0.8×</span>
-                  <span class="impact-pill">Est. +42 orders</span>
-                </div>
-              </div>
-              <div class="rec-arrow">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M12 5 L12 19 M5 12 L12 5 L19 12"/>
-                </svg>
-                +0.8×
-              </div>
-            </label>
-
-            <!-- Rec 2 -->
-            <label class="rec-card">
-              <span class="cb">
-                <input type="checkbox" class="rec-check" data-rec="2">
-                <span class="box"></span>
-              </span>
-              <div>
-                <div class="rec-rank">02</div>
-                <div class="rec-title">Compress product images and enable caching on mobile</div>
-                <div class="rec-desc">Reducing load time from 4.2s to under 2s predicts a 15-18% lift in mobile conversion rate — your largest traffic source.</div>
-                <div class="rec-impacts">
-                  <span class="impact-pill">CVR +15-18%</span>
-                  <span class="impact-pill">CPA -12%</span>
-                </div>
-              </div>
-              <div class="rec-arrow">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M12 5 L12 19 M5 12 L12 5 L19 12"/>
-                </svg>
-                +15%
-              </div>
-            </label>
-
-            <!-- Rec 3 -->
-            <label class="rec-card">
-              <span class="cb">
-                <input type="checkbox" class="rec-check" data-rec="3">
-                <span class="box"></span>
-              </span>
-              <div>
-                <div class="rec-rank">03</div>
-                <div class="rec-title">Add post-Eid gift-purchase window (Mar 31 – Apr 2)</div>
-                <div class="rec-desc">Eid+1 through Eid+3 are peak gift purchases for those who missed the main sale. Currently outside your timeline.</div>
-                <div class="rec-impacts">
-                  <span class="impact-pill">Est. +28-38 orders</span>
-                  <span class="impact-pill">+3 days</span>
-                </div>
-              </div>
-              <div class="rec-arrow">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M12 5 L12 19 M5 12 L12 5 L19 12"/>
-                </svg>
-                +28
-              </div>
-            </label>
-
-            <!-- Rec 4 -->
-            <label class="rec-card">
-              <span class="cb">
-                <input type="checkbox" class="rec-check" data-rec="4">
-                <span class="box"></span>
-              </span>
-              <div>
-                <div class="rec-rank">04</div>
-                <div class="rec-title">Increase WhatsApp allocation from 15% to 25%</div>
-                <div class="rec-desc">WhatsApp predicts 4.2× ROAS vs 2.7× on Instagram. Shifting 10% of Instagram budget here improves overall ROAS.</div>
-                <div class="rec-impacts">
-                  <span class="impact-pill">ROAS +0.4×</span>
-                  <span class="impact-pill">৳8,000 better efficiency</span>
-                </div>
-              </div>
-              <div class="rec-arrow">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M12 5 L12 19 M5 12 L12 5 L19 12"/>
-                </svg>
-                +0.4×
-              </div>
-            </label>
-          </div>
-
-          <button class="apply-btn" id="applyBtn" onclick="applyRecommendations()" disabled>
-            Apply Selected Recommendations &amp; Rerun
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-              <path d="M3 8 A5 5 0 1 1 5 13 L3 11 M3 13 L3 11 L5 11"/>
+        <!-- Block B: What's Holding Back -->
+        <div class="card">
+          <span class="label-pill amber">
+            <svg width="10" height="11" viewBox="0 0 12 11" fill="none">
+              <path d="M6 1 L11 10 L1 10 Z" stroke="#D97706" stroke-width="1.5" stroke-linejoin="round" fill="none"/>
+              <line x1="6" y1="4.5" x2="6" y2="7" stroke="#D97706" stroke-width="1.5" stroke-linecap="round"/>
+              <circle cx="6" cy="8.7" r="0.6" fill="#D97706"/>
             </svg>
+            What's holding back
+          </span>
+          <div class="card-title">Three things are limiting the score.</div>
+
+          <div class="insight-list">
+            <div class="insight-row issue-addressable" data-issue="landing">
+              <div class="insight-icon amber">
+                <svg class="icon-warn" width="12" height="11" viewBox="0 0 12 11" fill="none">
+                  <path d="M6 1 L11 10 L1 10 Z" stroke="#D97706" stroke-width="1.5" stroke-linejoin="round" fill="none"/>
+                  <line x1="6" y1="4.5" x2="6" y2="7" stroke="#D97706" stroke-width="1.5" stroke-linecap="round"/>
+                  <circle cx="6" cy="8.7" r="0.6" fill="#D97706"/>
+                </svg>
+                <svg class="icon-check-replacement" width="12" height="12" viewBox="0 0 12 12" fill="none">
+                  <path d="M2 6 L5 9 L10 3" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <div class="insight-text">
+                <div class="insight-title">Landing page load time is too slow</div>
+                <div class="insight-sub">At 4.2 seconds on mobile, you'll lose 15–20% of the engagement your ads earn.</div>
+              </div>
+            </div>
+            <div class="insight-row issue-addressable" data-issue="audience">
+              <div class="insight-icon amber">
+                <svg class="icon-warn" width="12" height="11" viewBox="0 0 12 11" fill="none">
+                  <path d="M6 1 L11 10 L1 10 Z" stroke="#D97706" stroke-width="1.5" stroke-linejoin="round" fill="none"/>
+                  <line x1="6" y1="4.5" x2="6" y2="7" stroke="#D97706" stroke-width="1.5" stroke-linecap="round"/>
+                  <circle cx="6" cy="8.7" r="0.6" fill="#D97706"/>
+                </svg>
+                <svg class="icon-check-replacement" width="12" height="12" viewBox="0 0 12 12" fill="none">
+                  <path d="M2 6 L5 9 L10 3" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <div class="insight-text">
+                <div class="insight-title">Audience targeting is wider than it should be</div>
+                <div class="insight-sub">Trimming the lookalike from 5% to 1% will tighten relevance significantly.</div>
+              </div>
+            </div>
+            <div class="insight-row issue-addressable" data-issue="creative">
+              <div class="insight-icon amber">
+                <svg class="icon-warn" width="12" height="11" viewBox="0 0 12 11" fill="none">
+                  <path d="M6 1 L11 10 L1 10 Z" stroke="#D97706" stroke-width="1.5" stroke-linejoin="round" fill="none"/>
+                  <line x1="6" y1="4.5" x2="6" y2="7" stroke="#D97706" stroke-width="1.5" stroke-linecap="round"/>
+                  <circle cx="6" cy="8.7" r="0.6" fill="#D97706"/>
+                </svg>
+                <svg class="icon-check-replacement" width="12" height="12" viewBox="0 0 12 12" fill="none">
+                  <path d="M2 6 L5 9 L10 3" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <div class="insight-text">
+                <div class="insight-title">Creative variation is missing</div>
+                <div class="insight-sub">A single creative will fatigue your audience by day 8 — plan for at least 3 variants.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Block C: Recommendations -->
+        <div class="card">
+          <div class="rec-header">
+            <div>
+              <span class="label-pill indigo">
+                <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
+                  <path d="M2 10 L7 5 M4.5 2.5 L6 1 L7 2 L5.5 3.5 Z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                  <circle cx="10" cy="3" r="0.8" fill="currentColor"/>
+                  <circle cx="9" cy="6" r="0.6" fill="currentColor"/>
+                </svg>
+                Recommendations
+              </span>
+              <div class="card-title">Apply these to lift your score.</div>
+            </div>
+            <button class="select-all" id="selectAllBtn" onclick="selectAllRecs()">Select all</button>
+          </div>
+
+          <div class="rec-list" id="recList"></div>
+
+          <button class="apply-btn" id="applyBtn" disabled onclick="applyRecommendations()">
+            Select recommendations to apply
           </button>
         </div>
+
       </div>
 
-      <!-- RIGHT COLUMN -->
-      <div class="body-right">
+      <!-- ===== RIGHT COLUMN ===== -->
+      <div class="col-right">
 
-        <!-- Radar chart -->
-        <div class="body-card">
-          <div class="card-head">
-            <span class="card-title">Campaign Quality Score</span>
-            <span class="card-sub">10 criteria · Weighted</span>
-          </div>
-          <div class="radar-wrap">
-            <canvas id="radarChart"></canvas>
-          </div>
-          <div class="radar-score">
-            <div class="radar-score-big">8.1 <span style="font-size:22px;font-weight:600;color:var(--neutral);">/ 10</span></div>
-            <div class="radar-score-label">Weighted Quality Score</div>
-            <div class="radar-verdict">Strong — Likely to perform well</div>
+        <!-- Block A: Quality Breakdown -->
+        <div class="card" id="qualityCard">
+          <span class="label-pill indigo">Quality breakdown</span>
+          <div class="card-title">Six dimensions, scored.</div>
+          <div class="card-sub">How your campaign rates across what matters.</div>
+
+          <div class="bar-list">
+            <div class="bar-row" data-bar="audience-fit" data-target="85">
+              <div class="bar-top"><span class="bar-name">Audience–channel fit</span><span class="bar-score">8.5</span></div>
+              <div class="bar-track"><div class="bar-fill"></div></div>
+            </div>
+            <div class="bar-row" data-bar="creative" data-target="78">
+              <div class="bar-top"><span class="bar-name">Creative strength</span><span class="bar-score">7.8</span></div>
+              <div class="bar-track"><div class="bar-fill"></div></div>
+            </div>
+            <div class="bar-row" data-bar="cultural" data-target="82">
+              <div class="bar-top"><span class="bar-name">Cultural relevance</span><span class="bar-score">8.2</span></div>
+              <div class="bar-track"><div class="bar-fill"></div></div>
+            </div>
+            <div class="bar-row" data-bar="offer-clarity" data-target="55">
+              <div class="bar-top"><span class="bar-name">Offer clarity</span><span class="bar-score">5.5</span></div>
+              <div class="bar-track"><div class="bar-fill"></div></div>
+            </div>
+            <div class="bar-row" data-bar="landing" data-target="48">
+              <div class="bar-top"><span class="bar-name">Landing destination quality</span><span class="bar-score">4.8</span></div>
+              <div class="bar-track"><div class="bar-fill"></div></div>
+            </div>
+            <div class="bar-row" data-bar="duration" data-target="65">
+              <div class="bar-top"><span class="bar-name">Campaign duration</span><span class="bar-score">6.5</span></div>
+              <div class="bar-track"><div class="bar-fill"></div></div>
+            </div>
           </div>
         </div>
 
-        <!-- Channel table -->
-        <div class="body-card">
-          <div class="card-head">
-            <span class="card-sm-title">Per-Channel Predictions</span>
-          </div>
-          <div class="ch-table-wrap">
-            <table class="ch-table">
-              <thead>
-                <tr>
-                  <th>Channel</th>
-                  <th>Budget</th>
-                  <th class="r">Reach</th>
-                  <th class="r">ROAS</th>
-                  <th class="r">Orders</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><span class="ch-square" style="background:#1877F2;"></span><span class="ch-name">Meta</span></td>
-                  <td class="ch-budget">৳100K (50%)</td>
-                  <td class="r ch-reach">175K</td>
-                  <td class="r ch-roas">2.8×</td>
-                  <td class="r ch-orders">108</td>
-                </tr>
-                <tr class="highlight">
-                  <td><span class="ch-square" style="background:#25D366;"></span><span class="ch-name">WhatsApp</span><span class="best-badge">⭐ Best</span></td>
-                  <td class="ch-budget">৳60K (30%)</td>
-                  <td class="r ch-reach">12K</td>
-                  <td class="r ch-roas">4.2×</td>
-                  <td class="r ch-orders">58</td>
-                </tr>
-                <tr>
-                  <td><span class="ch-square" style="background:#059669;"></span><span class="ch-name">Email</span></td>
-                  <td class="ch-budget">৳40K (20%)</td>
-                  <td class="r ch-reach">2.8K</td>
-                  <td class="r ch-roas">3.1×</td>
-                  <td class="r ch-orders">22</td>
-                </tr>
-                <tr class="ch-total-row">
-                  <td><span class="ch-name">Total</span></td>
-                  <td>৳200K</td>
-                  <td class="r">190K</td>
-                  <td class="r">3.4× avg</td>
-                  <td class="r">188</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
+        <!-- Block B: How I Scored -->
+        <div class="card" id="confidenceCard">
+          <span class="label-pill slate">Behind the score</span>
+          <div class="card-title">How I scored this.</div>
 
-        <!-- Market context -->
-        <div class="body-card">
-          <div class="card-head">
-            <span class="card-sm-title">Market Context Signals</span>
-          </div>
-          <div class="signal-list">
-            <div class="signal-row">
-              <div class="signal-icon amber">🌙</div>
-              <div>
-                <div class="signal-title">Eid al-Fitr — Mar 30</div>
-                <div class="signal-sub">Peak purchase window for your category</div>
+          <div class="bar-list" style="margin-top:16px;">
+            <div class="bar-row" data-target="92">
+              <div class="bar-top">
+                <span class="bar-name" style="font-weight:500;">Your business knowledge base</span>
+                <span class="bar-score" style="color:var(--neutral); font-weight:600;">92%</span>
               </div>
-              <span class="impact-badge high">High</span>
+              <div class="bar-track"><div class="bar-fill"></div></div>
             </div>
-            <div class="signal-row">
-              <div class="signal-icon red">⚡</div>
-              <div>
-                <div class="signal-title">Competitor Eid spend is up 35%</div>
-                <div class="signal-sub">CPMs predicted 40% higher than baseline</div>
+            <div class="bar-row" data-target="78">
+              <div class="bar-top">
+                <span class="bar-name" style="font-weight:500;">Similar campaigns in your category</span>
+                <span class="bar-score" style="color:var(--neutral); font-weight:600;">78%</span>
               </div>
-              <span class="impact-badge med-risk">Medium Risk</span>
+              <div class="bar-track"><div class="bar-fill"></div></div>
             </div>
-            <div class="signal-row">
-              <div class="signal-icon blue">📈</div>
-              <div>
-                <div class="signal-title">Consumer confidence: Stable</div>
-                <div class="signal-sub">No macro headwinds for discretionary spending</div>
+            <div class="bar-row" data-target="85">
+              <div class="bar-top">
+                <span class="bar-name" style="font-weight:500;">Live market signals (Eid, competitive)</span>
+                <span class="bar-score" style="color:var(--neutral); font-weight:600;">85%</span>
               </div>
-              <span class="impact-badge positive">Positive</span>
+              <div class="bar-track"><div class="bar-fill"></div></div>
             </div>
           </div>
+
+          <p class="scoring-caption">
+            Your business profile is rich and your previous Eid campaign gives me a strong anchor. The lower bar is for unknowns — competitor offers, market response — which is why some predictions sit in a confidence range, not a hard number.
+          </p>
         </div>
 
       </div>
     </div>
   </section>
 
-  <!-- ============ Before / After (hidden) ============ -->
+  <!-- ============ Before / After ============ -->
   <section class="ba-section" id="baSection">
     <div class="ba-inner">
+      <div id="confetti-container" aria-hidden="true"></div>
 
       <div class="ba-header">
-        <span class="ba-pill before">Before</span>
-        <span class="ba-arrows">→ →</span>
-        <span class="ba-pill after">After 3 recommendations</span>
-      </div>
-
-      <div class="ba-grid">
-        <!-- BEFORE -->
-        <div class="ba-card before">
-          <div class="ba-card-label">Before</div>
-          <div class="ba-card-title">Original Prediction</div>
-          <div class="ba-metrics">
-            <div class="ba-metric">
-              <div class="ba-metric-lbl">Reach</div>
-              <div class="ba-metric-val">215K</div>
-            </div>
-            <div class="ba-metric roas">
-              <div class="ba-metric-lbl">ROAS</div>
-              <div class="ba-metric-val">2.4×</div>
-            </div>
-            <div class="ba-metric">
-              <div class="ba-metric-lbl">Orders</div>
-              <div class="ba-metric-val">145</div>
-            </div>
-            <div class="ba-metric">
-              <div class="ba-metric-lbl">CPA</div>
-              <div class="ba-metric-val">৳1,030</div>
-            </div>
-          </div>
-          <div class="ba-flags">
-            <div class="ba-flag"><span class="dot"></span><span>Offer below category average</span></div>
-            <div class="ba-flag"><span class="dot"></span><span>Landing page 4.2s load time</span></div>
-            <div class="ba-flag"><span class="dot"></span><span>WhatsApp underbudgeted</span></div>
-            <div class="ba-flag"><span class="dot"></span><span>Campaign misses post-Eid window</span></div>
-          </div>
-        </div>
-
-        <!-- AFTER -->
-        <div class="ba-card after">
-          <span class="improved-badge">Improved ✓</span>
-          <div class="ba-card-label">After Recommendations</div>
-          <div class="ba-card-title">Improved Prediction</div>
-          <div class="ba-metrics">
-            <div class="ba-metric">
-              <div class="ba-metric-lbl">Reach</div>
-              <div class="ba-metric-val">248K</div>
-              <div class="ba-metric-delta up">+15%</div>
-            </div>
-            <div class="ba-metric roas">
-              <div class="ba-metric-lbl">ROAS</div>
-              <div class="ba-metric-val">3.6×</div>
-              <div class="ba-metric-delta up">+1.2× improvement</div>
-            </div>
-            <div class="ba-metric">
-              <div class="ba-metric-lbl">Orders</div>
-              <div class="ba-metric-val">212</div>
-              <div class="ba-metric-delta up">+46% more</div>
-            </div>
-            <div class="ba-metric">
-              <div class="ba-metric-lbl">CPA</div>
-              <div class="ba-metric-val">৳720</div>
-              <div class="ba-metric-delta down">-30% better</div>
-            </div>
-          </div>
-          <div class="ba-flags" id="afterFlags">
-            <div class="ba-flag"><span class="check">✓</span><span>Offer strengthened to 25% off + free shipping</span></div>
-            <div class="ba-flag"><span class="check">✓</span><span>Landing page speed factored in optimised state</span></div>
-            <div class="ba-flag"><span class="check">✓</span><span>WhatsApp budget increased to 25%</span></div>
-            <div class="ba-flag"><span class="check">✓</span><span>Campaign extended to Apr 2 (+3 days)</span></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ROAS flip -->
-      <div class="roas-flip-display">
-        <div class="before-number">2.4<span>×</span></div>
-        <svg class="roas-arrow" viewBox="0 0 140 40" fill="none">
-          <defs>
-            <linearGradient id="arrowGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%"   stop-color="#6EE7B7"/>
-              <stop offset="100%" stop-color="#059669"/>
-            </linearGradient>
-          </defs>
-          <path d="M 10 20 L 115 20 M 100 8 L 130 20 L 100 32"
-            stroke="url(#arrowGrad)" stroke-width="5" fill="none"
-            stroke-linecap="round" stroke-linejoin="round"/>
+        <span class="ba-pill ba-before">Before</span>
+        <svg width="40" height="14" viewBox="0 0 40 14">
+          <path d="M 2 7 L 34 7 M 28 2 L 38 7 L 28 12" stroke="#4338CA" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-        <div class="after-number" id="flipAfter">2.4<span>×</span></div>
+        <span class="ba-pill ba-after" id="baAfterPill">After 3 recommendations</span>
       </div>
-      <div class="flip-foot">+50% improvement in predicted ROAS</div>
+
+      <div class="score-jump">
+        <div class="jump-num jump-before">6.4</div>
+        <div class="jump-arrow">
+          <svg width="140" height="48" viewBox="0 0 140 48">
+            <defs>
+              <linearGradient id="jumpGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%"   stop-color="#A5B4FC"/>
+                <stop offset="100%" stop-color="#06B6D4"/>
+              </linearGradient>
+            </defs>
+            <path id="jumpArrow" d="M 10 24 L 115 24 M 100 12 L 130 24 L 100 36"
+              stroke="url(#jumpGrad)" stroke-width="6" fill="none"
+              stroke-linecap="round" stroke-linejoin="round"
+              stroke-dasharray="200" stroke-dashoffset="200"/>
+          </svg>
+        </div>
+        <div class="jump-num jump-after" id="jumpAfter">6.4</div>
+      </div>
+
+      <div class="ba-delta" id="baDelta">+2.3 points · A meaningful improvement.</div>
+
+      <div class="ba-applied" id="baApplied">
+        <span class="applied-label">APPLIED:</span>
+      </div>
+
+      <button class="ba-cta" onclick="goToLaunchPlan()">
+        Get my launch plan
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+          <path d="M3 8 L13 8 M9 4 L13 8 L9 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        </svg>
+      </button>
     </div>
   </section>
 
-  <!-- ============ Bottom action bar ============ -->
-  <div class="action-bar" id="actionBar">
-    <div class="action-bar-inner">
-      <div class="camp-chip">
-        <div class="camp-icon"><div class="dot"></div></div>
-        <div>
-          <div class="camp-info-name">Eid Collection 2026</div>
-          <div class="camp-info-sub">Conversion · ৳200K · 14 days</div>
-        </div>
+  <!-- ============ Bottom Bar ============ -->
+  <footer class="bottom-bar">
+    <div class="bb-inner">
+      <div class="bb-left">
+        <div class="bb-chip-icon"><div class="dot"></div></div>
+        <span class="bb-camp-name">Eid Collection 2026</span>
+        <span class="bb-vsep"></span>
+        <span class="bb-meta">Conversion · 14 days</span>
       </div>
-      <div class="ab-hint">Not satisfied? Apply more recommendations and rerun.</div>
-      <div class="ab-actions">
-        <button class="ab-btn-outline" onclick="window.location.href='new-campaign.html'">← Rerun with edits</button>
-        <button class="ab-btn-outline" onclick="showExportToast()">📋 Export PDF</button>
-        <button class="ab-btn-primary" id="abPrimary" onclick="getLaunchPlan()">→ Get Launch Plan</button>
+      <div class="bb-right">
+        <a href="new-campaign.html" class="bb-btn outline">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+            <path d="M7 4 L3 8 L7 12 M3 8 L13 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          </svg>
+          Iterate further
+        </a>
+        <button class="bb-btn primary" onclick="goToLaunchPlan()">
+          Get Launch Plan
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+            <path d="M3 8 L13 8 M9 4 L13 8 L9 12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          </svg>
+        </button>
       </div>
     </div>
-  </div>
+  </footer>
 
-  <!-- Toast -->
-  <div class="toast" id="toast">
-    <span>Report generating... 📊</span>
-    <div class="toast-bar"></div>
-  </div>
+  <!-- Floating toast -->
+  <div id="toast" style="position:fixed;bottom:96px;left:50%;transform:translateX(-50%) translateY(10px);background:#0F172A;color:#fff;font-size:12px;padding:10px 16px;border-radius:10px;opacity:0;pointer-events:none;transition:opacity .3s ease,transform .3s ease;z-index:200;"></div>
 
   <script>
-    // ============ Data ============
-    const simulationData = {
-      original: { reach: 215000, roas: 2.4, orders: 145, cpa: 1030 },
-      improved: { reach: 248000, roas: 3.6, orders: 212, cpa: 720 },
-      radarScores: [8.4, 9.0, 7.0, 6.2, 8.5, 8.8, 7.5, 8.0, 8.2, 9.0]
+    // ============ State ============
+    const state = {
+      initialScore: 6.4,
+      currentScore: 6.4,
+      recommendations: [
+        { id: 1, rank: '01', title: 'Fix the landing page speed',
+          sub: 'Compress images, enable caching, and target a sub-2-second load on mobile.',
+          impact: 1.1, addressIssue: 'landing',  bumpsBar: 'landing',       newBar: 81, newScore: 8.1, appliedLabel: 'Landing speed',     selected: false },
+        { id: 2, rank: '02', title: 'Narrow your audience targeting',
+          sub: 'Tighten the lookalike from 5% to 1% — relevance will lift engagement noticeably.',
+          impact: 0.6, addressIssue: 'audience', bumpsBar: null,            appliedLabel: 'Audience tightened', selected: false },
+        { id: 3, rank: '03', title: 'Add 2 creative variations',
+          sub: 'Plan two more creative angles to rotate in mid-campaign and avoid fatigue.',
+          impact: 0.4, addressIssue: 'creative', bumpsBar: null,            appliedLabel: 'Creative variants',  selected: false },
+        { id: 4, rank: '04', title: 'Strengthen the offer urgency',
+          sub: 'Add a clear deadline or scarcity signal — your current creative is too soft on urgency.',
+          impact: 0.2, addressIssue: null,       bumpsBar: 'offer-clarity', newBar: 74, newScore: 7.4, appliedLabel: 'Offer urgency',     selected: false }
+      ],
+      applied: false
     };
 
-    // Initial cards show "current" prediction (effectively the improved numbers
-    // since this is the user's first sim with a strong setup). Apply re-anchors
-    // the demo: cards START at original values, jump to improved.
-    // Per the spec, the initial reveal shows the original values, then Apply
-    // morphs them to the improved values.
-    const initialState = {
-      reach: 215000, roas: 2.4, orders: 145, cpa: 1030
-    };
-
-    let applied = false;
-
-    // ============ Number formatting ============
-    function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
-
-    function formatValue(value, format) {
-      if (format === 'int') {
-        const v = Math.round(value);
-        return v >= 1000 ? v.toLocaleString('en-US') : v.toString();
-      }
-      if (format === 'x') {
-        return value.toFixed(1) + '×';
-      }
-      if (format === 'bdt') {
-        return '৳' + Math.round(value).toLocaleString('en-US');
-      }
-      return value.toString();
+    // ============ Render recommendation cards ============
+    function renderRecs() {
+      const list = document.getElementById('recList');
+      list.innerHTML = state.recommendations.map(r => `
+        <div class="rec-card" data-rec-id="${r.id}" onclick="toggleRecommendation(${r.id})">
+          <div class="rec-checkbox">
+            <svg viewBox="0 0 16 16"><path d="M3 8 L7 12 L13 4"/></svg>
+          </div>
+          <div>
+            <div class="rec-rank">${r.rank}</div>
+            <div class="rec-title">${r.title}</div>
+            <div class="rec-sub">${r.sub}</div>
+          </div>
+          <span class="rec-impact">
+            <svg width="9" height="9" viewBox="0 0 10 10" fill="none">
+              <path d="M5 8 L5 2 M2 5 L5 2 L8 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            +${r.impact.toFixed(1)}
+          </span>
+        </div>
+      `).join('');
     }
 
-    function countUp(el, start, end, duration, format) {
-      const startTime = performance.now();
-      function step(now) {
-        const t = Math.min((now - startTime) / duration, 1);
-        const eased = easeOutCubic(t);
-        const value = start + (end - start) * eased;
-        el.textContent = formatValue(value, format);
-        if (t < 1) requestAnimationFrame(step);
-        else el.textContent = formatValue(end, format);
-      }
-      requestAnimationFrame(step);
+    function toggleRecommendation(id) {
+      if (state.applied) return;
+      const rec = state.recommendations.find(r => r.id === id);
+      rec.selected = !rec.selected;
+      document.querySelector(`[data-rec-id="${id}"]`).classList.toggle('selected', rec.selected);
+      updateSelectAllLabel();
+      updateApplyButton();
     }
 
-    // ============ Initial reveal: count up from 0 to original ============
-    function revealCounts() {
-      countUp(document.getElementById('val-reach'),  0,    initialState.reach,  2000, 'int');
-      countUp(document.getElementById('val-roas'),   0,    initialState.roas,   1800, 'x');
-      countUp(document.getElementById('val-orders'), 0,    initialState.orders, 1600, 'int');
-      countUp(document.getElementById('val-cpa'),    0,    initialState.cpa,    1600, 'bdt');
-    }
-    // Schedule counters to begin once cards have started revealing
-    setTimeout(revealCounts, 1500);
-
-    // ============ Sparklines ============
-    function makeLineSpark(canvasId, data, descending) {
-      const ctx = document.getElementById(canvasId);
-      if (!ctx) return;
-      new Chart(ctx.getContext('2d'), {
-        type: 'line',
-        data: {
-          labels: data.map(() => ''),
-          datasets: [{
-            data: data,
-            borderColor: '#34D399',
-            borderWidth: 2,
-            tension: 0.3,
-            pointRadius: 0,
-            fill: false
-          }]
-        },
-        options: {
-          responsive: false,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false }, tooltip: { enabled: false } },
-          scales: { x: { display: false }, y: { display: false } },
-          animation: { duration: 600 }
-        }
+    function selectAllRecs() {
+      if (state.applied) return;
+      const allSelected = state.recommendations.every(r => r.selected);
+      state.recommendations.forEach(r => {
+        r.selected = !allSelected;
+        document.querySelector(`[data-rec-id="${r.id}"]`).classList.toggle('selected', r.selected);
       });
-    }
-    function makeBarSpark(canvasId, data) {
-      const ctx = document.getElementById(canvasId);
-      if (!ctx) return;
-      new Chart(ctx.getContext('2d'), {
-        type: 'bar',
-        data: {
-          labels: data.map(() => ''),
-          datasets: [{
-            data: data,
-            backgroundColor: '#34D399',
-            borderRadius: 2,
-            barPercentage: 0.7
-          }]
-        },
-        options: {
-          responsive: false,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false }, tooltip: { enabled: false } },
-          scales: { x: { display: false }, y: { display: false, beginAtZero: true } },
-          animation: { duration: 600 }
-        }
-      });
+      updateSelectAllLabel();
+      updateApplyButton();
     }
 
-    function initSparklines() {
-      // Size the canvases first
-      ['spark-reach', 'spark-roas', 'spark-orders', 'spark-cpa'].forEach(id => {
-        const c = document.getElementById(id);
-        if (c) { c.width = 70; c.height = 30; }
-      });
-      makeLineSpark('spark-reach',  [120, 140, 165, 180, 200, 215]);
-      makeBarSpark ('spark-roas',   [2.1, 2.4, 2.7, 3.0, 3.3, 3.6]);
-      makeBarSpark ('spark-orders', [90, 110, 130, 150, 170, 188]);
-      makeLineSpark('spark-cpa',    [1200, 1100, 1000, 920, 850, 720], true);
+    function updateSelectAllLabel() {
+      const allSelected = state.recommendations.every(r => r.selected);
+      document.getElementById('selectAllBtn').textContent = allSelected ? 'Clear all' : 'Select all';
     }
-    setTimeout(initSparklines, 1500);
 
-    // ============ Radar chart ============
-    function initRadar() {
-      const ctx = document.getElementById('radarChart');
-      if (!ctx) return;
-      new Chart(ctx.getContext('2d'), {
-        type: 'radar',
-        data: {
-          labels: [
-            'Creative Voice', 'Channel Fit', 'Offer Strength', 'Landing Page',
-            'Audience Intent', 'Cultural Fit', 'Urgency', 'Budget',
-            'Brand Clarity', 'Attribution'
-          ],
-          datasets: [{
-            label: 'Your Campaign',
-            data: simulationData.radarScores,
-            backgroundColor: 'rgba(5,150,105,0.12)',
-            borderColor: '#059669',
-            borderWidth: 2.5,
-            pointBackgroundColor: '#059669',
-            pointRadius: 4,
-            pointHoverRadius: 6
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: true,
-          scales: {
-            r: {
-              min: 0, max: 10,
-              ticks: { display: false, stepSize: 2 },
-              grid:  { color: '#E2E8F0' },
-              angleLines: { color: '#E2E8F0' },
-              pointLabels: {
-                font: { size: 11, family: 'Arial', weight: '600' },
-                color: '#64748B'
-              }
-            }
-          },
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              backgroundColor: '#0F172A',
-              titleFont: { family: 'Arial', size: 11 },
-              bodyFont:  { family: 'Arial', size: 12 },
-              padding: 10,
-              callbacks: {
-                title: (ctx) => ctx[0].label,
-                label: (ctx) => 'Score: ' + ctx.parsed.r + ' / 10'
-              }
-            }
-          },
-          animation: { duration: 1500, easing: 'easeInOutQuart' }
-        }
-      });
-    }
-    setTimeout(initRadar, 1800);
-
-    // ============ Recommendations + Apply ============
-    const recChecks = document.querySelectorAll('.rec-check');
-    const selectAll = document.getElementById('selectAll');
-    const applyBtn = document.getElementById('applyBtn');
-
-    function updateApplyState() {
-      const checked = Array.from(recChecks).filter(c => c.checked).length;
-      applyBtn.disabled = checked === 0 || applied;
-      if (!applied) {
-        if (checked === 0) {
-          applyBtn.innerHTML = 'Apply Selected Recommendations &amp; Rerun ↻';
-        } else {
-          applyBtn.innerHTML = 'Apply ' + checked + ' Recommendation' + (checked === 1 ? '' : 's') + ' &amp; Rerun ↻';
-        }
+    function updateApplyButton() {
+      const selected = state.recommendations.filter(r => r.selected);
+      const btn = document.getElementById('applyBtn');
+      if (selected.length === 0) {
+        btn.classList.remove('enabled');
+        btn.disabled = true;
+        btn.textContent = 'Select recommendations to apply';
+      } else {
+        btn.classList.add('enabled');
+        btn.disabled = false;
+        btn.innerHTML = `Apply ${selected.length} recommendation${selected.length > 1 ? 's' : ''} &amp; rerun
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+            <path d="M3 7 Q3 3 7 3 L13 3 M10 0 L13 3 L10 6
+                     M13 9 Q13 13 9 13 L3 13 M6 16 L3 13 L6 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          </svg>`;
       }
-      // Sync select-all
-      selectAll.checked = checked === recChecks.length;
-      selectAll.indeterminate = checked > 0 && checked < recChecks.length;
     }
-    recChecks.forEach(c => c.addEventListener('change', updateApplyState));
-    selectAll.addEventListener('change', () => {
-      recChecks.forEach(c => { c.checked = selectAll.checked; });
-      updateApplyState();
-    });
 
-    // ============ Apply Recommendations — the ROAS flip ============
-    function applyRecommendations() {
-      if (applied) return;
-      applied = true;
+    // ============ Apply flow ============
+    async function applyRecommendations() {
+      if (state.applied) return;
+      const selected = state.recommendations.filter(r => r.selected);
+      if (selected.length === 0) return;
+      state.applied = true;
 
-      applyBtn.classList.add('loading');
-      applyBtn.innerHTML = 'Rerunning simulation';
+      const btn = document.getElementById('applyBtn');
+      btn.classList.remove('enabled');
+      btn.classList.add('loading');
+      btn.innerHTML = '<span class="spinner"></span> Rerunning simulation...';
+      btn.disabled = true;
 
+      await sleep(1500);
+
+      // Compute new score (capped at 10)
+      const newScore = Math.min(10, state.initialScore + selected.reduce((s, r) => s + r.impact, 0));
+      const newOffset = 578 - (newScore / 10) * 578;
+
+      // Re-animate ring with brief brightness pulse
+      const ring = document.getElementById('progressRing');
+      ring.style.transition = 'stroke-dashoffset 1.2s cubic-bezier(0.4, 0, 0.2, 1), filter 0.4s ease';
+      ring.style.filter = 'url(#ringGlow) brightness(1.35)';
+      ring.style.strokeDashoffset = newOffset;
+      countUp(document.querySelector('.score-number'), state.currentScore, newScore, 1200);
+      setTimeout(() => { ring.style.filter = 'url(#ringGlow)'; }, 900);
+      state.currentScore = newScore;
+
+      // Strategist take update
+      document.querySelector('.strategist-take').textContent = 'Your campaign is now set up to win.';
+
+      // Bump quality bars
+      selected.forEach(r => {
+        if (!r.bumpsBar) return;
+        const row = document.querySelector(`[data-bar="${r.bumpsBar}"]`);
+        if (!row) return;
+        row.classList.add('bumped');
+        row.querySelector('.bar-fill').style.width = r.newBar + '%';
+        row.querySelector('.bar-score').textContent = r.newScore.toFixed(1);
+      });
+
+      // Strike-through addressed issues, stagger
+      selected.forEach((r, i) => {
+        if (!r.addressIssue) return;
+        const el = document.querySelector(`[data-issue="${r.addressIssue}"]`);
+        if (!el) return;
+        setTimeout(() => el.classList.add('addressed'), i * 220);
+      });
+
+      // Reveal before/after
+      const ba = document.getElementById('baSection');
+      const appliedItems = selected.map(r => `
+        <span class="applied-item">
+          <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
+            <path d="M2 6 L5 9 L10 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          ${r.appliedLabel}
+        </span>`).join('');
+      document.getElementById('baApplied').innerHTML =
+        `<span class="applied-label">APPLIED:</span>${appliedItems}`;
+      document.getElementById('baAfterPill').textContent =
+        `After ${selected.length} recommendation${selected.length > 1 ? 's' : ''}`;
+      document.getElementById('baDelta').textContent =
+        `+${(newScore - state.initialScore).toFixed(1)} points · A meaningful improvement.`;
+      // Set the static "before" number to actual initial
+      document.querySelector('.jump-before').textContent = state.initialScore.toFixed(1);
+      document.getElementById('jumpAfter').textContent = state.initialScore.toFixed(1);
+
+      ba.style.display = 'block';
+      void ba.offsetWidth; // flush layout so transition takes
+      setTimeout(() => ba.classList.add('revealed'), 50);
+
+      // Animate jump arrow + after-count
       setTimeout(() => {
-        applyBtn.classList.remove('loading');
-        applyBtn.classList.add('applied');
-        const checked = Array.from(recChecks).filter(c => c.checked).length;
-        applyBtn.innerHTML = '✓ ' + checked + ' Recommendation' + (checked === 1 ? '' : 's') + ' Applied';
+        const arrow = document.getElementById('jumpArrow');
+        arrow.style.transition = 'stroke-dashoffset 0.9s ease-out';
+        arrow.style.strokeDashoffset = 0;
+        countUp(document.getElementById('jumpAfter'), state.initialScore, newScore, 1400);
+      }, 300);
 
-        // Morph metric cards
-        morphCard('val-reach',  initialState.reach,  simulationData.improved.reach,  'int', 1400, 'card-reach',  'delta-reach');
-        morphCard('val-roas',   initialState.roas,   simulationData.improved.roas,   'x',   1600, 'card-roas',   'delta-roas');
-        morphCard('val-orders', initialState.orders, simulationData.improved.orders, 'int', 1400, 'card-orders', 'delta-orders');
-        morphCard('val-cpa',    initialState.cpa,    simulationData.improved.cpa,    'bdt', 1400, 'card-cpa',    'delta-cpa');
+      setTimeout(spawnConfetti, 600);
 
-        // Update range labels
-        document.getElementById('range-reach').textContent  = '215K – 280K (now 248K)';
-        document.getElementById('range-roas').textContent   = 'was 2.4× · now 3.6×';
-        document.getElementById('range-orders').textContent = 'was 145 · now 212';
-        document.getElementById('range-cpa').textContent    = 'was ৳1,030 · now ৳720';
+      // Smooth-scroll into view
+      setTimeout(() => ba.scrollIntoView({ behavior: 'smooth', block: 'start' }), 900);
 
-        // ROAS card extra dramatics
-        const roasCard = document.getElementById('card-roas');
-        roasCard.classList.add('shimmering');
-
-        // Reveal before/after section
-        setTimeout(() => {
-          const ba = document.getElementById('baSection');
-          ba.classList.add('show');
-
-          // ROAS flip count
-          setTimeout(() => {
-            const flip = document.getElementById('flipAfter');
-            countUpFlip(flip, 2.4, 3.6, 1000);
-            // Confetti above after-card
-            setTimeout(burstConfetti, 200);
-            // Pulse launch plan button
-            document.getElementById('abPrimary').classList.add('pulse-once');
-            setTimeout(() => {
-              document.getElementById('abPrimary').classList.remove('pulse-once');
-            }, 700);
-          }, 400);
-
-          // Smooth scroll to before/after
-          setTimeout(() => {
-            ba.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }, 200);
-        }, 800);
+      // Apply button → success
+      setTimeout(() => {
+        btn.classList.remove('loading');
+        btn.classList.add('success');
+        btn.innerHTML = `
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+            <path d="M3 8 L7 12 L13 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          </svg>
+          Applied — score improved`;
       }, 1500);
     }
 
-    function morphCard(valId, from, to, format, duration, cardId, deltaId) {
-      const card = document.getElementById(cardId);
-      const valEl = document.getElementById(valId);
-      // Flash card background
-      card.style.animation = 'flash-card 0.8s ease';
-      setTimeout(() => { card.style.animation = ''; }, 800);
+    // ============ Helpers ============
+    function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
-      // Count down to up: animate from current (which is `from`) directly to `to`
-      countUp(valEl, from, to, duration, format);
-
-      // Show delta floater
-      const delta = document.getElementById(deltaId);
-      if (delta) {
-        delta.classList.add('show');
-        setTimeout(() => delta.classList.remove('show'), 1600);
-      }
-    }
-
-    function countUpFlip(el, start, end, duration) {
-      const startTime = performance.now();
+    function countUp(el, start, end, duration) {
+      const t0 = performance.now();
       function step(now) {
-        const t = Math.min((now - startTime) / duration, 1);
-        const eased = easeOutCubic(t);
+        const p = Math.min((now - t0) / duration, 1);
+        const eased = 1 - Math.pow(1 - p, 3);
         const v = start + (end - start) * eased;
-        el.innerHTML = v.toFixed(1) + '<span>×</span>';
-        if (t < 1) requestAnimationFrame(step);
-        else el.innerHTML = end.toFixed(1) + '<span>×</span>';
+        el.textContent = v.toFixed(1);
+        if (p < 1) requestAnimationFrame(step);
+        else el.textContent = end.toFixed(1);
       }
       requestAnimationFrame(step);
     }
 
-    // ============ Confetti above after card ============
-    function burstConfetti() {
-      const afterCard = document.querySelector('.ba-card.after');
-      if (!afterCard) return;
-      const rect = afterCard.getBoundingClientRect();
-      const cx = rect.left + rect.width / 2;
-      const cy = rect.top + 30;
-
-      const colors = ['#059669', '#34D399', '#6EE7B7', '#10B981', '#A7F3D0'];
-      for (let i = 0; i < 14; i++) {
-        const p = document.createElement('div');
-        p.className = 'confetti-piece';
+    function spawnConfetti() {
+      const colors = ['#4338CA', '#6366F1', '#A5B4FC', '#06B6D4', '#22D3EE', '#67E8F9'];
+      const container = document.getElementById('confetti-container');
+      for (let i = 0; i < 22; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'confetti-dot';
+        dot.style.background = colors[Math.floor(Math.random() * colors.length)];
         const size = 8 + Math.random() * 6;
-        p.style.width = size + 'px';
-        p.style.height = size + 'px';
-        p.style.background = colors[Math.floor(Math.random() * colors.length)];
-        p.style.left = cx + 'px';
-        p.style.top = cy + 'px';
-        p.style.position = 'fixed';
-        p.style.zIndex = 90;
-        document.body.appendChild(p);
-
-        const angle = -Math.PI / 2 + (Math.random() - 0.5) * Math.PI * 0.8;
-        const dist = 60 + Math.random() * 80;
-        const dx = Math.cos(angle) * dist;
-        const dy = Math.sin(angle) * dist;
-        const rot = (Math.random() - 0.5) * 540;
-
-        p.animate([
-          { transform: 'translate(0,0) rotate(0deg)', opacity: 1 },
-          { transform: 'translate(' + dx + 'px,' + dy + 'px) rotate(' + rot + 'deg)', opacity: 0 }
-        ], { duration: 1500, easing: 'cubic-bezier(0.2,0.8,0.4,1)', fill: 'forwards' });
-
-        setTimeout(() => p.remove(), 1600);
+        dot.style.width = size + 'px';
+        dot.style.height = size + 'px';
+        const angle = Math.random() * Math.PI * 2;
+        const dist = 80 + Math.random() * 120;
+        dot.style.setProperty('--dx', Math.cos(angle) * dist + 'px');
+        dot.style.setProperty('--dy', Math.sin(angle) * dist + 'px');
+        dot.style.animationDelay = (Math.random() * 0.3) + 's';
+        container.appendChild(dot);
+        setTimeout(() => dot.remove(), 1800);
       }
     }
 
-    // ============ Export toast ============
-    let toastTimer;
-    function showExportToast() {
+    // ============ Cinematic load: hero ring fill ============
+    function startHeroAnimation() {
+      const ring = document.getElementById('progressRing');
+      const target = state.initialScore;
+      const offset = 578 - (target / 10) * 578;
+      ring.style.transition = 'stroke-dashoffset 1.8s cubic-bezier(0.4, 0, 0.2, 1)';
+      ring.style.strokeDashoffset = offset;
+      countUp(document.querySelector('.score-number'), 0, target, 1800);
+    }
+
+    // IntersectionObserver for bar reveals
+    const seen = new WeakSet();
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting && !seen.has(entry.target)) {
+          seen.add(entry.target);
+          const rows = entry.target.querySelectorAll('.bar-row');
+          rows.forEach((row, i) => {
+            const target = row.dataset.target;
+            setTimeout(() => { row.querySelector('.bar-fill').style.width = target + '%'; }, i * 100);
+          });
+        }
+      });
+    }, { threshold: 0.2 });
+
+    function showToast(text) {
       const t = document.getElementById('toast');
-      // Reset animation
-      const bar = t.querySelector('.toast-bar');
-      bar.style.animation = 'none';
-      // eslint-disable-next-line no-unused-expressions
-      bar.offsetHeight;
-      bar.style.animation = 'toast-bar 2s linear forwards';
-
-      t.classList.add('show');
-      clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+      t.textContent = text;
+      t.style.opacity = '1';
+      t.style.transform = 'translateX(-50%) translateY(0)';
+      clearTimeout(t._timer);
+      t._timer = setTimeout(() => {
+        t.style.opacity = '0';
+        t.style.transform = 'translateX(-50%) translateY(10px)';
+      }, 2200);
     }
 
-    function getLaunchPlan() {
-      alert('Launch plan generation — would open the next screen.');
+    function goToLaunchPlan() {
+      showToast('Launch plan generation coming next');
+      setTimeout(() => { window.location.href = 'dashboard.html'; }, 900);
     }
 
-    // ============ Sticky action bar shadow ============
-    const actionBar = document.getElementById('actionBar');
-    function onScroll() {
-      const docH = document.documentElement.scrollHeight;
-      const winH = window.innerHeight;
-      const scrolled = window.scrollY;
-      // Add shadow when there's content above being hidden
-      if (scrolled > 100 && (scrolled + winH < docH - 20)) {
-        actionBar.classList.add('shadow');
-      } else {
-        actionBar.classList.remove('shadow');
-      }
-    }
-    window.addEventListener('scroll', onScroll);
-    onScroll();
+    // ============ Init ============
+    renderRecs();
+    setTimeout(startHeroAnimation, 1200);
+    io.observe(document.getElementById('qualityCard'));
+    io.observe(document.getElementById('confidenceCard'));
   </script>
 </body>
 </html>
